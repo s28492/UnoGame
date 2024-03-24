@@ -7,8 +7,10 @@ def main():
     player1 = Player("Pierwszy")
     player2 = Player("Margarett Tatcher")
     player3 = Player("Trzeci")
+    #player4 = Player("Czwarty")
     game = Game(player1, player2, player3)
     game.play()
+
 
 
 

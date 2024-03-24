@@ -1,27 +1,11 @@
-import itertools
-import random
-
-
-class Card:
-    def __init__(self, color, value):
-        self.color = color
-        self.value = value
-
-    def __str__(self):
-        return f"{self.color} {self.value}"
-
-    def __eq__(self, other):
-        if (self.value == other.value) and (self.color == other.color):
-            return True
-        else:
-            return False
-
-
 class Player:
 
     def __init__(self, name):
         self.name = name
         self.hand = []
+        self.stop_status = 0
+        self.stopped = False
+        self.takes_status = 0
 
     def __str__(self):
         return self.name
@@ -32,123 +16,162 @@ class Player:
             cards += f"{card} | "
         return cards
 
-    def draw(self, card):
-        self.hand.append(card)
+    def manage_stop(self):
+        if self.stop_status > 1:
+            self.stop_status -= 1
+        else:
+            self.stop_status -= 1
+            self.stopped = False
+
+    def wanna_stop(self):
+        print(f"Stop turns: {self.stop_status}")
+        have_stop = False
+        for card in self.hand:
+            if card.value == "Stop":
+                have_stop = True
+                break
+        if have_stop:
+            print("Wanna stop? [Yes], [No]")
+            do_stop = input()
+            while do_stop not in ["Yes", "No"]:
+                print("Wrong anwser. Try again")
+                do_stop = input()
+            if do_stop == "Yes":
+                return True
+            elif do_stop == "No":
+                return False
+        return True
+
+    def show_possible_cards(self, value=None, color=None):
+        cards_to_play = ""
+        if value is not None:
+            for card in self.hand:
+                cards_to_play += card if card.value == value else ""
+        else:
+            for card in self.hand:
+                cards_to_play += card if card.color == value else ""
+        return str
+
+    def play_stop_card(self):
+        print("Cards you can play: ")
+        print(self.show_possible_cards(value="Stop"))
+
+    def player_status(self):
+        able_to_play = True
+        if self.stop_status > 0 and self.stopped is False:
+            self.stopped = self.wanna_stop()
+            able_to_play = not self.stopped
+        return able_to_play
 
     def play_move(self, top_card_on_pile):
         print(f"Card on the top of the pile: {top_card_on_pile}")
         print(self.show_hand())
         print("Write what you wanna play: [Value Color], [Draw], [Surrender]")
-        value = input()
 
+        value = input()
         if value == "Draw":
             value = "-1 Draw"
         elif value == "Surrender":
             value = "-1 Surrender"
         card = value.split(" ")
         try:
-            card = Card(int(card[0]), card[1])
+            card = Card(card[0], card[1])
         except:
             print("You gave me wrong values you sneaky bastard!")
             return self.play_move(top_card_on_pile)
-        if card.value == "Draw" or card.value == "Surrender":
+        if card.color == "Draw" or card.color == "Surrender":
             return card
         elif card in self.hand:
-            self.hand.remove(card)
+            card = self.hand.pop(self.hand.index(card))
             return card
         else:
             print("It seems that you don't have this card on hand. Let's try again:")
             return self.play_move(top_card_on_pile)
-        # return self.hand.pop()
+    # return self.hand.pop()
 
 
-class Game:
-    values = [i for i in range(10)]
-    colors = ["Red", "Green", "Blue", "Yellow"]
+class Card:
+    def __init__(self, value, color):
+        self.value = value
+        self.color = color
 
-    def __init__(self, *args: Player):
-        self.deck = self.create_deck()
-        self.shuffle_deck()
-        if 1 < len(args) <= 10:  # Warunek ilości graczy
-            self.players = [player for player in args]
+    def __str__(self):
+        return f"{self.value} {self.color}"
+
+    def __eq__(self, other):
+        if (self.value == other.value) and (self.color == other.color):
+            return True
         else:
-            raise ValueError("Sorry, the number of players is incorrect.")
-        self.pile = self.deck.pop()
-        self.deal_cards()
-        self.direction = 1  # Kierunek gry
+            return False
 
-    def create_deck(self):
-        deck = []
-        for card in itertools.product(self.values, self.colors):
-            deck.append(Card(card[0], card[1]))
-            if card[0] != 0:
-                deck.append(Card(card[0], card[1]))
-        return deck
+    def play(self, game, player: Player):
+        return self
 
-    def shuffle_deck(self):
-        random.shuffle(self.deck)
-
-    def deal_cards(self):
-        for player in self.players:
-            for i in range(7):  # Karty startowe
-                player.draw(self.deck.pop(0))
-
-    def draw_card(self, player: Player):
-        if len(self.deck) > 0:
-
-            player.draw(self.deck.pop(0))
+    def match(self, other):
+        if self.value == other.value or self.color == other.color or other.color == "Colors":
+            print("Primary match true")
+            return True
         else:
-            print("Deck is empty, you have to go on without one.")
+            print("primary match false")
+            return False
 
-    def play(self):
-        winner = None
-        player_index = 0
-        players_amount = len(self.players)
-        while winner is None:
-            player = self.players[player_index % players_amount]
-            move = player.play_move(self.pile)
-            if move.value == "Draw":
-                self.draw_card(player)
-            elif move.value == "Surrender":
-                self.players.remove(player)
-                break
-            else:
-                while move.value != self.pile.value and move.color != self.pile.color:
-                    print("You can't put this card here")
-                    move = player.play_move(self.pile)
-                self.pile = move
-                print(f"Card played: | {move} |")
-            if len(player.hand) == 0:
-                winner = player
-            if len(self.players) == 1:
-                winner = self.players[0]
-            player_index += self.direction
-        print(f"Congratulations {winner}. You won the game!!!")
+
+'''elif type(other) != type(self):
+            print("Here")
+            return other.match(self)'''
 
 
 class ReverseCard(Card):
     # Specjalne zachowanie dla karty Reverse
-    def __init__(self, color, value):
-        super().__init__(color, value)
+    def __init__(self, value, color):
+        super().__init__(value, color)
 
-    pass
+    def play(self, game, player):
+        game.direction *= -1
+        return self
+
+
+'''    def match(self, other):
+        if self.color == other.color or other.color == "Colors":
+            return True
+            
+        else:
+            return False'''
 
 
 class StopCard(Card):
-    def __init__(self, color, value):
-        super().__init__(color, value)
+    def __init__(self, value, color):
+        super().__init__(value, color)
+
+    def play(self, game, player):
+        game.players[(game.player_index + 1) % len(game.players)].stop_status = player.stop_status + 1
+        player.stop_status = 0
+        return self
 
 
 class Plus2Card(Card):
-    def __init__(self, color, value):
-        super().__init__(color, value)
+    def __init__(self, value, color):
+        super().__init__(value, color)
 
 
 class Plus4Card(Card):
-    def __init__(self, color, value):
-        super().__init__(color, value)
+    def __init__(self, value, color):
+        super().__init__(value, color)
 
 
 class ColorCard(Card):
     def __init__(self, color, value):
         super().__init__(color, value)
+
+    def match(self, other):
+        if other.color in ["Red", "Green", "Blue", "Yellow"]:
+            print("All Collors true")
+            return True
+
+    def play(self, game, player):
+        print("Alrigth, what color you command?")
+        self.color = input()
+        while self.color not in game.colors:
+            print("Wrong color, try again:")
+            self.color = input()
+        return self

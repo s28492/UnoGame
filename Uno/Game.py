@@ -2,7 +2,7 @@ import itertools
 import random
 
 from Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard
-import Player
+
 
 class Game:
     colors = ["Red", "Green", "Blue", "Yellow"]

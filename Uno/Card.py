@@ -1,40 +1,3 @@
-class Player:
-
-    def __init__(self, name):
-        self.name = name
-        self.hand = []
-        self.stop_status = 0
-        self.stopped = False
-        self.takes_status = 0
-
-    def __str__(self):
-        return f"{self.name}"
-
-    def show_hand(self):
-        str = "Your hand:\n| "
-        for card in self.hand:
-            str += f"{card} |"
-        print(str)
-
-    def move(self):
-        card_to_play = input()
-        card_to_play = card_to_play.split(" ")
-        if card_to_play[0] == "Surrender":
-            return SurrenderCard()
-        elif card_to_play[0] == "Draw":
-            return DrawCard()
-        elif len(card_to_play) != 2:
-            print("It seems that you have given wrong values. Let's try again")
-            return self.move()
-        else:
-            find_card = Card(card_to_play[0], card_to_play[1])
-            if find_card in self.hand:
-                card = self.hand[self.hand.index(find_card)]
-                return card
-            else:
-                print("You don't have this card on hand. Pick something else.")
-                return self.move()
-
 class Card:
     def __init__(self, value, color):
         self.value = value
@@ -70,16 +33,17 @@ class SurrenderCard:
 
     def __str__(self):
         return f"{self.value}"
-
+    @staticmethod
     def match(self, other: Card):
         return True
-
-    def play(self, game):
+    @staticmethod
+    def play(game):
         player = game.get_player()
         print(f"Player: {player} has surrendered")
 
         game.drop_player(player, did_not_surrender=False)
         return game.card_on_top
+
 
 class DrawCard:
     def __init__(self):
@@ -92,12 +56,14 @@ class DrawCard:
     def __str__(self):
         return f"{self.value}"
 
+    @staticmethod
     def match(self, other: Card):
         return True
 
     def play(self, game):
         game.take_first_card(game.players[game.index_of_a_player])
         return game.card_on_top
+
 
 class ReverseCard(Card):
     def __init__(self, value, color):
@@ -145,11 +111,9 @@ class ColorCard(Card):
         return True
 
     def change_color(self):
-        print("What color you want?")
-        new_color = input()
+        new_color = input("What color you want?")
         while new_color not in ["Red", "Green", "Blue", "Yellow"]:
-            print("Wrong color. Let's try again")
-            new_color = input()
+            new_color = input("Wrong color. Let's try again")
         self.color = new_color
 
 

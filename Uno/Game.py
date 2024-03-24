@@ -1,8 +1,8 @@
 import itertools
 import random
 
-from Card import Card, Player, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard
-
+from Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard
+import Player
 
 class Game:
     colors = ["Red", "Green", "Blue", "Yellow"]
@@ -10,7 +10,7 @@ class Game:
 
     def __init__(self, *args: Player):
         self.players = self.check_number_of_players(args)
-        self.ranking_table = [None for i in range(len(args))]
+        self.ranking_table = [None for _ in args]
         self.deck = self.create_deck()
         self.shuffle_deck()
         self.pile = []
@@ -105,8 +105,7 @@ class Game:
         print(f"Turns to stop -> {self.turns_to_stop}\nDo you wanna stop? [Yes/No]")
         decision = self.player_decision()
         if decision == "Yes":
-            player.stop_status = self.turns_to_stop - 1
-            self.turns_to_stop = 0
+            player.stop_status, self.turns_to_stop = self.turns_to_stop - 1, 0
             if player.stop_status > 0:
                 player.stopped = True
         else:
@@ -123,8 +122,7 @@ class Game:
     def player_decision():
         decision = input()
         while decision not in ["Yes", "No"]:
-            print("Sorry wrong input. Try again")
-            decision = input()
+            decision = input("Sorry wrong input. Try again")
         return decision
 
     def is_valid_plus_card(self, card: Card):

@@ -1,6 +1,8 @@
 import itertools
 import random
 
+from Player import Player
+
 from Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard
 
 
@@ -23,6 +25,7 @@ class Game:
 
     def get_player(self):
         return self.players[self.index_of_a_player]
+
     @staticmethod
     def check_number_of_players(args):
         if len(args) < 2:
@@ -103,7 +106,7 @@ class Game:
 
     def wanna_stop(self, player):
         print(f"Turns to stop -> {self.turns_to_stop}\nDo you wanna stop? [Yes/No]")
-        decision = self.player_decision()
+        decision = player.player_decision()
         if decision == "Yes":
             player.stop_status, self.turns_to_stop = self.turns_to_stop - 1, 0
             if player.stop_status > 0:
@@ -117,13 +120,6 @@ class Game:
             else:
                 print("You played wrong card you bastard. Try again")
                 return self.wanna_stop(player)
-
-    @staticmethod
-    def player_decision():
-        decision = input()
-        while decision not in ["Yes", "No"]:
-            decision = input("Sorry wrong input. Try again")
-        return decision
 
     def is_valid_plus_card(self, card: Card):
         print(f"Karta: {card} -> typ: {type(card)} -> value {card.value}")
@@ -139,7 +135,7 @@ class Game:
         player.hand.append(first_taken)
         if self.is_valid_plus_card(first_taken):
             print(f"You draw {first_taken}\nDo you wanna put it? [Yes/No]")
-            put_card_decision = self.player_decision()
+            put_card_decision = player.player_decision()
             if put_card_decision == "Yes":
                 card_to_put = first_taken.play(self)
                 self.put_card(card_to_put)
@@ -150,7 +146,7 @@ class Game:
 
     def wanna_take(self, player):
         print(f"Cards to take -> {self.cards_to_take}\nDo you wanna take? [Yes/No]")
-        decision = self.player_decision()
+        decision = player.player_decision()
         if decision == "Yes":
             first_putted = self.take_first_card(player)
             if not first_putted:
@@ -168,7 +164,7 @@ class Game:
                 print("You played wrong card you bastard. Try again")
                 return self.wanna_take(player)
 
-    def player_index(self):
+    def update_player_index(self):
         return (self.index_of_a_player + self.direction) % len(self.players)
 
     def show_state(self, player):
@@ -187,11 +183,9 @@ class Game:
             print("You can't put this card here. Try again")
             return self.normal_move(player)
 
-
     def play(self):
         while len(self.players) > 1:
-            print(self.index_of_a_player)
-            player = self.players[self.index_of_a_player]
+            player = self.get_player()
             if player.stopped:
                 player.stop_status -= 1
                 if player.stop_status == 0:
@@ -206,7 +200,7 @@ class Game:
                 self.show_state(player)
                 self.normal_move(player)
 
-            self.index_of_a_player = self.player_index()
+            self.index_of_a_player = self.update_player_index()
         self.drop_player(self.players[0], did_not_surrender=True)
         for i, player in enumerate(self.ranking_table):
             print(f"Place {i + 1}: {player}")

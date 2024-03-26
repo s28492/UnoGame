@@ -1,4 +1,4 @@
-from UnoGame.Uno.Card import Player
+from UnoGame.Uno.Player import Player
 from UnoGame.Uno.Game import Game
 
 

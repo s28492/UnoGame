@@ -1,3 +1,4 @@
+from Card import Card, SurrenderCard, DrawCard
 class Player:
 
     def __init__(self, name):
@@ -15,6 +16,13 @@ class Player:
         for card in self.hand:
             str += f"{card} |"
         print(str)
+
+    @staticmethod
+    def player_decision():
+        decision = input()
+        while decision not in ["Yes", "No"]:
+            decision = input("Sorry wrong input. Try again")
+        return decision
 
     def move(self):
         card_to_play = input()

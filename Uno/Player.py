@@ -1,28 +1,36 @@
 from Card import Card, SurrenderCard, DrawCard
-class Player:
+from rich.console import Console
 
+
+class Player:
     def __init__(self, name):
         self.name = name
         self.hand = []
         self.stop_status = 0
         self.stopped = False
         self.takes_status = 0
-
+        self.console = Console()
     def __str__(self):
-        return f"{self.name}"
+        return f":smile:[magenta]{self.name}[/]"
 
     def show_hand(self):
-        str = "Your hand:\n| "
+        str = f"Your hand: {len(self.hand)}\n| "
         for card in self.hand:
-            str += f"{card} |"
-        print(str)
+            str += f"[bold {card.color.lower()}]{card}[/] |"
 
-    @staticmethod
-    def player_decision():
+        self.console.print(str, style="bold")
+
+    def player_decision(self) -> str:
         decision = input()
         while decision not in ["Yes", "No"]:
             decision = input("Sorry wrong input. Try again")
         return decision
+
+    def choose_color(self):
+        new_color = input("What color you want?")
+        while new_color not in ["Red", "Green", "Blue", "Yellow"]:
+            new_color = input("Wrong color. Let's try again")
+        return new_color
 
     def move(self):
         card_to_play = input()

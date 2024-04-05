@@ -33,11 +33,13 @@ class SurrenderCard:
 
     def __str__(self):
         return f"{self.value}"
+
     @staticmethod
-    def match(self, other: Card):
+    def match(other: Card) -> bool:
         return True
+
     @staticmethod
-    def play(game):
+    def play(game) -> Card:
         player = game.get_player()
         print(f"Player: {player} has surrendered")
 
@@ -57,10 +59,11 @@ class DrawCard:
         return f"{self.value}"
 
     @staticmethod
-    def match(self, other: Card):
+    def match(other: Card) -> bool:
         return True
 
-    def play(self, game):
+    @staticmethod
+    def play(game) -> Card:
         game.take_first_card(game.players[game.index_of_a_player])
         return game.card_on_top
 
@@ -81,7 +84,7 @@ class StopCard(Card):
 
     def play(self, game):
         game.turns_to_stop += 1
-        game.players[game.index_of_a_player].hand.remove(self)
+        game.get_player().hand.remove(self)
         return self
 
 
@@ -102,19 +105,22 @@ class ColorCard(Card):
         self.value = "All"
         self.color = "Colors"
 
+    def __str__(self):
+        if self.color == "Colors":
+            return "[red]A[/][rgb(255,165,0)]l[/][yellow]l[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0,255)]r[/][magenta]s[/]"
+        return f"{self.value} {self.color}"
+
+
     def play(self, game):
-        self.change_color()
+        self.change_color(game.players[game.index_of_a_player])
         game.players[game.index_of_a_player].hand.remove(self)
         return self
 
     def match(self, other):
         return True
 
-    def change_color(self):
-        new_color = input("What color you want?")
-        while new_color not in ["Red", "Green", "Blue", "Yellow"]:
-            new_color = input("Wrong color. Let's try again")
-        self.color = new_color
+    def change_color(self, player):
+        self.color = player.choose_color()
 
 
 class Plus4Card(ColorCard):
@@ -123,8 +129,13 @@ class Plus4Card(ColorCard):
         self.value = "+4"
         self.color = "Colors"
 
+    def __str__(self):
+        if self.color == "Colors":
+            return "[red]+[/][rgb(255,165,0)]4[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0,255)]r[/][magenta]s[/]"
+        return f"{self.value} {self.color}"
+
     def play(self, game):
         game.cards_to_take += 4
-        self.change_color()
+        self.change_color(game.players[game.index_of_a_player])
         game.players[game.index_of_a_player].hand.remove(self)
         return self

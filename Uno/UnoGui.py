@@ -1,3 +1,7 @@
+"""
+@author Cyprian Szewczak s2849
+"""
+
 import tkinter as tk
 from tkinter import messagebox
 from Game import *

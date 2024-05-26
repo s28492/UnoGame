@@ -20,11 +20,11 @@ class Bot(Player):
     def __str__(self):
         return f":robot:[cyan]Bot {self.name}[/]"
 
-    def update_data(self, *args) -> None:
+    def get_game_state(self, game) -> None:
         """Updates game data for bot"""
         while True:
             self.players, self.pile, self.card_on_top, self.direction \
-                , self.turns_to_stop, self.cards_to_take = args[0].get_bot_data()
+                , self.turns_to_stop, self.cards_to_take = game.get_bot_data()
             self.stop_cards, self.plus_2_cards, self.plus_4_cards = [], [], []
             for card in self.hand:
                 if isinstance(card, StopCard):

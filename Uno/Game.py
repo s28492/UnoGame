@@ -6,9 +6,9 @@ import random
 from rich.console import Console
 from Player import Player
 import time
-
+from rich import print
+from Deck import Deck
 from Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard, DrawCard
-
 
 class Game:
     colors = ["Red", "Green", "Blue", "Yellow"]
@@ -20,9 +20,10 @@ class Game:
         """Initialize game start state"""
         self.console = Console()
         self.players = self.check_number_of_players(args)
+        self.move_history = []
+        self.round = 0
         self.ranking_table = [None for _ in args]
-        self.deck = self.create_deck()
-        self.shuffle_deck()
+        self.deck = Deck()
         self.pile = []
         self.reset_colors = []
         self.card_on_top = None
@@ -30,15 +31,35 @@ class Game:
         self.direction = 1
         self.turns_to_stop = 0
         self.cards_to_take = 0
+        self.first_taken = False
         self.initialize_game()
 
-    def get_bot_data(self) -> tuple:
+    def get_card_on_top(self):
+        return self.card_on_top
+
+    def get_num_cards_left_in_deck(self):
+        return self.deck.get_deck_len()
+
+    def get_round(self):
+        return self.round
+
+    def get_direction(self):
+        return self.direction
+
+    def get_enemy_hand_num(self):
+        return
+
+    def get_state(self) -> tuple:
         """Returns bot data"""
-        return self.players, self.pile, self.card_on_top, self.direction, self.turns_to_stop, self.cards_to_take
+        return self.players, self.pile, self.card_on_top, self.direction, self.turns_to_stop, self.cards_to_take, self.first_taken
 
     def get_player(self) -> Player:
         """Returns current player"""
         return self.players[self.index_of_a_player]
+
+    def get_next_player(self) -> Player:
+        """Returns next player in line"""
+        return self.players[(self.index_of_a_player + self.direction) % len(self.players)]
 
     @staticmethod
     def check_number_of_players(args) -> list:
@@ -50,37 +71,6 @@ class Game:
         else:
             return [player for player in args]
 
-    def create_deck(self) -> list:
-        """Creates deck of cards and returns it"""
-        deck = []
-        for card in itertools.product(self.values, self.colors):  # 19 for each color
-            deck.append(Card(card[0], card[1]))
-            if card[0] != 0:
-                deck.append(Card(card[0], card[1]))
-
-        for card in itertools.product(["Reverse"], self.colors):  # 2 for each color
-            deck.append(ReverseCard(card[0], card[1]))
-            deck.append(ReverseCard(card[0], card[1]))
-
-        for card in itertools.product(["Stop"], self.colors):  # 2 for each color
-            deck.append(StopCard(card[0], card[1]))
-            deck.append(StopCard(card[0], card[1]))
-
-        for card in itertools.product(["+2"], self.colors):  # 2 for each color
-            deck.append(Plus2Card(card[0], card[1]))
-            deck.append(Plus2Card(card[0], card[1]))
-
-        for card in itertools.product(["+4"], self.colors):  # 1 for each color
-            deck.append(Plus4Card(card[0], card[1]))
-
-        for i in range(4):  # 1 for each color
-            deck.append(ColorCard("All", "Colors"))
-        return deck
-
-    def shuffle_deck(self) -> None:
-        """shuffles the deck"""
-        random.shuffle(self.deck)
-
     def deal_cards_to_players(self) -> None:
         """deals 7 cards for each player"""
         for player in self.players:
@@ -90,7 +80,7 @@ class Game:
     def initialize_game(self) -> None:
         """Initializes a game"""
         self.deal_cards_to_players()
-        self.put_card(self.deck.pop(0))
+        self.put_card(self.deck.draw_card())
 
     def put_card(self, card) -> None:
         """Puts first card on pile"""
@@ -108,9 +98,7 @@ class Game:
         If player did_not_surrender he is added to first empty slot from the beggining
         If player did_not_surrender = False he is added to first empty slot from the end
         """
-        for card in player.hand:
-            self.deck.append(card)
-        player.hand = []
+        self.deck.cards_to_deck(player.hand)
         # If didn't surrender
         if did_not_surrender:
             for i in range(len(self.ranking_table)):
@@ -125,12 +113,12 @@ class Game:
                     break
         self.index_of_a_player -= 1
 
-    def take_card(self, player) -> None:
+    def take_card(self, player):
         """
         Gives a card from the deck to a player.
         If deck has less than 2 cards then it shuffles a pile into a deck before
         """
-        if len(self.deck) <= 1:
+        if self.deck.deck_length() <= 1:
             if len(self.pile) > 1:
                 self.reset_colored_cards()
                 last_card = self.pile.pop()
@@ -138,11 +126,13 @@ class Game:
                 self.pile = [last_card]
                 self.shuffle_deck()
             else:
-                return
-        player.hand.append(self.deck.pop(0))
+                return None
+        card_drawed = self.deck.draw_card()
+        player.hand.append(card_drawed)
+        return card_drawed
 
     def move_pile_to_deck(self) -> None:
-        """Moves cards from the pile to the deck exluding top card on pile"""
+        """Moves cards from the pile to the deck exlcuding top card on pile"""
         if len(self.pile) > 1:
             self.reset_colored_cards()
             last_card = self.pile.pop()
@@ -156,140 +146,129 @@ class Game:
             if isinstance(card, ColorCard):
                 card.color = "Color"
 
-    def is_valid_card(self, card: Card) -> bool:
-        """Checks if given card can be put on other plsu cards"""
-        valid_if_zero_to_take = card.match(self.card_on_top) and self.cards_to_take == 0
-        valid_if_want_to_counter_taking = self.cards_to_take != 0 and (
-                    card.value == self.card_on_top.value or card.value == "+4")
-        if valid_if_zero_to_take or valid_if_want_to_counter_taking:
-            return True
-        return False
+    def change_game_direction(self):
+        self.direction *= -1
 
-    def take_first_card(self, player) -> bool:
-        """
-        takes first card from deck and then checks if it can be played instantly.
-        returns a bool
-        """
-        if len(self.deck) > 0:
-            first_taken = self.deck.pop(0)
-            player.hand.append(first_taken)
-            # Checks if card can be played
-            if self.is_valid_card(first_taken):
-                self.console.print(
-                    f"You draw: [{first_taken.color.lower()}]{first_taken}[/]\nDo you wanna put it? [bold][Yes/No][/]")
-                # Asks a player if he wants to play it
-                put_card_decision = player.player_decision()
-                if put_card_decision == "Yes":
-                    card_to_put = first_taken.play(self)
-                    self.console.print(f"card played: [{card_to_put.color.lower()}]{card_to_put}")
-                    self.put_card(card_to_put)
-                    return True
-                else:
-                    return False
-            return False
-        else:
-            self.move_pile_to_deck()
-            self.take_first_card(player)
-
-    def wanna_stop(self, player) -> None:
-        """Checks if player wants to stop or play another stop card"""
-        self.console.print(f"Turns to stop -> {self.turns_to_stop}\nDo you wanna stop? [Yes/No]")
-        decision = player.player_decision()
-        if decision == "Yes":
-            self.console.print("Player stopped...", style="rgb(122,3,4)")
-            # Update player stop status and turns to stop
-            player.stop_status, self.turns_to_stop = self.turns_to_stop - 1, 0
-            if player.stop_status > 0:
-                player.stopped = True
-        else:
-            player.show_hand()
-            card = player.move()
-            # Checks if stop card was played, if not returns to the beginning of a method
-            if isinstance(card, StopCard):
-                card.play(self)
-                self.put_card(card)
-                self.empty_hand(player)
-            else:
-                self.console.print("You played wrong card you bastard. Try again")
-                return self.wanna_stop(player)
-
-    def wanna_take(self, player) -> None:
-        """Asks player if either wants to take cards or add another plus card"""
-        self.console.print(f"Cards to take -> {self.cards_to_take}\nDo you wanna take? [Yes/No]")
-        decision = player.player_decision()
-        if decision == "Yes":
-            # Checks if first drawed card could be placed instantly
-            first_putted = self.take_first_card(player)
-            # If not it draws the rest of cards
-            if not first_putted:
-                for i in range(self.cards_to_take - 1):
-                    self.take_card(player)
-                self.cards_to_take = 0
-        else:
-            # player makes a move
-            player.show_hand()
-            card = player.move()
-            # Checks if move is valid
-            if self.is_valid_card(card):
-                card_to_put = card.play(self)
-                self.console.print(f"Card played: [{card.color}]{card}")
-                self.put_card(card_to_put)
-                self.empty_hand(player)
-            else:
-                self.console.print("You played wrong card you bastard. Try again")
-                return self.wanna_take(player)
+    def add_cards_to_take(self, how_many: int):
+        self.cards_to_take += how_many
 
     def update_player_index(self) -> int:
         """changes current player list indicator"""
         return (self.index_of_a_player + self.direction) % len(self.players)
 
     def show_state(self, player) -> None:
-        """Shows current player, card on top, and players hand"""
+        """Shows current player, card on top, players hand and state of the game"""
         self.console.print(f"{player}")
         self.console.print(f"Card on the top -> [{self.card_on_top.color.lower()}]{self.card_on_top}[/]")
-        player.show_hand()
 
-    def normal_move(self, player) -> None:
-        """takes player move and checks its correctness with top card"""
+        if self.cards_to_take != 0:
+            self.console.print(f"Cards to take -> {self.cards_to_take}\nWrite Draw to take or play valid plus card.")
+        elif self.turns_to_stop != 0:
+            self.console.print(f"Turns to stop -> {self.turns_to_stop}\nWrite Stop to stop or play valid stop card.")
+
+    def manage_stop(self, player, card):
+        if card.value == "Stop" and card.color == "Stop":
+            if self.turns_to_stop == 1:
+                self.turns_to_stop = 0
+                return True
+            else:
+                player.stop_player(self.turns_to_stop - 1)
+                self.turns_to_stop = 0
+                return True
+        elif card.value == "Stop":
+            self.turns_to_stop += 1
+            player.play_card(card)
+            self.put_card(card)
+            return True
+        return False
+
+    def add_turns_to_stop(self):
+        self.turns_to_stop += 1
+
+    def manage_draw(self, player, first_card_taken=None):
+        if not isinstance(first_card_taken, Card):
+            first_card_taken = self.take_card(player)
+            self.cards_to_take = self.cards_to_take - 1 if self.cards_to_take != 0 else 0
+
+
+        if isinstance(first_card_taken, Card):
+            if self.cards_to_take != 0 and self.is_valid_plus_card(first_card_taken):
+                self.console.print(f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
+                player_move = player.move()
+                if isinstance(player_move, DrawCard):
+                    for i in range(self.cards_to_take):
+                        self.take_card(player)
+                    self.cards_to_take = 0
+                elif player_move.match(self.card_on_top) and player_move == first_card_taken:
+                    player.play_card(first_card_taken)
+                    self.put_card(first_card_taken.play(self))
+                else:
+                    self.manage_draw(player, first_card_taken=first_card_taken)
+            elif self.cards_to_take == 0 and first_card_taken.match(self.card_on_top):
+                self.console.print(f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
+                player_move = player.move()
+                if player_move == first_card_taken:
+                    player.play_card(first_card_taken)
+                    self.put_card(first_card_taken.play(self))
+                elif isinstance(player_move, DrawCard):
+                    return
+                else:
+                    self.console.print("You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
+                    self.manage_draw(player, first_card_taken=first_card_taken)
+            else:
+                for i in range(self.cards_to_take - 1):
+                    self.take_card(player)
+                self.cards_to_take = 0
+
+    def is_valid_plus_card(self, card):
+        if card.__class__ == self.card_on_top.__class__ or isinstance(card, Plus4Card):
+            return True
+        return False
+
+    def manage_player_move(self, player):
+        player.extract_features(self)
+        self.show_state(player)
+
         card_played = player.move()
         if card_played.match(self.card_on_top):
-            # Plays a card
-            card_to_put = card_played.play(self)
-            # Draws a card
-            if isinstance(card_played, DrawCard):
-                self.console.print(f"{player} drawed a card")
+            if self.turns_to_stop != 0:
+                 if not self.manage_stop(player, card_played):
+                    print("You have picked wrong card, try again.")
+                    self.manage_player_move(player)
+            elif self.cards_to_take != 0 and self.is_valid_plus_card(card_played):
+                player.play_card(card_played)
+                self.put_card(card_played.play(self))
+            elif self.cards_to_take != 0 and not self.is_valid_plus_card(card_played) and not isinstance(card_played, DrawCard):
+                print("You have picked wrong card, try again.")
+                self.manage_player_move(player)
+            elif isinstance(card_played, DrawCard):
+                drawed_card = self.deck.draw_card()
+                if isinstance(drawed_card, Card):
+                    self.manage_draw(player)
             else:
-                # puts card on top and erases it from players hand
-                self.console.print(f"card played: [{card_to_put.color.lower()}]{str(card_to_put)}[/]")
-                self.put_card(card_to_put)
-                self.empty_hand(player)
+                player.play_card(card_played)
+                self.put_card(card_played.play(self))
         else:
-            print("You can't put this card here. Try again")
-            return self.normal_move(player)
+            self.console.print(f"Card [{card_played.color.lower()}]{card_played}[/] doesn't match card on top: [{self.card_on_top.color.lower()}]{self.card_on_top}[/]. Try again")
+            return self.manage_player_move(player)
+
+
+
 
     def play(self) -> None:
         """Main game method. Controls game flow"""
         while len(self.players) > 1:
+            self.round += 1
             print("\n")
             player = self.get_player()
-            time.sleep(0.8)
             # Checks if player is stopped
             if player.stopped:
-                player.stop_status -= 1
-                if player.stop_status == 0:
-                    player.stopped = False
-            # Checks if turns to stop is not 0
-            elif self.turns_to_stop != 0:
-                self.show_state(player)
-                self.wanna_stop(player)
-            # Checks take status
-            elif self.cards_to_take != 0:
-                self.show_state(player)
-                self.wanna_take(player)
-            # Player can make a normal move
+                player.update_stop_status()
             else:
-                self.show_state(player)
-                self.normal_move(player)
+                self.manage_player_move(player)
+
+            if player.has_won():
+                self.drop_player(player, did_not_surrender=True)
 
             self.index_of_a_player = self.update_player_index()
         self.drop_player(self.players[0], did_not_surrender=True)

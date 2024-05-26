@@ -14,10 +14,9 @@ This function starts bot thread
 Total lanes of code: 706
 '''
 
-from UnoGame.Uno.Player import Player
-from UnoGame.Uno.Bot import Bot
-from UnoGame.Uno.Game import Game
-import threading
+from Player import Player
+from Bot import Bot
+from Game import Game
 from rich.console import Console
 
 console = Console()
@@ -56,18 +55,11 @@ def main() -> None:
         bots = [Bot(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
         game = create_game_with_players(*players, *bots)
     else:
-        console.print("[bold red]Wrong choice![/bold red]\nLet's try again.")
+        console.print("[bold red]Wrong choice![/bold red]\nLet's try again...\n")
         main()
 
-    for bot in bots:
-        start_bot_thread(bot, game)
+    game.play()
 
-    threading.Thread(target=game.play, daemon=False).start()
-
-
-def start_bot_thread(bot: Bot, game: Game) -> None:
-    """Starts bot thread"""
-    threading.Thread(target=bot.update_data, daemon=True, args=[game]).start()
 
 
 if __name__ == "__main__":

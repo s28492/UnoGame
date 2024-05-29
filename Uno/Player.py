@@ -1,10 +1,14 @@
+import asyncio
+from telegram import Bot, InputMediaPhoto  # Import InputMediaPhoto
+import os
 from Card import Card, SurrenderCard, DrawCard, StopCard, Plus4Card, ColorCard
 from rich.console import Console
 
+IMAGE_DIRECTORY = "CardsImage"  # Added directory path for card images
 
 class Player:
-    def __init__(self, name):
-        # Initialize player
+    def __init__(self, name, chat_id):
+        self.chat_id = chat_id
         self.name = name
         self.hand = []
         self.stop_status = 0
@@ -26,7 +30,6 @@ class Player:
             "Stop": 0,
             "+2": 0,
             "+4": 0,
-
         }
         for card in self.hand:
             if card.color in card_dict:
@@ -37,7 +40,6 @@ class Player:
 
     def extract_features(self, game):
         card_counts = self.count_cards()
-
         features = {
             'num_red': card_counts["Red"],
             'num_green': card_counts["Green"],
@@ -54,10 +56,12 @@ class Player:
             'num_colors_in_hand': sum(
                 1 for count in [card_counts["Red"], card_counts["Green"], card_counts["Blue"], card_counts["Yellow"]] if
                 count > 0),
-            'num_cards_in_hand': len(self.hand)
+            'num_cards_in_hand': len(self.hand),
+            'is_game_over': game.get_game_over()
         }
 
         self.features = features
+        return self.features
 
     def __str__(self) -> str:
         return f":smile:[magenta]{self.name}[/]"
@@ -70,32 +74,40 @@ class Player:
         str = f"Your hand: [cyan]{len(self.hand)} cards[/]\n| "
         for card in self.hand:
             str += f"[bold {card.color.lower()}]{card}[/] |"
-
         self.console.print(str, style="bold")
 
     def get_game_state(self, game):
         self.players, self.pile, self.card_on_top, self.direction \
             , self.turns_to_stop, self.cards_to_take, self.first_taken = game.get_state()
 
+    async def move(self, bot: Bot):
+        # Sends message to player for their move
+        await bot.send_message(chat_id=self.chat_id, text="Your turn! Send your move (e.g., 'Red 5' or 'Draw'):")
 
-    def move(self):
-        # Takes
-        self.show_hand()
-        card_to_play = input()
-        card_to_play = card_to_play.split(" ")
-        if card_to_play[0] == "Surrender":  #Surrenders
+        update = None
+        updates = await bot.get_updates()
+        while not update:
+            for u in updates:
+                if u.message and u.message.chat_id == self.chat_id:
+                    update = str(u.message.text)
+                    break
+
+            await asyncio.sleep(1)
+
+        card_to_play = update.split(" ")
+        if card_to_play[0] == "Surrender":  # Surrenders
             return SurrenderCard()
-        elif card_to_play[0] == "Draw": #Draws a card
+        elif card_to_play[0] == "Draw":  # Draws a card
             return DrawCard()
-        elif card_to_play[0] == "Stop" and len(card_to_play) == 1:  #Players decides to be stopped
+        elif card_to_play[0] == "Stop" and len(card_to_play) == 1:  # Players decides to be stopped
             return StopCard("Stop", "Stop")
-        elif len(card_to_play) != 2:    #Checking if there are 2 components to a card
+        elif len(card_to_play) != 2:  # Checking if there are 2 components to a card
             self.console.print("It seems that you have given wrong values. Let's try again")
             return self.move()
         elif card_to_play[1] not in ["Red", "Green", "Blue", "Yellow"]:
             self.console.print("It seems that you have given wrong values. Let's try again")
             return self.move()
-        elif card_to_play[0] == "+4":   #Looks for +4 cards in hand
+        elif card_to_play[0] == "+4":  # Looks for +4 cards in hand
             find_card = self.find_in_hand(value="+4")
             if find_card is False:
                 self.console.print("It seems that you have given wrong values. Let's try again")
@@ -128,6 +140,14 @@ class Player:
                 self.console.print("You don't have this card on hand. Pick something else.")
                 return self.move()
 
+    async def send_hand_images(self, bot: Bot):  # Updated to send images as a gallery
+        media_group = []
+        for card in self.hand:
+            card_image_path = os.path.join(IMAGE_DIRECTORY, card.img_url())
+            media_group.append(InputMediaPhoto(open(card_image_path, 'rb')))
+
+        await bot.send_media_group(chat_id=self.chat_id, media=media_group)
+
     def find_in_hand(self, color=None, value=None):
         if color is not None and value is not None:
             for card in self.hand:
@@ -154,6 +174,7 @@ class Player:
 
     def has_won(self):
         return False if len(self.hand) != 0 else True
+
     def play_card(self, card):
         if isinstance(card, ColorCard):
             self.hand.remove(self.find_in_hand(value=card.value))
@@ -163,3 +184,4 @@ class Player:
             return
         else:
             self.hand.remove(card)
+

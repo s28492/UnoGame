@@ -22,6 +22,9 @@ class Card:
         else:
             return False
 
+    def img_url(self):
+        return f"uno_card-{self.color.lower()}{self.value.lower()}.png"
+
     def __str__(self):
         return f"{self.value} {self.color}"
 
@@ -84,6 +87,7 @@ class ReverseCard(Card):
     def __init__(self, value: str, color: str):
         super().__init__(value, color)
 
+
     def play(self, game):
         """Reverses the game direction, removes itself from player hand and returns itself"""
         game.change_game_direction()
@@ -94,6 +98,8 @@ class StopCard(Card):
     def __init__(self, value: str, color: str):
         super().__init__(value, color)
 
+    def img_url(self):
+        return f"uno_card-{self.color.lower()}skip.png"
 
     def play(self, game):
         """Adds 1 to game.turns_to_stop, removes itself from player hand and returns itself"""
@@ -105,6 +111,9 @@ class Plus2Card(Card):
     def __init__(self, value: str, color: str):
         super().__init__(value, color)
         self.value = "+2"
+
+    def img_url(self):
+        return f"uno_card-{self.color.lower()}draw2.png"
 
     def play(self, game):
         """Adds 2 to game.cards_to_take, removes itself from player hand and returns itself"""
@@ -123,6 +132,9 @@ class ColorCard(Card):
             return "[red]A[/][rgb(255,165,0)]l[/][yellow]l[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(" \
                    "255,0,255)]r[/][magenta]s[/] "
         return f"{self.value} {self.color}"
+
+    def img_url(self):
+        return f"uno_card-wildchange.png"
 
     def play(self, game):
         """Changes color of itself, removes itself from player hand and returns itself"""
@@ -152,6 +164,9 @@ class Plus4Card(ColorCard):
             return "[red]+[/][rgb(255,165,0)]4[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
                    "255)]r[/][magenta]s[/] "
         return f"{self.value} {self.color}"
+
+    def img_url(self):
+        return f"uno_card-wilddraw4.png"
 
     def play(self, game):
         """Changes color of itself, adds +4 to cards_to_take, removes itself from player hand and returns itself"""

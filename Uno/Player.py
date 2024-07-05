@@ -1,14 +1,10 @@
-import asyncio
-from telegram import Bot, InputMediaPhoto  # Import InputMediaPhoto
-import os
 from Card import Card, SurrenderCard, DrawCard, StopCard, Plus4Card, ColorCard
 from rich.console import Console
 
 IMAGE_DIRECTORY = "CardsImage"  # Added directory path for card images
 
 class Player:
-    def __init__(self, name, chat_id):
-        self.chat_id = chat_id
+    def __init__(self, name):
         self.name = name
         self.hand = []
         self.stop_status = 0
@@ -17,6 +13,7 @@ class Player:
         self.first_taken = False
         self.console = Console()
         self.features = {}
+        self.console = Console()
 
     def get_features(self):
         return self.features
@@ -31,7 +28,11 @@ class Player:
             "+2": 0,
             "+4": 0,
         }
+        print(f"hand in count cards")
         for card in self.hand:
+            print(card)
+            if isinstance(card, list):
+                print(f"=======================================> {card[0]}")
             if card.color in card_dict:
                 card_dict[card.color] += 1
             if card.value in card_dict:
@@ -77,24 +78,10 @@ class Player:
         self.console.print(str, style="bold")
 
     def get_game_state(self, game):
-        self.players, self.pile, self.card_on_top, self.direction \
-            , self.turns_to_stop, self.cards_to_take, self.first_taken = game.get_state()
+        pass
 
-    async def move(self, bot: Bot):
-        # Sends message to player for their move
-        await bot.send_message(chat_id=self.chat_id, text="Your turn! Send your move (e.g., 'Red 5' or 'Draw'):")
-
-        update = None
-        updates = await bot.get_updates()
-        while not update:
-            for u in updates:
-                if u.message and u.message.chat_id == self.chat_id:
-                    update = str(u.message.text)
-                    break
-
-            await asyncio.sleep(1)
-
-        card_to_play = update.split(" ")
+    def move(self):
+        card_to_play = input().split(" ")
         if card_to_play[0] == "Surrender":  # Surrenders
             return SurrenderCard()
         elif card_to_play[0] == "Draw":  # Draws a card
@@ -140,13 +127,6 @@ class Player:
                 self.console.print("You don't have this card on hand. Pick something else.")
                 return self.move()
 
-    async def send_hand_images(self, bot: Bot):  # Updated to send images as a gallery
-        media_group = []
-        for card in self.hand:
-            card_image_path = os.path.join(IMAGE_DIRECTORY, card.img_url())
-            media_group.append(InputMediaPhoto(open(card_image_path, 'rb')))
-
-        await bot.send_media_group(chat_id=self.chat_id, media=media_group)
 
     def find_in_hand(self, color=None, value=None):
         if color is not None and value is not None:

@@ -57,12 +57,10 @@ class Deck:
             self.deck.append(card)
 
     def reshuffle_discard_pile(self, discard_pile):
-        if len(discard_pile) > 1:
-            top_card = discard_pile.pop()
+        if len(discard_pile) >= 1:
+            print("HHHHHHHHHHHHHHHHHHHHHHERE")
             self.deck.append(discard_pile)
             self.shuffle_deck()
-            discard_pile.clear()
-            discard_pile.append(top_card)
         else:
             print("No cards left to reshuffle!")
 

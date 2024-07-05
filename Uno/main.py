@@ -13,23 +13,27 @@ This function starts bot thread
 
 Total lanes of code: 706
 '''
+import time
 
 from Player import Player
 from Bot import Bot
+from Bot_Random import BotRandom
 from Game import Game
 from rich.console import Console
+import random
 
 console = Console()
 
 
-def create_game_with_players(*players) -> Game:
+def create_game_with_players(players) -> Game:
     """returns game with initialized starting state"""
-    return Game(*players)
+    return Game(players)
 
 
 def main() -> None:
     """Starts the game"""
     bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
+    random.shuffle(bot_names)
     bots = []
     game = None
 
@@ -47,7 +51,7 @@ def main() -> None:
     elif choice == "2":
         num_bots = int(console.input("How many bots should play? "))
         bots = [Bot(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
-        game = create_game_with_players(*bots)
+        game = create_game_with_players(bots)
     elif choice == "3":
         player_names = console.input("Input players names separated by coma: ").split(',')
         num_bots = int(console.input("How many bots should play? "))
@@ -58,9 +62,25 @@ def main() -> None:
         console.print("[bold red]Wrong choice![/bold red]\nLet's try again...\n")
         main()
 
+
+def start_2_bot_games():
+    bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
+    random.shuffle(bot_names)
+    bots = []
+    game = None
+
+    num_bots = 2
+    bots = [BotRandom(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
+    game = create_game_with_players(bots)
     game.play()
 
-
+def start_many_games():
+    number_of_games = 10
+    start_time = time.time()
+    for i in range(number_of_games):
+        start_2_bot_games()
+    end_time = time.time()
+    print(f"{number_of_games} games played in: {end_time-start_time}")
 
 if __name__ == "__main__":
-    main()
+    start_many_games()

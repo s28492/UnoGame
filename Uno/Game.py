@@ -8,14 +8,13 @@ import pandas as pd
 from rich.console import Console
 import time
 import csv
-import pandas
-from telegram import Bot, Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
 
 from Player import Player
 from rich import print
 from Deck import Deck
 from Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard, DrawCard
+from Bot import Bot
+
 
 class Game:
     colors = ["Red", "Green", "Blue", "Yellow"]
@@ -23,15 +22,14 @@ class Game:
     # transposes int values to str values
     values = map(lambda val: str(val), values)
 
-    def __init__(self, bot: Bot, *args: Player):
+    def __init__(self, players: list):
         """Initialize game start state"""
-        self.bot = bot
         self.console = Console()
         self.game_id = None
-        self.players = self.check_number_of_players(args)
+        self.players = self.check_number_of_players(players)
         self.move_history = []
         self.round = 0
-        self.ranking_table = [None for _ in args]
+        self.ranking_table = [None for _ in players]
         self.deck = Deck()
         self.pile = []
         self.reset_colors = []
@@ -81,14 +79,14 @@ class Game:
         return self.players[(self.index_of_a_player + self.direction) % len(self.players)]
 
     @staticmethod
-    def check_number_of_players(args) -> list:
+    def check_number_of_players(players) -> list:
         """Cheks correctness of initial number of players"""
-        if len(args) < 2:
+        if len(players) < 2:
             raise ValueError("Sorry, You can't play alone")
-        elif len(args) > 10:
+        elif len(players) > 10:
             raise ValueError("You have too many friends to play this game")
         else:
-            return [player for player in args]
+            return [player for player in players]
 
     def deal_cards_to_players(self) -> None:
         """deals 7 cards for each player"""
@@ -118,6 +116,7 @@ class Game:
         If player did_not_surrender he is added to first empty slot from the beggining
         If player did_not_surrender = False he is added to first empty slot from the end
         """
+       # print("Game drop_player")
         self.deck.cards_to_deck(player.hand)
         # If didn't surrender
         if did_not_surrender:
@@ -138,6 +137,7 @@ class Game:
         Gives a card from the deck to a player.
         If deck has less than 2 cards then it shuffles a pile into a deck before
         """
+       # print("Game take_card")
         if self.deck.deck_length() <= 1:
             if len(self.pile) > 1:
                 self.reset_colored_cards()
@@ -153,9 +153,11 @@ class Game:
 
     def move_pile_to_deck(self) -> None:
         """Moves cards from the pile to the deck exlcuding top card on pile"""
+       # print("Game move_pile_to_deck")
+       # print(len(self.pile))
         if len(self.pile) > 1:
             self.reset_colored_cards()
-            last_card = self.pile.pop()
+            last_card = self.pile[-1]
             self.deck.reshuffle_discard_pile(self.pile[:-1])
             self.pile = [last_card]
             self.deck.shuffle_deck()
@@ -176,17 +178,19 @@ class Game:
         """changes current player list indicator"""
         return (self.index_of_a_player + self.direction) % len(self.players)
 
-    async def show_state(self, player) -> None:
+    def show_state(self, player) -> None:
         """Shows current player, card on top, players hand and state of the game"""
-        await self.bot.send_message(chat_id=player.chat_id, text=f"{player}")
-        await self.bot.send_message(chat_id=player.chat_id, text=f"Card on the top -> [{self.card_on_top.color.lower()}]{self.card_on_top}[/]")
+       # print("Game show_state")
+        self.console.print(f"{player}")
+        self.console.print(f"Card on the top -> [{self.card_on_top.color.lower()}]{self.card_on_top}[/]")
 
         if self.cards_to_take != 0:
-            await self.bot.send_message(chat_id=player.chat_id, text=f"Cards to take -> {self.cards_to_take}\nWrite Draw to take or play valid plus card.")
+            self.console.print(f"Cards to take -> {self.cards_to_take}\nWrite Draw to take or play valid plus card.")
         elif self.turns_to_stop != 0:
-            await self.bot.send_message(chat_id=player.chat_id, text=f"Turns to stop -> {self.turns_to_stop}\nWrite Stop to stop or play valid stop card.")
+            self.console.print(f"Turns to stop -> {self.turns_to_stop}\nWrite Stop to stop or play valid stop card.")
 
     def manage_stop(self, player, card):
+       # print("Game manage_stop")
         if card.value == "Stop" and card.color == "Stop":
             if self.turns_to_stop == 1:
                 self.turns_to_stop = 0
@@ -203,17 +207,23 @@ class Game:
         return False
 
     def add_turns_to_stop(self):
+       # print("Game add_turns_to_stop")
         self.turns_to_stop += 1
 
-    async def manage_draw(self, player, first_card_taken=None):
+    def manage_draw(self, player, first_card_taken = None):
+       # print("Game manage_draw")
+        self.console.print(f"First card taken {first_card_taken}", style="rgb(255,0,0)")
+        self.console.print(f"deck len {len(self.deck.deck)}", style="rgb(255,0,0)")
+
         if not isinstance(first_card_taken, Card):
             first_card_taken = self.take_card(player)
             self.cards_to_take = self.cards_to_take - 1 if self.cards_to_take != 0 else 0
 
         if isinstance(first_card_taken, Card):
             if self.cards_to_take != 0 and self.is_valid_plus_card(first_card_taken):
-                await self.bot.send_message(chat_id=player.chat_id, text=f"You have drawed [{first_card_taken.color}]{first_card_taken}[/]. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
-                player_move = player.move()
+                self.console.print(
+                    f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
+                player_move = player.move(first_card_taken)
                 if isinstance(player_move, DrawCard):
                     for i in range(self.cards_to_take):
                         self.take_card(player)
@@ -222,57 +232,72 @@ class Game:
                     player.play_card(first_card_taken)
                     self.put_card(first_card_taken.play(self))
                 else:
-                    await self.manage_draw(player, first_card_taken=first_card_taken)
+                    self.manage_draw(player, first_card_taken=first_card_taken)
             elif self.cards_to_take == 0 and first_card_taken.match(self.card_on_top):
-                await self.bot.send_message(chat_id=player.chat_id, text=f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
-                player_move = player.move()
+                self.console.print(
+                    f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
+                player_move = player.move(first_card_taken)
                 if player_move == first_card_taken:
                     player.play_card(first_card_taken)
                     self.put_card(first_card_taken.play(self))
                 elif isinstance(player_move, DrawCard):
                     return
                 else:
-                    await self.bot.send_message(chat_id=player.chat_id, text="You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
-                    await self.manage_draw(player, first_card_taken=first_card_taken)
+                    self.console.print(
+                        "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
+                    self.manage_draw(player, first_card_taken=first_card_taken)
             else:
                 for i in range(self.cards_to_take - 1):
                     self.take_card(player)
                 self.cards_to_take = 0
 
     def is_valid_plus_card(self, card):
+       # print("Game is_valid_plus_card")
         if card.__class__ == self.card_on_top.__class__ or isinstance(card, Plus4Card):
             return True
         return False
 
-    async def manage_player_move(self, player):
+    def update_bot(self, bot):
+       # print("Game update_bot")
+        if isinstance(bot, Bot):
+            data_for_bot = (self.players, self.pile, self.card_on_top
+                            , self.direction, self.turns_to_stop, self.cards_to_take)
+            bot.set_bot_data(data_for_bot)
+
+    def manage_player_move(self, player):
+       # print("Game.manage_player_move")
+        self.update_bot(player)
         player_features = player.extract_features(self)
-        await self.bot.send_message(chat_id=player.chat_id,
-                              text=f"Card on top: {self.card_on_top}. Your hand: {[str(card) for card in player.hand]}")
-        await player.send_hand_images(self.bot)  # New call to send images of the player's hand
-        print("1")
-        card_played = await player.move(self.bot)
-        print("2")
+        self.console.print(f"Card on top: {self.card_on_top}. Your hand:")
+        player.show_hand()
+        self.console.print(f"Your turn! Send your move: ")
+
+        card_played = player.move()
+        self.console.print(f"Player move: {card_played}", style="rgb(255,0,0)")
         if card_played.match(self.card_on_top):
             if self.turns_to_stop != 0:
                 if not self.manage_stop(player, card_played):
-                    await self.bot.send_message(chat_id=player.chat_id, text="You have picked wrong card, try again.")
-                    await self.manage_player_move(player)
+                    self.console.print("You have picked wrong card, try again.")
+                    self.manage_player_move(player)
             elif self.cards_to_take != 0 and self.is_valid_plus_card(card_played):
                 player.play_card(card_played)
                 self.put_card(card_played.play(self))
-            elif self.cards_to_take != 0 and not self.is_valid_plus_card(card_played) and not isinstance(card_played,
-                                                                                                         DrawCard):
-                await self.bot.send_message(chat_id=player.chat_id, text="You have picked wrong card, try again.")
-                await self.manage_player_move(player)
+            elif self.cards_to_take != 0 and not self.is_valid_plus_card(card_played) and not isinstance(card_played, DrawCard):
+                self.console.print("You have picked wrong card, try again.")
+                self.manage_player_move(player)
             elif isinstance(card_played, DrawCard):
+               # print("================> ", len(self.deck.deck))
+                if len(self.deck.deck) <= 1:
+                    self.move_pile_to_deck()
                 drawed_card = self.deck.draw_card()
                 if isinstance(drawed_card, Card):
-                    await self.manage_draw(player)
+                    self.manage_draw(player)
             else:
                 player.play_card(card_played)
                 self.put_card(card_played.play(self))
         else:
-            await self.bot.send_message(chat_id=player.chat_id, text=f"Card [{card_played.color.lower()}]{card_played}[/] doesn't match card on top: [{self.card_on_top.color.lower()}]{self.card_on_top}[/]. Try again")
+            self.console.print(
+                f"Card [{card_played.color.lower()}]{card_played}[/] doesn't match card on top: [{self.card_on_top.color.lower()}]{self.card_on_top}[/]. Try again")
             return self.manage_player_move(player)
 
         if player.get_count_cards_in_hand() == 0:
@@ -281,28 +306,30 @@ class Game:
         self.features_list.append(player_features)
 
     def upgrade_features(self, features, move):
+       # print("Game.uprade_features")
         features["game_id"] = self.game_id
         features["is_game_over"] = self.get_game_over()
         features["index_of_a_player"] = self.index_of_a_player
         features["card_played"] = move
         return features
 
-    async def play(self) -> None:
+    def play(self) -> None:
         """Main game method. Controls game flow"""
-
+       # print("Game.play")
         while len(self.players) > 1:
-            clear_terminal()
-            time.sleep(4)
+            print(f"deck len {len(self.deck.deck)}")
+            print(f"pile len {len(self.pile)}")
+            print(f"Sum of all cards: {len(self.deck.deck)+len(self.pile)+len(self.players[0].hand) + len(self.players[1].hand)}")
+            #time.sleep(0.01)
             self.round += 1
-            print("\n")
+           # print("\n")
             player = self.get_player()
-            await self.bot.send_message(chat_id=player.chat_id, text=f"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 
             # Checks if player is stopped
             if player.stopped:
-                await player.update_stop_status()
+                player.update_stop_status()
             else:
-                await self.manage_player_move(player)
+                self.manage_player_move(player)
 
             if player.has_won():
                 self.drop_player(player, did_not_surrender=True)
@@ -311,34 +338,16 @@ class Game:
 
         self.drop_player(self.players[0], did_not_surrender=True)
 
-        # prints ranking
+        ## prints ranking
         for i, player in enumerate(self.ranking_table):
             self.console.print(f"Place {i + 1}: {player}")
 
         save_to_csv(self.features_list)
 
+
 def save_to_csv(data, filename='uno_game.csv'):
+   # print("save to csv")
     if filename == 'uno_game.csv':
         filename = f"{datetime.now().strftime('%Y%m%d_%H%M')}_{filename}"
     df = pd.DataFrame(data)
-    df.to_csv(filename, index=False)
-
-def clear_terminal():
-    # For Windows
-    if os.name == 'nt':
-        os.system('cls')
-    # For Unix-based systems
-    else:
-        os.system('clear')
-
-def main():
-    updater = Updater("YOUR_TELEGRAM_BOT_TOKEN", use_context=True)
-    dp = updater.dispatcher
-    game = Game(updater.bot, Player("Player 1", "CHAT_ID_1"), Player("Player 2", "CHAT_ID_2"))
-
-    dp.add_handler(CommandHandler("start", game.play))
-    updater.start_polling()
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
+    df.to_csv("games_data/"+filename, index=False)

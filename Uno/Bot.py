@@ -1,7 +1,7 @@
-from Player import *
+from Uno.Player import *
 import time
 import random
-from Card import *
+from Uno.Card import *
 
 
 class Bot(Player):
@@ -65,34 +65,34 @@ class Bot(Player):
     def change_color(self, card: ColorCard):
         card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
 
-    def move(self):
+    def move(self, card_taken = None):
         """Handles a different situations of game state and reacts accordingly"""
         # If bot could be stopped it plays stop card
+        if card_taken != None:
+            return card_taken
         if self.turns_to_stop > 0:
-            if len(self.stop_cards) > 0:
-                console.print("I'm in random choice for stop card", style="rgb(255,215,0)")
-                return random.choice(self.stop_cards)
-            else:
-                console.print("I'm in Draw a card", style="rgb(255,215,0)")
+            if len(self.stop_cards) == 0:
                 return StopCard("Stop", "Stop")
+            return random.choice(self.stop_cards)
         # If Plus2Card was played it reacts with Plus2Cards or Plus4Cards card
         elif self.cards_to_take != 0 and isinstance(self.card_on_top, Plus2Card):
+            if len(self.plus_2_cards) + len(self.plus_4_cards) == 0:
+                return DrawCard()
             if len(self.plus_2_cards) > 0:
                 return random.choice(self.plus_2_cards)
-            elif len(self.plus_4_cards) > 0:
-                print(f"LEN +4 cards: {len(self.plus_4_cards)}")
-                print(f"+4 cards: {self.plus_4_cards}")
+
+            if len(self.plus_4_cards) > 0:
                 return random.choice(self.plus_4_cards)
-            else:
-                return DrawCard()
+
         # if Plus4Cards was played it reacts with Plus4Card card
         elif self.cards_to_take != 0 and isinstance(self.card_on_top, Plus4Card):
-            if len(self.plus_4_cards) > 0:
-                plus_card = random.choice(self.plus_4_cards)
-                plus_card = self.change_color(plus_card)
-                return plus_card
-            else:
+            if len(self.plus_4_cards) == 0:
                 return DrawCard()
+
+            plus_card = random.choice(self.plus_4_cards)
+            plus_card = self.change_color(plus_card)
+            return plus_card
+
         # If there are no unusual states it picks random card from those possible to play
         else:
             return random.choice(self.valid_cards())

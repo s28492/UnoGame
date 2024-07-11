@@ -128,9 +128,6 @@ class ColorCard(Card):
         self.color = "Colors"
 
     def __str__(self):
-        if self.color == "Colors":
-            return "[red]A[/][rgb(255,165,0)]l[/][yellow]l[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(" \
-                   "255,0,255)]r[/][magenta]s[/] "
         return f"{self.value} {self.color}"
 
     def img_url(self):
@@ -160,9 +157,6 @@ class Plus4Card(ColorCard):
         self.color = "Colors"
 
     def __str__(self):
-        if self.color == "Colors":
-            return "[red]+[/][rgb(255,165,0)]4[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
-                   "255)]r[/][magenta]s[/] "
         return f"{self.value} {self.color}"
 
     def img_url(self):

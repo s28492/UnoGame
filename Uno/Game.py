@@ -9,11 +9,12 @@ from rich.console import Console
 import time
 import csv
 
-from Player import Player
+from Uno.Player import Player
 from rich import print
-from Deck import Deck
-from Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard, DrawCard
-from Bot import Bot
+from Uno.Deck import Deck
+from Uno.Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard, DrawCard
+from Uno.Bot import Bot
+from Uno.Bot_Random import BotRandom
 
 
 class Game:
@@ -57,11 +58,14 @@ class Game:
     def get_round(self):
         return self.round
 
+    def get_pile(self):
+        return self.pile
+
     def get_direction(self):
         return self.direction
 
-    def get_enemy_hand_num(self):
-        return
+    # def get_enemy_hand_num(self):
+    #     return
 
     def get_game_over(self):
         return self.game_over
@@ -88,6 +92,8 @@ class Game:
         else:
             return [player for player in players]
 
+    def check_number_of_cards_in_game(self):
+        return len(self.deck.deck)+len(self.pile)+len(self.players[0].hand) + len(self.players[1].hand)
     def deal_cards_to_players(self) -> None:
         """deals 7 cards for each player"""
         for player in self.players:
@@ -212,42 +218,53 @@ class Game:
 
     def manage_draw(self, player, first_card_taken = None):
        # print("Game manage_draw")
-        self.console.print(f"First card taken {first_card_taken}", style="rgb(255,0,0)")
-        self.console.print(f"deck len {len(self.deck.deck)}", style="rgb(255,0,0)")
+        print(f"cards to take: {self.cards_to_take}")
+        print(f"============================> {first_card_taken}")
 
-        if not isinstance(first_card_taken, Card):
+        if first_card_taken is None:
+            print(1)
             first_card_taken = self.take_card(player)
             self.cards_to_take = self.cards_to_take - 1 if self.cards_to_take != 0 else 0
 
         if isinstance(first_card_taken, Card):
+            print(2)
             if self.cards_to_take != 0 and self.is_valid_plus_card(first_card_taken):
+                print(3)
                 self.console.print(
                     f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
                 player_move = player.move(first_card_taken)
                 if isinstance(player_move, DrawCard):
+                    print(4)
                     for i in range(self.cards_to_take):
                         self.take_card(player)
                     self.cards_to_take = 0
                 elif player_move.match(self.card_on_top) and player_move == first_card_taken:
+                    print(5)
                     player.play_card(first_card_taken)
                     self.put_card(first_card_taken.play(self))
                 else:
+                    print(6)
                     self.manage_draw(player, first_card_taken=first_card_taken)
             elif self.cards_to_take == 0 and first_card_taken.match(self.card_on_top):
+                print(7)
                 self.console.print(
                     f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
                 player_move = player.move(first_card_taken)
                 if player_move == first_card_taken:
+                    print(8)
                     player.play_card(first_card_taken)
                     self.put_card(first_card_taken.play(self))
                 elif isinstance(player_move, DrawCard):
+                    print(9)
                     return
                 else:
+                    print(10)
                     self.console.print(
                         "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
                     self.manage_draw(player, first_card_taken=first_card_taken)
             else:
-                for i in range(self.cards_to_take - 1):
+                print(11)
+                for i in range(self.cards_to_take):
                     self.take_card(player)
                 self.cards_to_take = 0
 
@@ -265,7 +282,7 @@ class Game:
             bot.set_bot_data(data_for_bot)
 
     def manage_player_move(self, player):
-       # print("Game.manage_player_move")
+        print(f"{self.get_player()} move:")
         self.update_bot(player)
         player_features = player.extract_features(self)
         self.console.print(f"Card on top: {self.card_on_top}. Your hand:")
@@ -283,15 +300,11 @@ class Game:
                 player.play_card(card_played)
                 self.put_card(card_played.play(self))
             elif self.cards_to_take != 0 and not self.is_valid_plus_card(card_played) and not isinstance(card_played, DrawCard):
-                self.console.print("You have picked wrong card, try again.")
                 self.manage_player_move(player)
             elif isinstance(card_played, DrawCard):
-               # print("================> ", len(self.deck.deck))
                 if len(self.deck.deck) <= 1:
                     self.move_pile_to_deck()
-                drawed_card = self.deck.draw_card()
-                if isinstance(drawed_card, Card):
-                    self.manage_draw(player)
+                self.manage_draw(player)
             else:
                 player.play_card(card_played)
                 self.put_card(card_played.play(self))
@@ -313,13 +326,18 @@ class Game:
         features["card_played"] = move
         return features
 
-    def play(self) -> None:
+    def play(self) -> list:
         """Main game method. Controls game flow"""
        # print("Game.play")
         while len(self.players) > 1:
             print(f"deck len {len(self.deck.deck)}")
             print(f"pile len {len(self.pile)}")
-            print(f"Sum of all cards: {len(self.deck.deck)+len(self.pile)+len(self.players[0].hand) + len(self.players[1].hand)}")
+            print(f"Sum of all cards: {self.check_number_of_cards_in_game()}")
+            if len(self.deck.deck)+len(self.pile)+len(self.players[0].hand) + len(self.players[1].hand) != 108:
+                raise ValueError("Not enough cards in deck or pile")
+
+            if self.cards_to_take > 32:
+                raise ValueError("To many cards to take")
             #time.sleep(0.01)
             self.round += 1
            # print("\n")
@@ -334,6 +352,7 @@ class Game:
             if player.has_won():
                 self.drop_player(player, did_not_surrender=True)
 
+            print("\n")
             self.index_of_a_player = self.update_player_index()
 
         self.drop_player(self.players[0], did_not_surrender=True)
@@ -342,12 +361,9 @@ class Game:
         for i, player in enumerate(self.ranking_table):
             self.console.print(f"Place {i + 1}: {player}")
 
-        save_to_csv(self.features_list)
+        if isinstance(self.ranking_table[0], BotRandom):
+            return [self.features_list, "BotRandom"]
+        else:
+            return [self.features_list, "Bot"]
 
 
-def save_to_csv(data, filename='uno_game.csv'):
-   # print("save to csv")
-    if filename == 'uno_game.csv':
-        filename = f"{datetime.now().strftime('%Y%m%d_%H%M')}_{filename}"
-    df = pd.DataFrame(data)
-    df.to_csv("games_data/"+filename, index=False)

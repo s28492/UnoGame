@@ -1,6 +1,6 @@
 import itertools
 
-from Card import Card, ReverseCard, StopCard, Plus2Card, Plus4Card, ColorCard
+from Uno.Card import Card, ReverseCard, StopCard, Plus2Card, Plus4Card, ColorCard
 import random
 
 
@@ -16,7 +16,7 @@ class Deck:
         deck = []
         for card in itertools.product(self.values, self.colors):  # 19 for each color
             deck.append(Card(card[0], card[1]))
-            if card[0] != 0:
+            if card[0] != "0":
                 deck.append(Card(card[0], card[1]))
 
         for card in itertools.product(["Reverse"], self.colors):  # 2 for each color
@@ -24,8 +24,6 @@ class Deck:
             deck.append(ReverseCard(card[0], card[1]))
 
         for card in itertools.product(["Stop"], self.colors):  # 2 for each color
-            deck.append(StopCard(card[0], card[1]))
-            deck.append(StopCard(card[0], card[1]))
             deck.append(StopCard(card[0], card[1]))
             deck.append(StopCard(card[0], card[1]))
 
@@ -36,7 +34,7 @@ class Deck:
         for card in itertools.product(["+4"], self.colors):  # 1 for each color
             deck.append(Plus4Card(card[0], card[1]))
 
-        for i in range(4):  # 1 for each color
+        for i in range(4):                                   # 1 for each color
             deck.append(ColorCard("All", "Colors"))
         return deck
 
@@ -57,12 +55,9 @@ class Deck:
             self.deck.append(card)
 
     def reshuffle_discard_pile(self, discard_pile):
-        if len(discard_pile) >= 1:
-            print("HHHHHHHHHHHHHHHHHHHHHHERE")
-            self.deck.append(discard_pile)
-            self.shuffle_deck()
-        else:
-            print("No cards left to reshuffle!")
+        self.deck += discard_pile
+        self.shuffle_deck()
+
 
     def deck_length(self):
         return len(self.deck)

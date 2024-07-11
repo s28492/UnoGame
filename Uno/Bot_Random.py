@@ -1,8 +1,8 @@
 from Player import *
 import time
 import random
-from Card import *
-from Bot import Bot
+from Uno.Card import *
+from Uno.Bot import Bot
 
 
 class BotRandom(Bot):
@@ -20,11 +20,10 @@ class BotRandom(Bot):
         self.plus_4_cards = []
 
     def __str__(self):
-        return f":robot:[cyan]Bot {self.name}[/]"
+        return f":robot:[cyan] Random Bot {self.name}[/]"
 
     def set_bot_data(self, data) -> None:
         """Updates game data for bot"""
-        print("Updating...")
         self.players, self.pile, self.card_on_top, self.direction \
             , self.turns_to_stop, self.cards_to_take = data
         self.stop_cards, self.plus_2_cards, self.plus_4_cards = [], [], []
@@ -35,7 +34,6 @@ class BotRandom(Bot):
                 self.plus_2_cards.append(card)
             elif isinstance(card, Plus4Card):
                 self.plus_4_cards.append(card)
-        print("Updated.\ncard on top: ", self.card_on_top)
 
 
     def stop_card_on_hand(self) -> list:
@@ -59,7 +57,7 @@ class BotRandom(Bot):
         for card in self.hand:
             if isinstance(card, list):
                 return 10/0
-    def valid_cards(self) -> list:
+    def valid_cards(self, card_taken = None) -> list:
         """Creates a list of cards that can be played. If there isn't any, bot takes a card"""
         self.when_list_arrived()
         if self.turns_to_stop != 0:
@@ -88,7 +86,6 @@ class BotRandom(Bot):
     def collect_valid_cards_of_given_instance(self, instance):
         '''returns cards of given instance that can be played'''
         valid_cards_to_put = []
-        print(self.card_on_top)
         for card in self.hand:
             if card.match(self.card_on_top) and isinstance(card, instance):
                 valid_cards_to_put.append(card)
@@ -100,6 +97,7 @@ class BotRandom(Bot):
 
     def move(self, first_card_taken = None):
         """Handles a different situations of game state and reacts accordingly"""
+
         if first_card_taken is not None:
             return first_card_taken
         valid_cards = self.valid_cards()

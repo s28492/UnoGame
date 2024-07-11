@@ -13,7 +13,9 @@ This function starts bot thread
 
 Total lanes of code: 706
 '''
+import os
 import time
+from datetime import datetime
 
 from Player import Player
 from Bot import Bot
@@ -21,9 +23,10 @@ from Bot_Random import BotRandom
 from Game import Game
 from rich.console import Console
 import random
+import pandas as pd
+from collections import Counter
 
 console = Console()
-
 
 def create_game_with_players(players) -> Game:
     """returns game with initialized starting state"""
@@ -62,7 +65,7 @@ def main() -> None:
         console.print("[bold red]Wrong choice![/bold red]\nLet's try again...\n")
         main()
 
-
+who_won = []
 def start_2_bot_games():
     bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
     random.shuffle(bot_names)
@@ -72,15 +75,48 @@ def start_2_bot_games():
     num_bots = 2
     bots = [BotRandom(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
     game = create_game_with_players(bots)
-    game.play()
+    return game.play()
 
 def start_many_games():
-    number_of_games = 10
+    number_of_games = 1000
+    games_data = pd.DataFrame()
     start_time = time.time()
+    who_won = []
     for i in range(number_of_games):
-        start_2_bot_games()
+        game = start_2_bot_games()
+        pd.concat([games_data, pd.DataFrame(game[0])])
+        who_won.append(game[1])
     end_time = time.time()
+    save_to_csv(games_data, 'uno_game.csv')
+    print(f"Score: {Counter(who_won)}")
     print(f"{number_of_games} games played in: {end_time-start_time}")
+
+
+def save_to_csv(data, filename='uno_game.csv', folder='games_data'):
+    # If the default filename is used, append a timestamp
+    if filename == 'uno_game.csv':
+        filename = f"{datetime.now().strftime('%Y%m%d_%H%M')}_{filename}"
+
+    # Create the full filepath
+    filepath = os.path.join(folder, filename)
+
+    # Ensure the folder exists
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    # Create a DataFrame from the new data
+    new_df = pd.DataFrame(data)
+
+    if os.path.exists(filepath):
+        # If the file exists, read the existing data
+        existing_df = pd.read_csv(filepath)
+        # Concatenate the existing data with the new data
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+        # Save the combined data back to the file
+        combined_df.to_csv(filepath, index=False)
+    else:
+        # If the file does not exist, create a new file with the new data
+        new_df.to_csv(filepath, index=False)
 
 if __name__ == "__main__":
     start_many_games()

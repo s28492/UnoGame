@@ -1,4 +1,4 @@
-from Card import Card, SurrenderCard, DrawCard, StopCard, Plus4Card, ColorCard
+from Uno.Card import Card, SurrenderCard, DrawCard, StopCard, Plus4Card, ColorCard
 from rich.console import Console
 
 IMAGE_DIRECTORY = "CardsImage"  # Added directory path for card images
@@ -28,11 +28,7 @@ class Player:
             "+2": 0,
             "+4": 0,
         }
-        print(f"hand in count cards")
         for card in self.hand:
-            print(card)
-            if isinstance(card, list):
-                print(f"=======================================> {card[0]}")
             if card.color in card_dict:
                 card_dict[card.color] += 1
             if card.value in card_dict:
@@ -80,8 +76,10 @@ class Player:
     def get_game_state(self, game):
         pass
 
-    def move(self):
+    def move(self, card_taken = None):
+
         card_to_play = input().split(" ")
+
         if card_to_play[0] == "Surrender":  # Surrenders
             return SurrenderCard()
         elif card_to_play[0] == "Draw":  # Draws a card
@@ -93,6 +91,9 @@ class Player:
             return self.move()
         elif card_to_play[1] not in ["Red", "Green", "Blue", "Yellow"]:
             self.console.print("It seems that you have given wrong values. Let's try again")
+            return self.move()
+        elif card_taken != None and card_to_play[0] != card_taken.value and card_to_play[1] != card_taken.color:
+            print("You have to pick card you drawed!!")
             return self.move()
         elif card_to_play[0] == "+4":  # Looks for +4 cards in hand
             find_card = self.find_in_hand(value="+4")

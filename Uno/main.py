@@ -73,12 +73,13 @@ def start_2_bot_games():
     game = None
 
     num_bots = 2
-    bots = [BotRandom(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
+    bots = [BotRandom(bot_names.pop()), Bot(bot_names.pop())]
+    random.shuffle(bots)
     game = create_game_with_players(bots)
     return game.play()
 
 def start_many_games():
-    number_of_games = 1000
+    number_of_games = 10_000
     games_data = pd.DataFrame()
     start_time = time.time()
     who_won = []

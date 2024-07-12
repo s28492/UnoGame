@@ -54,7 +54,15 @@ class Deck:
         for card in hand:
             self.deck.append(card)
 
+    def reset_colored_cards(self, discard_pile):
+        """Resets Colored cards being moved to the deck from pile"""
+        for card in discard_pile:
+            if isinstance(card, ColorCard):
+                card.color = "Color"
+        return discard_pile
+
     def reshuffle_discard_pile(self, discard_pile):
+        discard_pile = self.reset_colored_cards(discard_pile)
         self.deck += discard_pile
         self.shuffle_deck()
 

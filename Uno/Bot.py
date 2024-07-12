@@ -23,8 +23,7 @@ class Bot(Player):
 
     def set_bot_data(self, data) -> None:
         """Updates game data for bot"""
-        self.players, self.pile, self.card_on_top, self.direction \
-            , self.turns_to_stop, self.cards_to_take = data
+        self.players, self.pile, self.card_on_top, self.direction, self.turns_to_stop, self.cards_to_take = data
         self.stop_cards, self.plus_2_cards, self.plus_4_cards = [], [], []
         for card in self.hand:
             if isinstance(card, StopCard):
@@ -58,18 +57,23 @@ class Bot(Player):
         for card in self.hand:
             if card.match(self.card_on_top):
                 valid_cards_to_put.append(card)
-            elif len(valid_cards_to_put) > 0:
-                return valid_cards_to_put
-            else:
-                return [DrawCard()]
+        if len(valid_cards_to_put) > 0:
+            return valid_cards_to_put
+        else:
+            return []
+
     def change_color(self, card: ColorCard):
         card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
 
-    def move(self, card_taken = None):
+    def move(self, first_card_taken = None):
         """Handles a different situations of game state and reacts accordingly"""
         # If bot could be stopped it plays stop card
-        if card_taken != None:
-            return card_taken
+        if isinstance(first_card_taken, ColorCard):
+            self.change_color(first_card_taken)
+
+        if first_card_taken is not None:
+            return first_card_taken
+
         if self.turns_to_stop > 0:
             if len(self.stop_cards) == 0:
                 return StopCard("Stop", "Stop")
@@ -82,17 +86,24 @@ class Bot(Player):
                 return random.choice(self.plus_2_cards)
 
             if len(self.plus_4_cards) > 0:
-                return random.choice(self.plus_4_cards)
+                choosen_card = random.choice(self.plus_4_cards)
+                self.change_color(choosen_card)
+                return choosen_card
 
         # if Plus4Cards was played it reacts with Plus4Card card
         elif self.cards_to_take != 0 and isinstance(self.card_on_top, Plus4Card):
             if len(self.plus_4_cards) == 0:
                 return DrawCard()
-
             plus_card = random.choice(self.plus_4_cards)
-            plus_card = self.change_color(plus_card)
+            self.change_color(plus_card)
             return plus_card
 
         # If there are no unusual states it picks random card from those possible to play
         else:
-            return random.choice(self.valid_cards())
+            if len(self.valid_cards()) > 0:
+                choosen_card = random.choice(self.valid_cards())
+                if isinstance(choosen_card, ColorCard):
+                    self.change_color(choosen_card)
+                return choosen_card
+            else:
+                return DrawCard()

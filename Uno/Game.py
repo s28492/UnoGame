@@ -117,7 +117,7 @@ class Game:
         """Checks if hand is empty. If yes, the player has finished and is removed from players list"""
         if len(player.hand) == 0:
             self.drop_player(player, did_not_surrender=True)
-            self.console.print(f"Congratulations {player}. You have finished the game", style="rgb(255,215,0)")
+            #self.console.print(f"Congratulations {player}. You have finished the game", style="rgb(255,215,0)")
 
     def drop_player(self, player: Player, did_not_surrender=False) -> None:
         """Removes player from players list
@@ -213,8 +213,8 @@ class Game:
             self.cards_to_take = self.cards_to_take - 1 if self.cards_to_take != 0 else 0
 
         if self.cards_to_take != 0 and self.is_valid_plus_card(first_card_taken):
-            self.console.print(
-                f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
+            # self.console.print(
+            #     f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
             player_move = player.move(first_card_taken)
             if isinstance(player_move, DrawCard):
                 for i in range(self.cards_to_take):
@@ -226,8 +226,8 @@ class Game:
             else:
                 self.manage_draw(player, first_card_taken=first_card_taken)
         elif self.cards_to_take == 0 and first_card_taken.match(self.card_on_top):
-            self.console.print(
-                f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
+            # self.console.print(
+            #     f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
             player_move = player.move(first_card_taken)
             if player_move == first_card_taken or (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value):
                 player.play_card(player_move)
@@ -235,8 +235,8 @@ class Game:
             elif isinstance(player_move, DrawCard):
                 return
             else:
-                self.console.print(
-                    "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
+                # self.console.print(
+                #     "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
                 self.manage_draw(player, first_card_taken=first_card_taken)
         else:
             for i in range(self.cards_to_take):
@@ -260,11 +260,11 @@ class Game:
         player.show_hand()
 
         card_played = player.move()
-        self.console.print(f"Player move: {card_played}", style="rgb(255,0,0)")
+        #self.console.print(f"Player move: {card_played}", style="rgb(255,0,0)")
         if card_played.match(self.card_on_top):
             if self.turns_to_stop != 0:
                 if not self.manage_stop(player, card_played):
-                    self.console.print("You have picked wrong card, try again.")
+                    #self.console.print("You have picked wrong card, try again.")
                     self.manage_player_move(player)
             elif self.cards_to_take != 0 and self.is_valid_plus_card(card_played):
                 player.play_card(card_played)
@@ -279,8 +279,8 @@ class Game:
                 player.play_card(card_played)
                 self.put_card(card_played.play(self))
         else:
-            self.console.print(
-                f"Card [{card_played.color.lower()}]{card_played}[/] doesn't match card on top: [{self.card_on_top.color.lower()}]{self.card_on_top}[/]. Try again")
+            # self.console.print(
+            #     f"Card [{card_played.color.lower()}]{card_played}[/] doesn't match card on top: [{self.card_on_top.color.lower()}]{self.card_on_top}[/]. Try again")
             return self.manage_player_move(player)
 
         if player.get_count_cards_in_hand() == 0:
@@ -315,15 +315,15 @@ class Game:
             if player.has_won():
                 self.drop_player(player, did_not_surrender=True)
 
-            print("\n")
-            if "Color" in str(self.card_on_top) and self.round > 1:
+            #print("\n")
+            if "Color" in str(self.card_on_top) and len(self.pile) > 1:
                 raise ValueError("Color on top")
             self.index_of_a_player = self.update_player_index()
 
         self.drop_player(self.players[0], did_not_surrender=True)
 
-        for i, player in enumerate(self.ranking_table):
-            self.console.print(f"Place {i + 1}: {player}")
+        # for i, player in enumerate(self.ranking_table):
+        #     self.console.print(f"Place {i + 1}: {player}")
 
         return [self.features_list, type(self.ranking_table[0])]
 

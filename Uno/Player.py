@@ -71,7 +71,7 @@ class Player:
         str = f"Your hand: [cyan]{len(self.hand)} cards[/]\n| "
         for card in self.hand:
             str += f"[bold {card.color.lower()}]{card}[/] |"
-        self.console.print(str, style="bold")
+        #self.console.print(str, style="bold")
 
     def get_game_state(self, game):
         pass

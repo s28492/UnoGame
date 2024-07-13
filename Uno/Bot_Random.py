@@ -15,31 +15,13 @@ class BotRandom(Bot):
         return f":robot:[cyan] Random Bot {self.name}[/]"
 
 
-
-    def stop_card_on_hand(self) -> list:
-        """Create and return all stop cards in bot "hand"""
-        stop_cards = []
-        for card in self.hand:
-            if isinstance(card, StopCard):
-                stop_cards.append(card)
-        return stop_cards
-
     def choose_color(self) -> str:
         """Bot chooses color of "Color" card based on what color he has the most in "hand\""""
         possible_colors = ["Red", "Green", "Blue", "Yellow"]
-        most_colors = sorted(self.hand, key=lambda card_in_hand: card_in_hand.color)
-        for card in most_colors:
-            if card.color in possible_colors:
-                return card.color
         return random.choice(possible_colors)
 
-    def when_list_arrived(self):
-        for card in self.hand:
-            if isinstance(card, list):
-                return 10/0
     def valid_cards(self, card_taken = None) -> list:
         """Creates a list of cards that can be played. If there isn't any, bot takes a card"""
-        self.when_list_arrived()
         if self.turns_to_stop != 0:
             valid_cards = self.collect_valid_cards_of_given_instance(StopCard)
             return valid_cards if len(valid_cards) > 0 else [StopCard("Stop", "Stop")]
@@ -73,7 +55,7 @@ class BotRandom(Bot):
 
 
     def change_color(self, card: ColorCard):
-        card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
+        card.change_color(self.choose_color())
 
     def move(self, first_card_taken=None):
         """Handles a different situations of game state and reacts accordingly"""

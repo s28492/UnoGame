@@ -1,7 +1,5 @@
-from Uno.Player import *
-import time
-import random
-from Uno.Card import *
+from Uno.players.Player import *
+from Uno.game.Card import *
 
 
 class Bot(Player):
@@ -17,6 +15,7 @@ class Bot(Player):
         self.stop_cards = []
         self.plus_2_cards = []
         self.plus_4_cards = []
+        self.possible_colors = ["Red", "Green", "Blue", "Yellow"]
 
     def __str__(self):
         return f":robot:[cyan]Bot {self.name}[/]"

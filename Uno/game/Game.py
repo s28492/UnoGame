@@ -1,20 +1,11 @@
-import itertools
-import os
-import random
 import uuid
-from datetime import datetime
 
-import pandas as pd
 from rich.console import Console
-import time
-import csv
 
-from Uno.Player import Player
-from rich import print
-from Uno.Deck import Deck
-from Uno.Card import Card, StopCard, Plus2Card, Plus4Card, ColorCard, ReverseCard, DrawCard
-from Bot import Bot
-from Uno.Bot_Random import BotRandom
+from Uno.players.Player import Player
+from Uno.game.Deck import Deck
+from Uno.game.Card import Plus4Card, ColorCard, DrawCard
+from Uno.players.Bot import Bot
 
 
 class Game:

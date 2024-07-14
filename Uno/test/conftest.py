@@ -1,6 +1,6 @@
-from Uno.Bot import Bot
-from Uno.Deck import Deck
-from Uno.Game import Game
+from Uno.players.Bot import Bot
+from Uno.game.Deck import Deck
+from Uno.game.Game import Game
 import pytest
 
 @pytest.fixture(scope="class")

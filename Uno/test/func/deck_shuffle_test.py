@@ -1,7 +1,6 @@
 import pytest
-from Uno.Bot import Bot
-from Uno.Deck import Deck
-from Uno.Game import Game
+
+
 @pytest.mark.usefixtures('deck_instance', 'deck_instance', 'player_instance')
 class TestDeckManagement:
     def test_deck_shuffle(self, deck_instance

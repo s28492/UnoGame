@@ -1,4 +1,4 @@
-from Uno.Card import Card, SurrenderCard, DrawCard, StopCard, Plus4Card, ColorCard
+from Uno.game.Card import Card, SurrenderCard, DrawCard, StopCard, ColorCard
 from rich.console import Console
 
 IMAGE_DIRECTORY = "CardsImage"  # Added directory path for card images

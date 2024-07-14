@@ -1,8 +1,6 @@
-from Uno.Player import *
-import time
 import random
-from Bot import Bot
-from Uno.Card import *
+from Uno.players.Bot import Bot
+from Uno.game.Card import *
 
 
 class BasicLogicBot(Bot):

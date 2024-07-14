@@ -1,4 +1,4 @@
-import Player
+from Uno.players import Player
 
 
 class ID3Bot(Player):

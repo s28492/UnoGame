@@ -1,16 +1,19 @@
-from Uno.Player import *
-import time
 import random
-from Bot import Bot
-from Uno.Card import *
-from collections import Counter
+from Uno.players.Bot import Bot
+from Uno.game.Card import *
 
 
-
-class AgressiveBot(Bot):
+class BLBUpgradedColorChoosing(Bot):
+    card_in_game_dict = {"<class 'Uno.game.Card.Card'>": 76
+        , "<class 'Uno.game.Card.ReverseCard'>": 8
+        , "<class 'Uno.game.Card.StopCard'>": 8
+        , "<class 'Uno.game.Card.Plus2Card'>": 8
+        , "<class 'Uno.game.Card.Plus4Card'>": 4
+        , "<class 'Uno.game.Card.ColorCard'>": 4}
     def __init__(self, name: str):
         """Initializes bot"""
         super().__init__(name)
+        self.card_in_game_dict_instance = None
 
     def __str__(self):
         return f":robot:[cyan]BLB {self.name}[/]"
@@ -19,18 +22,33 @@ class AgressiveBot(Bot):
     def colors_of_list(list):
         return [card.color for card in list]
 
-    def choose_color(self) -> str:
+    @staticmethod
+    def card_of_given_color_from_list(color, list_of_cards):
+        for card in list_of_cards:
+            if card.color == color:
+                return card
+
+    def choose_color(self, card_of_given_type=None) -> str:
         """Bot chooses color of "Color" card based on what color he has the most in "hand\""""
-        possible_colors = ["Red", "Green", "Blue", "Yellow"]
+        cards = ""
+        for card in card_of_given_type:
+            cards += f"{card} "
+        # print(cards)
         all_colors = self.colors_of_list(self.pile)
         hand_colors = self.colors_of_list(self.hand)
-        ratio = len(all_colors + hand_colors)/len(hand_colors)
         max_num = 0
         color_to_return = ""
-        for color in possible_colors:
-            num_of_color = all_colors.count(color) + hand_colors.count(color)*ratio
+        for color in self.possible_colors:
+            if color not in self.colors_of_list(card_of_given_type):
+                continue
+            # print(color)
+            # if card_of_given_type is not None:
+            # print(f"Wartość dla koloru: {color in self.colors_of_list(card_of_given_type)}")
+            num_of_color = all_colors.count(color) / len(all_colors) + hand_colors.count(color) / len(hand_colors)
             max_num = num_of_color if max_num < num_of_color else max_num
-            if color in hand_colors and num_of_color == max_num:
+            if color in hand_colors and card_of_given_type is None and num_of_color == max_num:
+                color_to_return = color
+            elif card_of_given_type is not None and num_of_color == max_num:
                 color_to_return = color
         return color_to_return
 
@@ -62,13 +80,17 @@ class AgressiveBot(Bot):
         if self.turns_to_stop > 0:
             if len(self.stop_cards) == 0:
                 return StopCard("Stop", "Stop")
-            return random.choice(self.stop_cards)
+            color = self.choose_color(self.stop_cards)
+            card_to_play = self.card_of_given_color_from_list(color, self.stop_cards)
+            return card_to_play
         # If Plus2Card was played it reacts with Plus2Cards or Plus4Cards card
         elif self.cards_to_take != 0 and isinstance(self.card_on_top, Plus2Card):
             if len(self.plus_2_cards) + len(self.plus_4_cards) == 0:
                 return DrawCard()
             if len(self.plus_2_cards) > 0:
-                return random.choice(self.plus_2_cards)
+                color = self.choose_color(self.plus_2_cards)
+                card_to_play = self.card_of_given_color_from_list(color, self.plus_2_cards)
+                return card_to_play
 
             if len(self.plus_4_cards) > 0:
                 choosen_card = random.choice(self.plus_4_cards)

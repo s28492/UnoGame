@@ -1,6 +1,6 @@
 import itertools
 
-from Uno.Card import Card, ReverseCard, StopCard, Plus2Card, Plus4Card, ColorCard
+from Uno.game.Card import Card, ReverseCard, StopCard, Plus2Card, Plus4Card, ColorCard
 import random
 
 

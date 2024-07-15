@@ -1,8 +1,10 @@
+from datetime import datetime
 import os
 import pandas as pd
 
 
-def merge_csv_files_in_chunks(output_filename='MergedCSV/merged.csv', chunk_size=100000):
+def merge_csv_files_in_chunks(output_filename='merged.csv', chunk_size=100000):
+    output_filename = f"MergedCSV/{datetime.now().strftime('%Y%m%d_%H%M')}_"+output_filename
     for filename in os.listdir('.'):
         if filename.endswith('.csv'):
             # Odczytywanie pliku CSV w kawałkach

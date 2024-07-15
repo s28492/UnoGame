@@ -6,6 +6,7 @@ from Uno.players.Player import Player
 from Uno.game.Deck import Deck
 from Uno.game.Card import Plus4Card, ColorCard, DrawCard
 from Uno.players.Bot import Bot
+from Uno.DecisionTrees import ID3Bot
 
 
 class Game:
@@ -244,7 +245,9 @@ class Game:
             data_for_bot = (self.players, self.pile, self.card_on_top
                             , self.direction, self.turns_to_stop, self.cards_to_take)
             bot.set_bot_data(data_for_bot)
-
+    def update_ai(self, bot):
+        if isinstance(bot, ID3Bot):
+            bot.create_row(bot.extract_features(self).update(self.upgrade_features()))
     def manage_player_move(self, player):
         self.update_bot(player)
         player_features = player.extract_features(self)
@@ -279,11 +282,12 @@ class Game:
         player_features = self.upgrade_features(player_features, card_played)
         self.features_list.append(player_features)
 
-    def upgrade_features(self, features, move):
+    def upgrade_features(self, features, move, data_for_bot = False):
         features["game_id"] = self.game_id
         features["is_game_over"] = self.get_game_over()
         features["index_of_a_player"] = self.index_of_a_player
-        features["card_played"] = move
+        if not data_for_bot:
+            features["card_played"] = move
         return features
 
 

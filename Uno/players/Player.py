@@ -13,7 +13,6 @@ class Player:
         self.first_taken = False
         self.console = Console()
         self.features = {}
-        self.console = Console()
 
     def get_features(self):
         return self.features

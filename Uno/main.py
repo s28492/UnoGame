@@ -7,6 +7,7 @@ from Uno.players.Bot_Random import BotRandom
 from Uno.players.BasicLogicBot import BasicLogicBot
 from Uno.players.AgressiveBot import AgressiveBot
 from Uno.players.BLBUpgradedColorChoosing import BLBUpgradedColorChoosing
+from Uno.DecisionTrees.ID3Bot import ID3Bot
 from Uno.game.Game import Game
 from rich.console import Console
 import random
@@ -15,6 +16,7 @@ from collections import Counter
 from rich.progress import Progress
 
 console = Console()
+bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
 
 
 def create_game_with_players(*players) -> Game:
@@ -55,74 +57,71 @@ def main() -> None:
         main()
 
 
-def start_2_bot_games():
-    bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
+def start_2_bot_games(matchup):
     random.shuffle(bot_names)
-    bots = []
-    game = None
+    game = create_game_with_players(*matchup)
+    return game.play()
 
-    #num_bots = 2
-    #bots = [BotRandom(bot_names.pop()), AgressiveBot(bot_names.pop()), BasicLogicBot(bot_names.pop())]
-    #random.shuffle(bots)
-    agressive_random = [BotRandom(bot_names.pop()), BLBUpgradedColorChoosing(bot_names.pop())]
-    agressive_blb = [BLBUpgradedColorChoosing(bot_names.pop()), BasicLogicBot(bot_names.pop())]
-    agressive_blbucc = [AgressiveBot(bot_names.pop()), BLBUpgradedColorChoosing(bot_names.pop())]
-    game1 = create_game_with_players(*agressive_random)
-    game2 = create_game_with_players(*agressive_blb)
-    game3 = create_game_with_players(*agressive_blbucc)
-    #game1 = create_game_with_players([BotRandom(bot_names.pop()), BasicLogicBot(bot_names.pop()))
-    return game1.play(), game2.play(), game3.play()
+def create_instances(bots):
+    names = bot_names.copy()
+    random.shuffle(names)
+    instances_to_return = []
+    for bot in bots:
+        if bot == "BasicLogicBot":
+            instances_to_return.append(BasicLogicBot(names.pop()))
+        elif bot == "AgressiveBot":
+            instances_to_return.append(AgressiveBot(names.pop()))
+        elif bot == "ID3Bot":
+            name = names.pop()
+            instances_to_return.append(ID3Bot(name))
+        else:
+            instances_to_return.append(BLBUpgradedColorChoosing(names.pop()))
+    return instances_to_return
 
-
-def start_many_games():
-    number_of_games = 1_000
+def start_many_games(matchups, number_of_games = 1_000):
     games_data = pd.DataFrame()
-    who_won1 = []
-    who_won2 = []
-    who_won3 = []
-    iterator = 0
-    start_time = time.time()
-    with Progress() as progress:
-        task1 = progress.add_task(f"Playing {number_of_games} games ...", total=number_of_games)
-        task2 = progress.add_task(f"Playing {number_of_games} games ...", total=number_of_games)
-        task3 = progress.add_task(f"Playing {number_of_games} games ...", total=number_of_games)
+    who_won_tables = []
+    for _ in range(len(matchups)):
+        who_won_tables.append([])
 
-        while not progress.finished:
-            iterator += 1
-            progress.update(task1, advance=1)
-            progress.update(task2, advance=1)
-            progress.update(task3, advance=1)
-            game = start_2_bot_games()
-            game1_df = pd.DataFrame(game[0][0])
-            game2_df = pd.DataFrame(game[1][0])
-            game3_df = pd.DataFrame(game[2][0])
-            games_data = pd.concat([games_data, game1_df, game2_df, game3_df], ignore_index=True)
-            who_won1.append(game[0][1])
-            who_won2.append(game[1][1])
-            who_won3.append(game[2][1])
-            if iterator % 10_000:
-                save_to_csv(games_data, 'uno_game.csv')
-                games_data.drop(games_data.index, inplace=True)
+    start_time = time.time()
+    for i in range(number_of_games):
+        for j, matchup in enumerate(matchups):
+            bots = create_instances(matchup)
+            #print("Starting games...")
+            game = start_2_bot_games(bots)
+            current_game_data = assign_did_win(pd.DataFrame(game[0]))
+            games_data = pd.concat([games_data, current_game_data], ignore_index=True)
+            who_won_tables[j].append(game[1])
+        if (i % 2_000 == 0 and i != 0) or i == number_of_games -1:
+            file_name = save_to_csv(games_data, 'uno_game.csv')
+            games_data.drop(games_data.index, inplace=True)
+            print(f"{i} Saved to file '{file_name}'...")
 
     end_time = time.time()
-    save_to_csv(games_data, 'uno_game.csv')
-    win_count1 = Counter(who_won1)
-    win_count2 = Counter(who_won2)
-    win_count3 = Counter(who_won3)
-    print(f"\nScore: {win_count1} against random")
-    print(f"Proportion: {round(list(win_count1.values())[0] / (list(win_count1.values())[0] + list(win_count1.values())[1]), 2)}%")
-    print(f"\nScore: {win_count2} against blb")
-    print(f"Proportion: {round(list(win_count2.values())[0] / (list(win_count2.values())[0] + list(win_count2.values())[1]), 2)}%")
-    print(f"\nScore: {win_count3} against blb")
-    print(f"Proportion: {round(list(win_count3.values())[0] / (list(win_count3.values())[0] + list(win_count3.values())[1]), 2)}%")
-    print(f"{iterator*3} games played in: {round(end_time - start_time)} seconds")
+    for i in range(len(who_won_tables)):
+        win_count = Counter(who_won_tables[i])
+        print(f"\nScore: {win_count}")
+        print(f"Proportion: {round(list(win_count.values())[0] / (list(win_count.values())[0] + list(win_count.values())[1]), 2)}%")
+    print("Time taken to play:", round((end_time - start_time) / 60, 2), "min")
 
 
+def assign_did_win(df):
+    df['did_win'] = False  # Najpierw ustaw wszystkie wartości na False
+    games = df['game_id'].unique()
+    for game in games:
+        game_df = df[df['game_id'] == game]
+        winning_indices = game_df[game_df['is_game_over']].index
+        for idx in winning_indices:
+            player_index = game_df.loc[idx, 'index_of_a_player']
+            df.loc[(df['game_id'] == game) & (df['index_of_a_player'] == player_index), 'did_win'] = True
+    return df
 
 def save_to_csv(data, filename='uno_game.csv', folder='games_data'):
     # If the default filename is used, append a timestamp
     if filename == 'uno_game.csv':
         filename = f"{datetime.now().strftime('%Y%m%d_%H%M')}_{filename}"
+
 
     # Create the full filepath
     filepath = os.path.join(folder, filename)
@@ -147,7 +146,11 @@ def save_to_csv(data, filename='uno_game.csv', folder='games_data'):
         # print("File does not exist. Creating new file.")
         # If the file does not exist, create a new file with the new data
         new_df.to_csv(filepath, index=False)
+    return filename
 
 
 if __name__ == "__main__":
-    start_many_games()
+    start_many_games([["BasicLogicBot", "ID3Bot--"],
+                      ["AgressiveBot", "BasicLogicBot"],
+                      ["AgressiveBot", "BLBUpgradedColorChoosing"],]
+                     , 100)

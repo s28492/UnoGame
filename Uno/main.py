@@ -8,6 +8,7 @@ from Uno.players.BasicLogicBot import BasicLogicBot
 from Uno.players.AgressiveBot import AgressiveBot
 from Uno.players.BLBUpgradedColorChoosing import BLBUpgradedColorChoosing
 from Uno.DecisionTrees.ID3Bot import ID3Bot
+from Uno.DecisionTrees.ID3Tree import ID3Tree
 from Uno.game.Game import Game
 from rich.console import Console
 import random
@@ -150,7 +151,7 @@ def save_to_csv(data, filename='uno_game.csv', folder='games_data'):
 
 
 if __name__ == "__main__":
-    start_many_games([["BasicLogicBot", "ID3Bot--"],
-                      ["AgressiveBot", "BasicLogicBot"],
-                      ["AgressiveBot", "BLBUpgradedColorChoosing"],]
-                     , 100)
+    start_many_games([["ID3Bot", "BasicLogicBot"],
+                      ["AgressiveBot", "ID3Bot"],
+                      ["ID3Bot", "BLBUpgradedColorChoosing"]]
+                     , 10_000)

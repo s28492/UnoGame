@@ -217,7 +217,7 @@ class Game:
                 self.put_card(player_move.play(self))
             else:
                 self.manage_draw(player, first_card_taken=first_card_taken)
-        elif self.cards_to_take == 0 and first_card_taken.match(self.card_on_top):
+        elif self.cards_to_take == 0 and first_card_taken is not None and first_card_taken.match(self.card_on_top):
             # self.console.print(
             #     f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
             player_move = player.move(first_card_taken)
@@ -246,10 +246,14 @@ class Game:
                             , self.direction, self.turns_to_stop, self.cards_to_take)
             bot.set_bot_data(data_for_bot)
     def update_ai(self, bot):
-        if isinstance(bot, ID3Bot):
-            bot.create_row(bot.extract_features(self).update(self.upgrade_features()))
+        if isinstance(bot, ID3Bot.ID3Bot):
+            bot_features = bot.extract_features(self)
+            game_features = self.upgrade_features(data_for_bot=True)
+            result = {**bot_features, **game_features}
+            bot.create_row(result)
     def manage_player_move(self, player):
         self.update_bot(player)
+        self.update_ai(player)
         player_features = player.extract_features(self)
         player.show_hand()
 
@@ -282,11 +286,13 @@ class Game:
         player_features = self.upgrade_features(player_features, card_played)
         self.features_list.append(player_features)
 
-    def upgrade_features(self, features, move, data_for_bot = False):
-        features["game_id"] = self.game_id
+    def upgrade_features(self, features = None, move = None, data_for_bot = False):
+        if features is None:
+            features = {}
         features["is_game_over"] = self.get_game_over()
         features["index_of_a_player"] = self.index_of_a_player
         if not data_for_bot:
+            features["game_id"] = self.game_id
             features["card_played"] = move
         return features
 

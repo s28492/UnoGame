@@ -1,13 +1,16 @@
 import pandas as pd
-from Uno.DecisionTrees.ID3Tree import ID3Tree, load_tree
+from Uno.DecisionTrees.ID3Tree import ID3Tree, load_tree, decode_columns
 from Uno.players.Bot import Bot
 from Uno.game.Card import *
+import random
+import os
 class ID3Bot(Bot):
     def __init__(self, name:str
-                 , tree_file:str="/media/perceptron/xD/Projekty/Python/UnoGame/Uno/DecisionTrees/20240715_0322_id_tree.pkl"):
+                 , tree_file:str="/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240716_2005_id_tree.pkl"):
         super().__init__(name)
         self.current_data = pd.DataFrame()
-        self.id_tree = load_tree(tree_file)
+        self.current_row = pd.DataFrame()
+        self.id_tree: ID3Tree = load_tree(tree_file)
 
     def collect_valid_cards_of_given_instance(self, instance):
         '''returns cards of given instance that can be played'''
@@ -24,6 +27,7 @@ class ID3Bot(Bot):
 
     def valid_cards(self, card_taken = None) -> list:
         """Creates a list of cards that can be played. If there isn't any, bot takes a card"""
+        valid_cards = []
         if card_taken is not None:
             return [card_taken, DrawCard()]
 
@@ -48,11 +52,9 @@ class ID3Bot(Bot):
         return valid_cards
 
     def create_row(self, dict):
-        row = pd.Dataframe.from_dict(dict, orient='index')
-        self.current_data = pd.concat([self.current_data, row], axis=1, ignore_index=True)
-        print(self.current_data)
-    def create_dataframe(self):
-        features = self.extract_features()
+        self.current_row = pd.DataFrame(data=[dict])
+        self.current_data = pd.concat([self.current_data, self.current_row], ignore_index=True)
+
 
     def filter_cards_from_hand(self, node):
         cards_occurences_dict = {}
@@ -71,8 +73,46 @@ class ID3Bot(Bot):
                 pass
 
     def move(self, first_card_taken=None):
+        self.console.print(self.show_hand())
         valid_cards = self.valid_cards(card_taken=first_card_taken)
-        node_values = self.id_tree.predict(self.current_data)
-        print(node_values)
+        node_values = self.id_tree.predict(self.current_row).value_counts(sort=True)
+        for index_card in node_values.index.to_list():
+            card = self.create_card_instance(index_card)
+            if card in valid_cards:
+                if isinstance(card, ColorCard):
+                    card.change_color(self.choose_color())
+                print(f"Card in loop {card}")
+                return card
+        card = random.choice(valid_cards)
+        if isinstance(card, ColorCard):
+            card.change_color(self.choose_color())
+        self.console.print(f"Card in the end {card}")
+        return card
 
-
+    def choose_color(self) -> str:
+        """Bot chooses color of "Color" card based on what color he has the most in "hand\""""
+        possible_colors = ["Red", "Green", "Blue", "Yellow"]
+        most_colors = sorted(self.hand, key=lambda card_in_hand: card_in_hand.color)
+        for card in most_colors:
+            if card.color in possible_colors:
+                return card.color
+        return random.choice(possible_colors)
+    def create_card_instance(self, card_value: str):
+        card_value = card_value.split(" ")
+        if card_value[0] == "+4":
+            card = Plus4Card(card_value[0], card_value[1])
+        elif card_value[0] == "All":
+            card = ColorCard(card_value[0], card_value[1])
+        elif card_value[0] == "Stop" and len(card_value) == 1:
+            card = StopCard(card_value[0], card_value[0])
+        elif card_value[0] == "Stop" and len(card_value) == 2:
+            card = StopCard(card_value[0], card_value[1])
+        elif card_value[0] == "+2":
+            card = Plus2Card(card_value[0], card_value[1])
+        elif card_value[0] == "Reverse":
+            card = ReverseCard(card_value[0], card_value[1])
+        elif card_value[0] == "Draw":
+            card = DrawCard()
+        else:
+            card = Card(card_value[0], card_value[1])
+        return card

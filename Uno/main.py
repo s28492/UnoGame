@@ -1,67 +1,34 @@
 import os
 import time
 from datetime import datetime
-from Uno.players.Player import Player
-from Uno.players.Bot import Bot
 from Uno.players.Bot_Random import BotRandom
 from Uno.players.BasicLogicBot import BasicLogicBot
 from Uno.players.AgressiveBot import AgressiveBot
 from Uno.players.BLBUpgradedColorChoosing import BLBUpgradedColorChoosing
-from Uno.DecisionTrees.ID3Bot import ID3Bot
-from Uno.DecisionTrees.ID3Tree import ID3Tree
+from Uno.AIPlayers.ID3Bot import ID3Bot
+from Uno.AIPlayers.NaiveBayesianBot import NaiveBayesianBot
+from Uno.DecisionTrees.ID3Tree import ID3Tree, load_tree, encode_data
 from Uno.game.Game import Game
 from rich.console import Console
+from multiprocessing import Pool, Manager, cpu_count
 import random
 import pandas as pd
 from collections import Counter
-from rich.progress import Progress
 
 console = Console()
 bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
-
-
+tree_instances = [load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240727_1631_id_tree.pkl"),
+                  load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240801_2159_improved_7_nodes_deep_decoded_target_values_tree.pkl")]
+pd.set_option('future.no_silent_downcasting', True)
+data: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data.csv")
+data, label = encode_data(data)
+data2: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data1.csv")
+print(data2.info())
+data2, label2 = encode_data(data2)
+print(data2.info())
 def create_game_with_players(*players) -> Game:
     """returns game with initialized starting state"""
     return Game(players)
-
-
-def main() -> None:
-    """Starts the game"""
-    bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
-    random.shuffle(bot_names)
-    bots = []
-    game = None
-
-    console.print("[bold magenta]Welcome to UNO game![/bold magenta]")
-    console.print("1. Play with other humans.")
-    console.print("2. Watch bots playing with each other.")
-    console.print("3. Play with humans and bots.")
-
-    choice = console.input("[bold green]Pick an option (1-3): [/bold green]")
-
-    if choice == "1":
-        player_names = console.input("Input players names separated by coma: ").split(',')
-        players = [Player(name.strip()) for name in player_names]
-        game = create_game_with_players(*players)
-    elif choice == "2":
-        num_bots = int(console.input("How many bots should play? "))
-        bots = [Bot(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
-        game = create_game_with_players(*bots)
-    elif choice == "3":
-        player_names = console.input("Input players names separated by coma: ").split(',')
-        num_bots = int(console.input("How many bots should play? "))
-        players = [Player(name.strip()) for name in player_names]
-        bots = [Bot(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
-        game = create_game_with_players(*players, *bots)
-    else:
-        console.print("[bold red]Wrong choice![/bold red]\nLet's try again...\n")
-        main()
-
-
-def start_2_bot_games(matchup):
-    random.shuffle(bot_names)
-    game = create_game_with_players(*matchup)
-    return game.play()
 
 def create_instances(bots):
     names = bot_names.copy()
@@ -69,43 +36,70 @@ def create_instances(bots):
     instances_to_return = []
     for bot in bots:
         if bot == "BasicLogicBot":
-            instances_to_return.append(BasicLogicBot(names.pop()))
+            instances_to_return.append(BasicLogicBot("BasicLogicBot"))
         elif bot == "AgressiveBot":
-            instances_to_return.append(AgressiveBot(names.pop()))
-        elif bot == "ID3Bot":
-            name = names.pop()
-            instances_to_return.append(ID3Bot(name))
+            instances_to_return.append(AgressiveBot("AgressiveBot"))
+        elif bot == "RandomBot":
+            instances_to_return.append(BotRandom("BotRandom"))
+        elif bot == "ID3Bot1":
+            name = "PreviousID3Bot"
+            instances_to_return.append(ID3Bot(name, tree_instance=tree_instances[0]))
+        elif bot == "ID3Bot2":
+            name = "LaterId3Bot"
+            bot: ID3Tree = tree_instances[1]
+            instances_to_return.append(ID3Bot(name, tree_instance=bot))
+        elif bot == "NaiveBayesianBot1":
+            name = "NaiveBayesianBot1"
+            bot: NaiveBayesianBot = NaiveBayesianBot(name, data=data.copy(), labels_to_decode=label)
+            instances_to_return.append(bot)
+        elif bot == "NaiveBayesianBot2":
+            name = "NaiveBayesianBot2"
+            bot: NaiveBayesianBot = NaiveBayesianBot(name, data=data2.copy(), labels_to_decode=label2)
+            instances_to_return.append(bot)
         else:
-            instances_to_return.append(BLBUpgradedColorChoosing(names.pop()))
+            instances_to_return.append(BLBUpgradedColorChoosing("BLBUpgradedColorChoosing"))
     return instances_to_return
 
-def start_many_games(matchups, number_of_games = 1_000):
-    games_data = pd.DataFrame()
-    who_won_tables = []
-    for _ in range(len(matchups)):
-        who_won_tables.append([])
+def play_game(matchup):
+    # time.sleep(random.randint(0, cpu_count() - 1))
+    bots = create_instances(matchup)
+    game = start_2_bot_games(bots)
+    current_game_data = assign_did_win(pd.DataFrame(game[0]))
+    winner = game[1].name
+    return current_game_data, winner
+
+def start_2_bot_games(matchup):
+    game = create_game_with_players(*matchup)
+    return game.play()
+
+def start_many_games(matchup, number_of_games=1000):
+    manager = Manager()
+    games_data = manager.list()  # Use Manager list
+    who_won = manager.list()
+
+    def collect_results(result):
+        current_game_data, winner = result
+        games_data.append(current_game_data)
+        who_won.append(winner)
 
     start_time = time.time()
-    for i in range(number_of_games):
-        for j, matchup in enumerate(matchups):
-            bots = create_instances(matchup)
-            #print("Starting games...")
-            game = start_2_bot_games(bots)
-            current_game_data = assign_did_win(pd.DataFrame(game[0]))
-            games_data = pd.concat([games_data, current_game_data], ignore_index=True)
-            who_won_tables[j].append(game[1])
-        if (i % 2_000 == 0 and i != 0) or i == number_of_games -1:
-            file_name = save_to_csv(games_data, 'uno_game.csv')
-            games_data.drop(games_data.index, inplace=True)
-            print(f"{i} Saved to file '{file_name}'...")
+    num_of_processes = cpu_count() - 1 if cpu_count() > 1 else 1
+    print("Games starting...")
+    with Pool(processes=num_of_processes) as pool:
+        results = [pool.apply_async(play_game, (matchup,), callback=collect_results) for _ in range(number_of_games)]
+        pool.close()
+        pool.join()
+
+    df = pd.concat(list(games_data))
+    file_name = save_to_csv(df, 'uno_game.csv')
+    print(f"Saved to file '{file_name}'...")
+
+    win_count = Counter(who_won)
+    for bot_name, count in win_count.items():
+        print(f"{bot_name}: {count} wins, {round((count / number_of_games) * 100, 2)}%")
 
     end_time = time.time()
-    for i in range(len(who_won_tables)):
-        win_count = Counter(who_won_tables[i])
-        print(f"\nScore: {win_count}")
-        print(f"Proportion: {round(list(win_count.values())[0] / (list(win_count.values())[0] + list(win_count.values())[1]), 2)}%")
-    print("Time taken to play:", round((end_time - start_time) / 60, 2), "min")
-
+    print("Time taken to play:", round((end_time - start_time) / 60, 2), "min\n")
 
 def assign_did_win(df):
     df['did_win'] = False  # Najpierw ustaw wszystkie wartości na False
@@ -118,40 +112,38 @@ def assign_did_win(df):
             df.loc[(df['game_id'] == game) & (df['index_of_a_player'] == player_index), 'did_win'] = True
     return df
 
-def save_to_csv(data, filename='uno_game.csv', folder='games_data'):
-    # If the default filename is used, append a timestamp
+def save_to_csv(data, filename='uno_game.csv', folder='Uno/games_data'):
     if filename == 'uno_game.csv':
         filename = f"{datetime.now().strftime('%Y%m%d_%H%M')}_{filename}"
 
-
-    # Create the full filepath
     filepath = os.path.join(folder, filename)
-    # print(f"Saving data to: {filepath}")
-
-    # Ensure the folder exists
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    # Create a DataFrame from the new data
-    new_df = pd.DataFrame(data)
-
     if os.path.exists(filepath):
-        # print("File exists. Appending data.")
-        # If the file exists, read the existing data
         existing_df = pd.read_csv(filepath)
-        # Concatenate the existing data with the new data
-        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
-        # Save the combined data back to the file
+        combined_df = pd.concat([existing_df, data], ignore_index=True)
         combined_df.to_csv(filepath, index=False)
     else:
-        # print("File does not exist. Creating new file.")
-        # If the file does not exist, create a new file with the new data
-        new_df.to_csv(filepath, index=False)
+        data.to_csv(filepath, index=False)
     return filename
 
-
 if __name__ == "__main__":
-    start_many_games([["ID3Bot", "BasicLogicBot"],
-                      ["AgressiveBot", "ID3Bot"],
-                      ["ID3Bot", "BLBUpgradedColorChoosing"]]
-                     , 10_000)
+    matchups = [
+        ["ID3Bot2", "NaiveBayesianBot1"],
+        ["NaiveBayesianBot1", "ID3Bot1"],
+        ["ID3Bot2", "ID3Bot1"],
+        ["ID3Bot1", "ID3Bot1"],
+        ["ID3Bot2", "ID3Bot2"],
+        ["ID3Bot2", "ID3Bot2"],
+        ["ID3Bot2", "ID3Bot2"],
+        ["NaiveBayesianBot1", "NaiveBayesianBot1"]
+    ]
+
+    number_of_games = 10_000
+    for _ in range(100_000):
+        start_time = time.time()
+        for matchup in matchups:
+            start_many_games(matchup, number_of_games)
+
+        print(f"All {number_of_games*len(matchups):_} games played in ", round((time.time() - start_time)/60, 2), "minutes\n")

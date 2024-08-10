@@ -10,7 +10,7 @@ class BLBUpgradedColorChoosing(Bot):
         , "<class 'Uno.game.Card.Plus2Card'>": 8
         , "<class 'Uno.game.Card.Plus4Card'>": 4
         , "<class 'Uno.game.Card.ColorCard'>": 4}
-    def __init__(self, name: str):
+    def __init__(self, name: str= ""):
         """Initializes bot"""
         super().__init__(name)
         self.card_in_game_dict_instance = None

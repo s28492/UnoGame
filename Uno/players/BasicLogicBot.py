@@ -4,7 +4,7 @@ from Uno.game.Card import *
 
 
 class BasicLogicBot(Bot):
-    def __init__(self, name: str):
+    def __init__(self, name: str= ""):
         """Initializes bot"""
         super().__init__(name)
 

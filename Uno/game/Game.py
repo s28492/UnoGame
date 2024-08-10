@@ -4,9 +4,9 @@ from rich.console import Console
 
 from Uno.players.Player import Player
 from Uno.game.Deck import Deck
-from Uno.game.Card import Plus4Card, ColorCard, DrawCard
+from Uno.game.Card import Card, Plus4Card, ColorCard, DrawCard
 from Uno.players.Bot import Bot
-from Uno.DecisionTrees import ID3Bot
+from Uno.AIPlayers import BaseAIBot
 
 
 class Game:
@@ -19,12 +19,12 @@ class Game:
         """Initialize game start state"""
         self.console = Console()
         self.game_id = None
-        self.players = self.check_number_of_players(players)
+        self.players: list[Player] = self.check_number_of_players(players)
         self.move_history = []
         self.round = 0
         self.ranking_table = [None for _ in players]
         self.deck = Deck()
-        self.pile = []
+        self.pile: list[Card] = []
         self.reset_colors = []
         self.card_on_top = None
         self.index_of_a_player = 0
@@ -75,7 +75,7 @@ class Game:
         return self.players[(self.index_of_a_player + self.direction) % len(self.players)]
 
     @staticmethod
-    def check_number_of_players(players) -> list:
+    def check_number_of_players(players) -> list[Player]:
         """Cheks correctness of initial number of players"""
         if len(players) < 2:
             raise ValueError("Sorry, You can't play alone")
@@ -85,7 +85,10 @@ class Game:
             return [player for player in players]
 
     def check_number_of_cards_in_game(self):
-        if len(self.deck.deck) + len(self.pile) + len(self.players[0].hand) + len(self.players[1].hand) != 108:
+        sum = 0
+        for player in self.players:
+            sum += len(player.hand)
+        if len(self.deck.deck) + len(self.pile) + sum != 108:
             raise ValueError("Not enough cards in deck or pile")
 
     def deal_cards_to_players(self) -> None:
@@ -246,17 +249,17 @@ class Game:
                             , self.direction, self.turns_to_stop, self.cards_to_take)
             bot.set_bot_data(data_for_bot)
     def update_ai(self, bot):
-        if isinstance(bot, ID3Bot.ID3Bot):
+        if isinstance(bot, BaseAIBot.BaseAIBot):
             bot_features = bot.extract_features(self)
             game_features = self.upgrade_features(data_for_bot=True)
             result = {**bot_features, **game_features}
             bot.create_row(result)
+
     def manage_player_move(self, player):
         self.update_bot(player)
         self.update_ai(player)
         player_features = player.extract_features(self)
-        player.show_hand()
-
+        #player.show_hand()
         card_played = player.move()
         #self.console.print(f"Player move: {card_played}", style="rgb(255,0,0)")
         if card_played.match(self.card_on_top):
@@ -301,12 +304,15 @@ class Game:
         """Main game method. Controls game flow"""
         while len(self.players) > 1:
             self.check_number_of_cards_in_game()
-
-            if self.cards_to_take > 32:
-                raise ValueError("To many cards to take")
             self.round += 1
             player = self.get_player()
-
+            if self.round > 1_000 and isinstance(player, BaseAIBot.BaseAIBot):
+                print("Game too long")
+                self.show_state(player)
+                print(f"ID3 hand len {len(player.hand)}")
+                print(f"Cards in deck {len(self.deck.deck)}")
+                print(f"Cards on pile {len(self.pile)}")
+                break
             # Checks if player is stopped
             if player.stopped:
                 player.update_stop_status()
@@ -318,6 +324,7 @@ class Game:
 
             #print("\n")
             if "Color" in str(self.card_on_top) and len(self.pile) > 1:
+                print(self.round)
                 raise ValueError("Color on top")
             self.index_of_a_player = self.update_player_index()
 
@@ -325,7 +332,6 @@ class Game:
 
         # for i, player in enumerate(self.ranking_table):
         #     self.console.print(f"Place {i + 1}: {player}")
-
-        return [self.features_list, type(self.ranking_table[0])]
+        return [self.features_list, self.ranking_table[0]]
 
 

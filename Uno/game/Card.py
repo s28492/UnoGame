@@ -4,6 +4,8 @@
 from rich.console import Console
 
 console = Console()
+
+
 class Card:
 
     def __init__(self, value: str, color: str):
@@ -87,7 +89,6 @@ class ReverseCard(Card):
     def __init__(self, value: str, color: str):
         super().__init__(value, color)
 
-
     def play(self, game):
         """Reverses the game direction, removes itself from player hand and returns itself"""
         game.change_game_direction()
@@ -122,8 +123,8 @@ class Plus2Card(Card):
 
 
 class ColorCard(Card):
-    def __init__(self, value, color):
-        super().__init__(color, value)
+    def __init__(self, value="", color=""):
+        super().__init__(value, color)
         self.value = "All"
         self.color = "Colors"
 
@@ -151,7 +152,7 @@ class ColorCard(Card):
 
 
 class Plus4Card(ColorCard):
-    def __init__(self, value: str, color: str):
+    def __init__(self, value="", color=""):
         super().__init__(value, color)
         self.value = "+4"
         self.color = "Colors"

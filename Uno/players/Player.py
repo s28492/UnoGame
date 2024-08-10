@@ -4,8 +4,11 @@ from rich.console import Console
 IMAGE_DIRECTORY = "CardsImage"  # Added directory path for card images
 
 class Player:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, name: str = ""):
+        if name == "":
+            self.name = type(self)
+        else:
+            self.name = name
         self.hand = []
         self.stop_status = 0
         self.stopped = False
@@ -13,7 +16,6 @@ class Player:
         self.first_taken = False
         self.console = Console()
         self.features = {}
-
     def get_features(self):
         return self.features
 
@@ -60,16 +62,16 @@ class Player:
         return self.features
 
     def __str__(self) -> str:
-        return f":smile:[magenta]{self.name}[/]"
+        return f"{self.name}"
 
     def get_count_cards_in_hand(self):
         return len(self.hand)
 
     def show_hand(self):
         # Prints cards player has on hand
-        str = f"Your hand: [cyan]{len(self.hand)} cards[/]\n| "
+        str = f"Your hand: {len(self.hand)} cards\n| "
         for card in self.hand:
-            str += f"[bold {card.color.lower()}]{card}[/] |"
+            str += f"{card} |"
         return str
 
     def get_game_state(self, game):

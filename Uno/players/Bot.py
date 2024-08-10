@@ -3,7 +3,7 @@ from Uno.game.Card import *
 
 
 class Bot(Player):
-    def __init__(self, name: str):
+    def __init__(self, name: str= ""):
         """Initializes bot"""
         super().__init__(name)
         self.players = None
@@ -18,7 +18,7 @@ class Bot(Player):
         self.possible_colors = ["Red", "Green", "Blue", "Yellow"]
 
     def __str__(self):
-        return f":robot:[cyan]Bot {self.name}[/]"
+        return f"{self.name}"
 
     def set_bot_data(self, data) -> None:
         """Updates game data for bot"""

@@ -58,7 +58,7 @@ class Deck:
         """Resets Colored cards being moved to the deck from pile"""
         for card in discard_pile:
             if isinstance(card, ColorCard):
-                card.color = "Color"
+                card.color = "Colors"
         return discard_pile
 
     def reshuffle_discard_pile(self, discard_pile):
@@ -69,3 +69,11 @@ class Deck:
 
     def deck_length(self):
         return len(self.deck)
+
+    def show_cards_in_deck(self):
+        if len(self.deck) == 0:
+            return "No cards"
+        card_string = "Cards in deck:\n| "
+        for card in self.deck:
+            card_string += str(card) + " | "
+        return card_string

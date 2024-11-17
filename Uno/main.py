@@ -1,13 +1,14 @@
 import os
 import time
 from datetime import datetime
-from Uno.players.Bot_Random import BotRandom
+from Uno.players.RandomBot import BotRandom
 from Uno.players.BasicLogicBot import BasicLogicBot
 from Uno.players.AgressiveBot import AgressiveBot
 from Uno.players.BLBUpgradedColorChoosing import BLBUpgradedColorChoosing
 from Uno.AIPlayers.ID3Bot import ID3Bot
 from Uno.AIPlayers.NaiveBayesianBot import NaiveBayesianBot
-from Uno.DecisionTrees.ID3Tree import ID3Tree, load_tree, encode_data
+from Uno.AIPlayers.ID3Tree import ID3Tree, load_tree
+from Uno.AIPlayers.C4_5BaggingEnsemble import C4_5BaggingEnsebleBot
 from Uno.game.Game import Game
 from rich.console import Console
 from multiprocessing import Pool, Manager, cpu_count
@@ -17,15 +18,20 @@ from collections import Counter
 
 console = Console()
 bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
-tree_instances = [load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240727_1631_id_tree.pkl"),
-                  load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240801_2159_improved_7_nodes_deep_decoded_target_values_tree.pkl")]
+# last_tree: ID3Tree = load_tree("/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/DecisionTrees/20240824_1537_expanded_tree_d10.pkl")
+# last_tree.decode_values()
+# last_tree.decode_target_values()
+# tree_instances = [load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240727_1631_id_tree.pkl"),
+#                   load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240801_2159_improved_7_nodes_deep_decoded_target_values_tree.pkl"),
+#                   last_tree,
+#                   ]
 pd.set_option('future.no_silent_downcasting', True)
-data: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data.csv")
-data, label = encode_data(data)
-data2: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data1.csv")
-print(data2.info())
-data2, label2 = encode_data(data2)
-print(data2.info())
+# data: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data.csv")
+# data, label = encode_data(data)
+# data2: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data1.csv")
+# print(data2.info())
+# data2, label2 = encode_data(data2)
+# print(data2.info())
 def create_game_with_players(*players) -> Game:
     """returns game with initialized starting state"""
     return Game(players)
@@ -48,6 +54,10 @@ def create_instances(bots):
             name = "LaterId3Bot"
             bot: ID3Tree = tree_instances[1]
             instances_to_return.append(ID3Bot(name, tree_instance=bot))
+        elif bot == "ID3Bot3":
+            name = "LaterId3Bot2"
+            bot: ID3Tree = tree_instances[2]
+            instances_to_return.append(ID3Bot(name, tree_instance=bot))
         elif bot == "NaiveBayesianBot1":
             name = "NaiveBayesianBot1"
             bot: NaiveBayesianBot = NaiveBayesianBot(name, data=data.copy(), labels_to_decode=label)
@@ -56,14 +66,20 @@ def create_instances(bots):
             name = "NaiveBayesianBot2"
             bot: NaiveBayesianBot = NaiveBayesianBot(name, data=data2.copy(), labels_to_decode=label2)
             instances_to_return.append(bot)
+        elif bot == "BaggingBot":
+            name = "BaggingBot"
+            bot: C4_5BaggingEnsebleBot = C4_5BaggingEnsebleBot(name, "Uno/DecisionTrees/BaggingTrees/n10_d4_sp0.63_dseTrue")
+            instances_to_return.append(bot)
         else:
             instances_to_return.append(BLBUpgradedColorChoosing("BLBUpgradedColorChoosing"))
+        
     return instances_to_return
 
 def play_game(matchup):
     # time.sleep(random.randint(0, cpu_count() - 1))
     bots = create_instances(matchup)
     game = start_2_bot_games(bots)
+    bots.clear()
     current_game_data = assign_did_win(pd.DataFrame(game[0]))
     winner = game[1].name
     return current_game_data, winner
@@ -85,7 +101,7 @@ def start_many_games(matchup, number_of_games=1000):
     start_time = time.time()
     num_of_processes = cpu_count() - 1 if cpu_count() > 1 else 1
     print("Games starting...")
-    with Pool(processes=num_of_processes) as pool:
+    with Pool(processes=num_of_processes-2) as pool:
         results = [pool.apply_async(play_game, (matchup,), callback=collect_results) for _ in range(number_of_games)]
         pool.close()
         pool.join()
@@ -130,20 +146,23 @@ def save_to_csv(data, filename='uno_game.csv', folder='Uno/games_data'):
 
 if __name__ == "__main__":
     matchups = [
-        ["ID3Bot2", "NaiveBayesianBot1"],
-        ["NaiveBayesianBot1", "ID3Bot1"],
-        ["ID3Bot2", "ID3Bot1"],
-        ["ID3Bot1", "ID3Bot1"],
-        ["ID3Bot2", "ID3Bot2"],
-        ["ID3Bot2", "ID3Bot2"],
-        ["ID3Bot2", "ID3Bot2"],
-        ["NaiveBayesianBot1", "NaiveBayesianBot1"]
+        # ["ID3Bot2", "NaiveBayesianBot1"],
+        # ["NaiveBayesianBot1", "ID3Bot1"],
+        # ["RandomBot", "ID3Bot3"],
+        ["BaggingBot", "RandomBot"],
+        ["BaggingBot", "AgressiveBot"]
+        # ["ID3Bot3", "ID3Bot1"],
+        # ["ID3Bot3", "ID3Bot2"]
+        # ["ID3Bot2", "ID3Bot2"],
+        # ["ID3Bot2", "ID3Bot2"],
+        # ["NaiveBayesianBot1", "NaiveBayesianBot1"]
     ]
 
-    number_of_games = 10_000
-    for _ in range(100_000):
+    number_of_games = 100
+    for _ in range(1):
         start_time = time.time()
         for matchup in matchups:
             start_many_games(matchup, number_of_games)
 
         print(f"All {number_of_games*len(matchups):_} games played in ", round((time.time() - start_time)/60, 2), "minutes\n")
+        print(f"Games ended at: {time.ctime(time.time())}")

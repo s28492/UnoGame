@@ -298,7 +298,10 @@ class Game:
             features["game_id"] = self.game_id
             features["card_played"] = move
         return features
-
+    def reset_all_bots(self):
+        for player in self.players:
+            if isinstance(player, BaseAIBot.BaseAIBot):
+                player.bot_reset()
 
     def play(self) -> list:
         """Main game method. Controls game flow"""
@@ -332,6 +335,8 @@ class Game:
 
         # for i, player in enumerate(self.ranking_table):
         #     self.console.print(f"Place {i + 1}: {player}")
+        self.reset_all_bots()
+        # print("Game ended\n\n")
         return [self.features_list, self.ranking_table[0]]
 
 

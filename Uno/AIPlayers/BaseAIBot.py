@@ -20,21 +20,25 @@ class BaseAIBot (Bot):
     def collect_valid_cards_of_given_instance(self, instance):
         '''returns cards of given instance that can be played'''
         valid_cards_to_put = []
+
         for card in self.hand:
             if card.match(self.card_on_top) and isinstance(card, instance):
                 if isinstance(card, ColorCard) and not isinstance(card, Plus4Card):
                     for color in self.possible_colors:
                         special_card = ColorCard()
                         special_card.change_color(color)
+                        valid_cards_to_put.append(special_card)
                 elif isinstance(card, Plus4Card):
                     for color in self.possible_colors:
                         special_card = Plus4Card()
                         special_card.change_color(color)
-                valid_cards_to_put.append(card)
+                        valid_cards_to_put.append(special_card)
+                else:
+                    valid_cards_to_put.append(card)
         return valid_cards_to_put
 
     def valid_cards(self, card_taken=None) -> list:
-        """Creates a list of cards that can be played. If there isn't any, bot takes a card"""
+        """Creates a list of cards that can be played. If there isn't any, puts DrawCard()"""
         valid_cards = []
         if card_taken is not None:
             if isinstance(card_taken, ColorCard):
@@ -103,3 +107,6 @@ class BaseAIBot (Bot):
         else:
             card = Card(card_value, card_color)
         return card
+
+    def bot_reset(self):
+        pass

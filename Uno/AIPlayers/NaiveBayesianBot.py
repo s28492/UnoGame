@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 import multiprocessing as mp
-from numba import jit, njit, vectorize
+from numba import njit
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
 from Uno.game.Card import ColorCard, Plus4Card
-from Uno.DecisionTrees.ID3Tree import decode_data, encode_data_with_label, encode_data
+from Uno.AIPlayers.ID3Tree import encode_data_with_label
 
 
 class NaiveBayesianBot(BaseAIBot):
@@ -82,7 +82,11 @@ class NaiveBayesianBot(BaseAIBot):
 
     def calculate_naive_bayes(self, card):
         pass
-
+    def bot_reset(self):
+        self.data = None
+        self.lock = mp.Lock()
+        self.all_labels_to_decode = None
+        self.target_label_to_encode = None
 
 @njit(nogil=True)
 def calculate_naive_bayes(numpy_current_row: np.array, numpy_data: np.array, probability_of_target_attribute: float):

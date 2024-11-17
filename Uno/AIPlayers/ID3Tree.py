@@ -6,13 +6,13 @@ import time
 import pickle
 from datetime import datetime
 from multiprocessing import Pool, cpu_count
-from sklearn.preprocessing import LabelEncoder
 import os
-
+import sys
+sys.path.append(os.path.abspath("/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/AIPlayers"))
 
 class ID3Tree:
     def __init__(self, dataset: pd.DataFrame, attributes_names, target_attribute: pd.Series
-                 , label_encoders=None, indices_list=None,
+                 , indices_list=None, label_encoders=None,
                  parent=None, value_of_attribute_splitting=None, node_depth: int = 0):
         self.label_encoders = label_encoders
         self.dataset = dataset
@@ -31,6 +31,22 @@ class ID3Tree:
         # self.leaf_data = None
         self.node_depth = node_depth
 
+    def set_dataset(self, dataset: pd.DataFrame):
+        self.dataset = dataset
+
+    def set_dataset_for_all(self, dataset: pd.DataFrame):
+        self.dataset = dataset
+        for child in self.children:
+            child.set_dataset_for_all(dataset)
+
+    def set_target_attribute(self, target_attribute: pd.Series):
+        self.target_attribute = target_attribute
+
+    def set_target_attribute_for_all(self, target_attribute: pd.Series):
+        self.target_attribute = target_attribute
+        for child in self.children:
+            child.set_target_attribute_for_all(target_attribute)
+
     def get_children(self):
         return self.children
 
@@ -48,25 +64,35 @@ class ID3Tree:
 
     def encode_df(self):
         pass
+
     def decode_target_values(self):
         if self.label_encoders is not None and self.parent is None:
-            self.target_attribute = decode_data(self.target_attribute, label_encoders= self.label_encoders)
+            self.target_attribute = decode_data(self.target_attribute, label_encoders=self.label_encoders)
         elif self.label_encoders is not None and self.parent is not None:
             self.target_attribute = self.parent.target_attribute
         for child in self.children:
-            print("AAAAA")
             child.decode_target_values()
+
+    def share_data_with_children(self):
+        for child in self.children:
+            child.set_dataset(self.dataset)
+            child.set_target_attribute(self.target_attribute)
+            child.share_data_with_children()
+
     def decode_values(self):
         if self.parent is not None:
-            self.value_of_attribute_splitting = self.label_encoders[self.parent.get_splitting_attribute()][self.value_of_attribute_splitting]
+            self.value_of_attribute_splitting = self.label_encoders[self.parent.get_splitting_attribute()][
+                self.value_of_attribute_splitting]
         for child in self.children:
             child.decode_values()
+
     def decode_df(self):
         if self.label_encoders is not None:
             dataset = decode_data(pd.concat([self.dataset, self.target_attribute]), self.label_encoders)
             self.dataset = dataset[self.attributes_names]
             self.target_attribute = dataset.iloc[:, -1].to_frame()
         #self.decode_values()
+
     def get_entropy(self, indices_list: list = None):
         if indices_list is None:
             indices_list = self.indices_list
@@ -111,7 +137,7 @@ class ID3Tree:
         return [best_information_gain, best_datasets_with_column]
 
     def is_tree_done(self, max_depth, min_values_in_leaf, min_gain_ratio):
-        is_max_depth_reached = max_depth == 0
+        is_max_depth_reached = max_depth == self.node_depth
         is_subset_too_small = len(self.indices_list) < min_values_in_leaf
         attributes_left = len(self.attributes_names) > 1
         indexes_left = len(self.indices_list) > 1
@@ -133,11 +159,13 @@ class ID3Tree:
             return
 
         self.splitting_attribute = best_attribute_and_datasets[0]
+        # base_name_for_children = f"{time.time()}_{self.node_depth}_{self.splitting_attribute}"
+
         splitted_indexes_list = best_attribute_and_datasets[1]
 
         self.show_tree_building_process()
 
-        for subset_indices in splitted_indexes_list:
+        for i, subset_indices in enumerate(splitted_indexes_list):
             if len(subset_indices) == 0:
                 continue
             new_attributes_names = [attr for attr in self.attributes_names if attr != self.splitting_attribute]
@@ -145,19 +173,39 @@ class ID3Tree:
                                label_encoders=self.label_encoders, indices_list=subset_indices, parent=self,
                                value_of_attribute_splitting=self.dataset.loc[
                                    subset_indices[0], self.splitting_attribute], node_depth=self.node_depth + 1)
-            new_node.build_tree(max_depth - 1, min_values_in_leaf, min_gain_ratio)
+            new_node.build_tree(max_depth, min_values_in_leaf, min_gain_ratio)
             self.children.append(new_node)
+            # node_file_name = f"{base_name_for_children}_{i}.pkl"
+            # new_node.set_dataset(pd.DataFrame())
+            # new_node.set_target_attribute(pd.Series())
+            # new_node.save_tree(node_file_name, is_temporary=True)
+
+        # self.children = find_child_node_files(base_name_for_children)
+        # self.share_data_with_children()
 
     def show_tree_building_process(self):
         spaces = ""
         for i in range(self.node_depth):
-            spaces += "     "
+            spaces += "|     "
         print(f"{spaces}{self.node_depth}. {self.value_of_attribute_splitting}: {self.splitting_attribute}")
 
     def find_leafs(self, list_of_leafs=None):
         if list_of_leafs is None:
             list_of_leafs = []
         if self.is_leaf:
+            list_of_leafs.append(self)
+            return list_of_leafs
+        for child in self.children:
+            if child.is_leaf:
+                list_of_leafs.append(child)
+            else:
+                child.find_leafs(list_of_leafs)
+        return list_of_leafs
+
+    def find_leafs_with_values_more_or_equal_than(self, number_of_elements_in_leaf, list_of_leafs=None):
+        if list_of_leafs is None:
+            list_of_leafs = []
+        if self.is_leaf and len(self.indices_list) >= number_of_elements_in_leaf:
             list_of_leafs.append(self)
             return list_of_leafs
         for child in self.children:
@@ -178,35 +226,53 @@ class ID3Tree:
         # 8. Po rozbudowaniu każdego korzenia (lub może również po komendzie użytkownika)
         # połączyć wszystkie rozbudowane do tej pory drzewa.
         # 9. Zapisać główne drzewo.
-        self.dataset = encode_data_with_label(self.dataset, self.label_encoders)
-        for i, child in enumerate(self.children):
-            child.save_tree(f"tmp_node_{self.node_depth}_{i}.pkl", is_temporary=True)
-        self.children = []
-        folder = "tmp"
 
-        for root, dirs, files in os.walk(folder):
-            for i, file in enumerate(files):
-                if file.startswith(f'tmp_node_{self.node_depth}'):
-                    full_path = os.path.join(root, file)
-                    print(f'Znaleziono plik: {full_path}')
-                    tmp_tree: ID3Tree = load_tree(full_path)
-                    leafs: list[ID3Tree] = tmp_tree.find_leafs()
-                    print(f"Number of leafs: {len(leafs)}")
-                    for leaf in leafs:
-                        leaf.change_leaf_status()
-                        leaf.build_tree(max_depth - leaf.node_depth, min_values_in_leaf, min_gain_ratio)
-                    tmp_tree.save_tree(f"expanded_node_{i}.pkl", is_temporary=True)
-                    remove_file(full_path)
-
-        for root, dirs, files in os.walk(folder):
-            for file in files:
-                if file.startswith('expanded'):
-                    full_path = os.path.join(root, file)
-                    print(f'Znaleziono plik: {full_path}')
-                    tmp_tree: ID3Tree = load_tree(full_path)
-                    self.children.append(tmp_tree)
-                    remove_file(full_path)
-        self.save_tree("id_tree.pkl")
+        # self.dataset = encode_data_with_label(self.dataset, self.label_encoders)
+        # for i, child in enumerate(self.children):
+        #     child.save_tree(f"tmp_node_{self.node_depth}_{i}.pkl", is_temporary=True)
+        # self.children = []
+        # folder = "tmp"
+        #
+        # for root, dirs, files in os.walk(folder):
+        #     for i, file in enumerate(files):
+        #         if file.startswith(f'tmp_node_{self.node_depth}'):
+        #             full_path = os.path.join(root, file)
+        #             print(f'Znaleziono plik: {full_path}')
+        #             tmp_tree: ID3Tree = load_tree(full_path)
+        #             tmp_tree.set_target_attribute_for_all(self.target_attribute)
+        #             tmp_tree.set_dataset_for_all(self.dataset)
+        #             leafs: list[ID3Tree] = tmp_tree.find_leafs()
+        #             print(f"Number of leafs: {len(leafs)}")
+        #             for leaf in leafs:
+        #                 leaf.change_leaf_status()
+        #                 leaf.build_tree(max_depth - leaf.node_depth, min_values_in_leaf, min_gain_ratio)
+        #             tmp_tree.save_tree(f"expanded_node_{i}.pkl", is_temporary=True)
+        #             re|     |     |     |     |     |     |     7. move_file(full_path)
+        #
+        # for root, dirs, files in os.walk(folder):
+        #     for file in files:
+        #         if file.startswith('expanded'):
+        #             full_path = os.path.join(root, file)
+        #             print(f'Znaleziono plik: {full_path}')
+        #             tmp_tree: ID3Tree = load_tree(full_path)
+        #
+        #             self.children.append(tmp_tree)
+        #             remove_file(full_path)
+        # self.save_tree("id_tree.pkl")
+        leaf_list = self.find_leafs_with_values_more_or_equal_than(min_values_in_leaf)
+        len_leaf = len(leaf_list)
+        for i, leaf in enumerate(leaf_list):
+            leaf.change_leaf_status()
+            leaf.build_tree(max_depth, min_values_in_leaf, min_gain_ratio)
+            if len_leaf <= 400 and (i == int(len_leaf / 4) or (i == int(len_leaf / 2)) or (
+                    i == int(3 * len_leaf/ 4))):
+                self.save_tree(
+                    f"tmp_expanded_tree_d{self.get_distance_to_farthest_leaf()-1}_done_{i}:{len(leaf_list)}.pkl",
+                    is_temporary=True)
+            elif len_leaf > 400 and (((i + 1) / 60) == 0):
+                self.save_tree(
+                    f"tmp_expanded_tree_d{self.get_distance_to_farthest_leaf()-1}_done_{i}:{len(leaf_list)}.pkl",
+                    )
 
     def get_distance_to_farthest_leaf(self, recurrent_call: bool = False):
         if self.is_leaf and recurrent_call:
@@ -239,7 +305,6 @@ class ID3Tree:
             return data
 
         final_value = data_to_predict[self.splitting_attribute].iloc[0]
-
         for child in self.children:
             if child.value_of_attribute_splitting == final_value:
                 return child.predict(data_to_predict)
@@ -247,26 +312,28 @@ class ID3Tree:
         data = self.target_attribute.iloc[self.indices_list]
         return data
 
-    def show_tree(self, depth=0):
-        indent = "    " * depth
-        print(f"{indent}  {self.value_of_attribute_splitting}")
+    def show_tree(self):
+        indent = "|       " * self.node_depth
         if self.is_leaf:
-            print(f"{indent}{depth}. Leaf: {self.label}")
+            print(
+                f"{indent}d{self.node_depth}. Leaf: {self.value_of_attribute_splitting} -> {self.splitting_attribute}")
         else:
-            print(f"{indent}{depth}. Attribute: {self.splitting_attribute}")
-            for child in self.children:
-                child.show_tree(depth + 1)
+            print(
+                f"{indent}d{self.node_depth}. Node: {self.value_of_attribute_splitting} -> {self.splitting_attribute}")
+        for child in self.children:
+            child.show_tree()
 
-    def save_tree(self, filename, is_temporary=False):
+    def save_tree(self, filename, is_temporary=False, directory=""):
         if is_temporary:
             filename = "tmp/" + filename
         else:
             filename = f"{datetime.now().strftime('%Y%m%d_%H%M')}_" + filename
+        filename = directory + "/" + filename
         with open(filename, 'wb') as f:
             pickle.dump(self, f)
         return filename
 
-    def create_leaf_map(self, path=None, list_of_paths=None):
+    def create_leaf_map(self, path=None, list_of_paths=None) -> list:
         if list_of_paths is None:
             list_of_paths = []
         if path is None:
@@ -282,6 +349,29 @@ class ID3Tree:
             else:
                 new_path = path + [self.value_of_attribute_splitting]
                 child.create_leaf_map(new_path, list_of_paths)
+
+        return list_of_paths
+
+    def create_leaf_map_with_values_less_than(self, path=None, list_of_paths=None,
+                                              number_of_elements_in_leaf=None) -> list:
+        if list_of_paths is None:
+            list_of_paths = []
+        if path is None:
+            path = []
+
+        if self.is_leaf:
+            if number_of_elements_in_leaf is None:
+                list_of_paths.append(path + [self.value_of_attribute_splitting])
+                return list_of_paths
+            elif len(self.indices_list) < number_of_elements_in_leaf:
+                list_of_paths.append(path + [self.value_of_attribute_splitting])
+                return list_of_paths
+        for child in self.children:
+            if self.value_of_attribute_splitting is None:
+                child.create_leaf_map_with_values_less_than(path, list_of_paths, number_of_elements_in_leaf)
+            else:
+                new_path = path + [self.value_of_attribute_splitting]
+                child.create_leaf_map_with_values_less_than(new_path, list_of_paths, number_of_elements_in_leaf)
 
         return list_of_paths
 
@@ -332,6 +422,19 @@ def calculate_split_information(counted_target_values, total_count) -> float:
     return split_information
 
 
+def find_child_node_files(file_name) -> list[ID3Tree]:
+    children_list = []
+    folder = "tmp"
+    for root, dirs, files in os.walk(folder):
+        for i, file in enumerate(files):
+            if file.startswith(file_name) and file.endswith(".pkl"):
+                loaded_tree = load_tree(f"{folder}/{file}")
+                children_list.append(loaded_tree)
+                os.remove(f"{folder}/{file}")
+    return children_list
+
+
+
 def load_tree(filename):
     abs_path = os.path.abspath(filename)
     with open(abs_path, 'rb') as f:
@@ -349,54 +452,22 @@ def remove_file(file_path: str):
     except Exception as e:
         print(f"Wystąpił błąd: {e}")
 
-#
-# def encode_columns(df, columns=None):
-#     label_encoders = {}
-#     if isinstance(df, pd.Series):
-#         df = df.to_frame()
-#         columns = df.columns
-#     for column in columns:
-#         le = LabelEncoder()
-#         encoded = le.fit_transform(df[column])
-#         df[column] = encoded.astype(df[column].dtype)  # Ustawienie odpowiedniego typu danych
-#         label_encoders[column] = le
-#     return df, label_encoders
-#
-#
-# def decode_columns(df, columns, label_encoders):
-#     for column in columns:
-#         le = label_encoders[column]
-#         # Sprawdzenie typów danych przed dekodowaniem
-#         if not np.issubdtype(df[column].dtype, np.integer):
-#             print(df[column].iloc[0])
-#             raise ValueError(f"Column '{column}' contains non-integer values: {df[column].dtype}")
-#         # Dekodowanie kolumny
-#         decoded = le.inverse_transform(df[column].values)
-#         df[column] = decoded
-#     if len(df.columns) == 1:
-#         return df.iloc[:, 0]
-#     return df
+
 def encode_data(df: pd.DataFrame):
     label_encoders = {}
     for column in df.columns.to_list():
         df[column], label_encoders[column] = create_column_label(df[column])
-    # print("\n\n")
-    # print(df.head())
-    # print("\n\n")
-    # print("Tu")
     return df, label_encoders
-def create_column_label(column:pd.Series):
+
+
+def create_column_label(column: pd.Series):
     counted_values = column.value_counts()
     encoded_column = {}
-    # print(f"Column {column.name}")
     for i in range(counted_values.shape[0]):
         encoded_column[i] = counted_values.index.to_list()[i]
-        # print(column)
     distinct_values = column.nunique()
-    # print(distinct_values)
-    # print(column)
     if column.dtype == "bool":
-        column = column.astype(np.bool)
+        column = column.astype(bool)
     else:
         if distinct_values < 256:
             column = column.replace(encoded_column.values(), encoded_column.keys()).astype(np.uint8)
@@ -408,6 +479,7 @@ def create_column_label(column:pd.Series):
             column = column.replace(encoded_column.values(), encoded_column.keys()).astype(np.uint64)
     return column, encoded_column
 
+
 def decode_data(df: pd.DataFrame, label_encoders):
     new_df = pd.DataFrame()
     for column in df.columns.to_list():
@@ -415,35 +487,39 @@ def decode_data(df: pd.DataFrame, label_encoders):
 
     return new_df
 
+
 def encode_data_with_label(df: pd.DataFrame, label_encoders):
     for column in df.columns.to_list():
-
         df[column] = df[column].replace(label_encoders[column].values(), label_encoders[column].keys()).astype(np.int32)
     return df
 
+
 def main(depth: int,
          file_path: str):
-
     df: pd.DataFrame = pd.read_csv(file_path)
-    start = time.time()
+    print(df.info())
     df: pd.DataFrame = df.loc[df["did_win"] == True]
     del df["did_win"]
     del df["game_id"]
     df.reset_index(drop=True, inplace=True)
     encoded_df, labels = encode_data(df)
+    df = pd.DataFrame()
+    #encoded_df = encoded_df.iloc[0:int(encoded_df.shape[0])]
     print(encoded_df.info())
-    #df = pd.DataFrame()
     #print(encoded_df.info())
+    start = time.time()
+
     # id_tree = ID3Tree(encoded_df.iloc[:, :-1], encoded_df.columns.tolist()[:-1], df.iloc[:, -1].to_frame())#, label_encoders=labels)
-    id_tree = ID3Tree(encoded_df.iloc[:, :-1], encoded_df.columns.tolist()[:-1], encoded_df.iloc[:, -1].to_frame(), label_encoders=labels)
-    id_tree.build_tree(max_depth=depth, min_values_in_leaf=2000, min_gain_ratio=0.08)
+    id_tree = ID3Tree(encoded_df.iloc[:, :-1], encoded_df.columns.tolist()[:-1], encoded_df.iloc[:, -1].to_frame(),
+                      label_encoders=labels)
+    id_tree.build_tree(max_depth=3, min_values_in_leaf=2000, min_gain_ratio=0.2)
     # id_tree2.build_tree(max_depth=depth, min_values_in_leaf=2000, min_gain_ratio=0.08)
-    id_tree.decode_df()
+    # id_tree.decode_df()
     #id_tree.save_tree('id_tree.pkl')
-    id_tree.save_tree('id_tree2.pkl')
+    #id_tree.save_tree('id_tree2.pkl')
     #id_tree.decode_df()
     print(f"Build successfully completed in {time.time() - start} seconds")
-    id_tree.show_tree()
+    #id_tree.show_tree()
 
     # id_tree: ID3Tree = load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/MergedCSV/20240810_0951_uno_game.csv")
     # predicted_values = id_tree.predict(id_tree.dataset.iloc[-1, :-1])
@@ -462,11 +538,12 @@ def main(depth: int,
     # #id_tree2.show_tree()
     # print(id_tree2.predict(df.iloc[-1:, :-1]))
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--depth', type=int, default=6, help='depth of tree')
+    parser.add_argument('--depth', type=int, default=3, help='depth of tree')
     parser.add_argument('--filepath', type=str,
-                        default='/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/MergedCSV/20240810_0951_uno_game.csv',
+                        default='/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/games_data/MergedCSV/20240808_1041_uno_game.csv',
                         help='link for csv file to train the tree on')
     args = parser.parse_args()
     main(args.depth, args.filepath)

@@ -1,7 +1,7 @@
 from numba import jit, njit, vectorize
 from datetime import datetime
 from multiprocessing import Pool, cpu_count
-from Uno.games_data.dataHandler import prepareDataForTree
+from Uno.games_data.dataHandler import prepare_data_for_learning
 import argparse
 import numpy as np
 import pandas as pd
@@ -695,7 +695,7 @@ def encode_data_with_label(df: pd.DataFrame, label_encoders):
 
 def main(depth: int,
          file_path: str):
-    df: pd.DataFrame = prepareDataForTree(pd.read_csv(file_path))
+    df: pd.DataFrame = prepare_data_for_learning(pd.read_csv(file_path))
     print(df.info())
     encoded_df, labels = encode_data(df)
     del df

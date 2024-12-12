@@ -31,8 +31,7 @@ class ID3Bot(BaseAIBot):
             self.id_tree = tree_instance
         else:
             self.id_tree: ID3Tree = load_tree(
-                "/media/andrzzej/xD/Projekty/Python/NewUnoGame/UnoGame/Uno/DecisionTrees/20240801_2038_improved_7_nodes_deep_tree.pkl")
-            self.id_tree.decode_target_values()
+                "Uno/DecisionTrees/20240801_2159_improved_7_nodes_deep_decoded_target_values_tree.pkl")
 
 
 

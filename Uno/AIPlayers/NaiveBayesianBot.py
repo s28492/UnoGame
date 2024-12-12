@@ -4,7 +4,7 @@ import multiprocessing as mp
 from numba import njit
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
 from Uno.game.Card import ColorCard, Plus4Card
-from Uno.AIPlayers.ID3Tree import encode_data_with_label
+from Uno.DecisionTrees.ID3Tree import encode_data_with_label
 
 
 class NaiveBayesianBot(BaseAIBot):

@@ -64,21 +64,24 @@ class Player:
     def __str__(self) -> str:
         return f"{self.name}"
 
+    def rich_str(self):
+        return f":man:[bold purple]{self.name}[/]"
+
     def get_count_cards_in_hand(self):
         return len(self.hand)
 
     def show_hand(self):
         # Prints cards player has on hand
-        str = f"Your hand: {len(self.hand)} cards\n| "
+        str = f"Your hand: {len(self.hand)} cards\n|"
         for card in self.hand:
-            str += f"{card} |"
+            str += f" { card.rich_str()} |"
         return str
 
     def get_game_state(self, game):
         pass
 
     def move(self, card_taken = None):
-
+        self.console.print(self.show_hand())
         card_to_play = input().split(" ")
 
         if card_to_play[0] == "Surrender":  # Surrenders
@@ -93,7 +96,7 @@ class Player:
         elif card_to_play[1] not in ["Red", "Green", "Blue", "Yellow"]:
             self.console.print("It seems that you have given wrong values. Let's try again")
             return self.move()
-        elif card_taken != None and card_to_play[0] != card_taken.value and card_to_play[1] != card_taken.color:
+        elif card_taken is not None and card_to_play[0] != card_taken.value and (card_to_play[1] != card_taken.color or card_taken.color == "Colors"):
             print("You have to pick card you drawed!!")
             return self.move()
         elif card_to_play[0] == "+4":  # Looks for +4 cards in hand

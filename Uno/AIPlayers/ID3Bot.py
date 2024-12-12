@@ -3,7 +3,7 @@ import os
 import pickle
 
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
-from Uno.AIPlayers.ID3Tree import ID3Tree
+from Uno.DecisionTrees.ID3Tree import ID3Tree
 from Uno.game.Card import *
 
 
@@ -25,15 +25,14 @@ class ID3Bot(BaseAIBot):
         If neither `tree_file` nor `tree_instance` is provided, a default tree is loaded.
         """
         super().__init__(name)
-
         if tree_file is not None:
             self.id_tree: ID3Tree = load_tree(tree_file)
         elif tree_instance is not None:
             self.id_tree = tree_instance
         else:
             self.id_tree: ID3Tree = load_tree(
-                "/Uno/DecisionTrees/20240727_1631_id_tree.pkl")
-
+                "/media/andrzzej/xD/Projekty/Python/NewUnoGame/UnoGame/Uno/DecisionTrees/20240801_2038_improved_7_nodes_deep_tree.pkl")
+            self.id_tree.decode_target_values()
 
 
 

@@ -2,12 +2,10 @@ import os
 import random
 
 import pandas as pd
-import pickle
-import time
 
-from Uno.AIPlayers.ID3Tree import ID3Tree, load_tree
+from Uno.DecisionTrees.ID3Tree import ID3Tree
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
-from Uno.AIPlayers.ID3Tree import load_tree
+from Uno.DecisionTrees.ID3Tree import load_tree
 
 
 class C4_5BaggingEnsebleBot(BaseAIBot):

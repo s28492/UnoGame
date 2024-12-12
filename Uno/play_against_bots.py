@@ -1,6 +1,5 @@
 '''
 @author Cyprian Szewczak s28492
-
 '''
 import time
 

@@ -66,4 +66,8 @@ W talii są także karty specjalne takie jak Postój, Zmiana kierunku, Weź dwie
 
 Karty Postój, Zmiana kierunku, Weź dwie można kłaść do danego karcie koloru – natomiast karty Wybierz kolor + Weź cztery można kłaść na dowolną kartę.
 
-# TODO: Dodać bota uczącego się gry za pomocą machine learningu
+# Jak zagrać w grę?
+
+1. Aby zagrać w grę trzeba będąc w katalogu "UnoGame" uruchomić komendę "python3 -m Uno.play_against_bots"
+2. Następnie trzeba wybrać format gry którą chcesz rozgrywać (4 dla ciebie Dima)
+

@@ -1,7 +1,6 @@
 from numba import jit, njit, vectorize
 from datetime import datetime
 from multiprocessing import Pool, cpu_count
-from memory_profiler import profile
 from Uno.games_data.dataHandler import prepareDataForTree
 import argparse
 import numpy as np
@@ -11,7 +10,7 @@ import pickle
 import os
 import sys
 
-sys.path.append(os.path.abspath("/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/AIPlayers"))
+sys.path.append(os.path.abspath("/Uno/AIPlayers"))
 
 class ID3Tree:
     """
@@ -220,12 +219,12 @@ class ID3Tree:
         Returns:
             list: A list containing the column name and datasets split by the column's values.
         """
-        datasets = []
-        for value in self.dataset.loc[self.indices_list, column].unique():
-            subset_indices = self.dataset.loc[(self.dataset[column] == value)
-                                              & self.dataset.index.isin(self.indices_list)].index
-            datasets.append(subset_indices)
-        return [column, datasets]
+        column_data = self.dataset[column].to_numpy()
+        indices = np.array(self.indices_list)
+        unique_values = np.unique(column_data[indices])
+        for value in unique_values:
+            subset_indices = indices[column_data[indices] == value]
+            yield value, subset_indices
 
     def get_gain_ratio(self, attribute, current_entropy):
         """
@@ -238,12 +237,15 @@ class ID3Tree:
         Returns:
             tuple: A tuple containing the gain ratio and datasets split by the attribute.
         """
-        datasets = self.split_data_by_column(attribute)
-        child_counts = [self.target_attribute.iloc[subset_indices].value_counts().to_numpy() for subset_indices in
-                        datasets[1]]
-        gain_ratio = calculate_gain_ratio(child_counts, current_entropy, len(self.indices_list))
-        return gain_ratio, datasets
+        child_counts = []
+        datasets = []
 
+        for value, subset_indices in self.split_data_by_column(attribute):
+            child_counts.append(self.target_attribute.iloc[subset_indices].value_counts().to_numpy())
+            datasets.append(subset_indices)
+
+        gain_ratio = calculate_gain_ratio(child_counts, current_entropy, len(self.indices_list))
+        return gain_ratio, (attribute, datasets)
 
     def find_best_attribute_to_split(self):
         """
@@ -253,22 +255,19 @@ class ID3Tree:
             list: A list containing the best gain ratio and the corresponding datasets.
         """
         current_entropy = self.get_entropy()
-        best_information_gain = -float('inf')
+        best_gain_ratio = -float('inf')
         best_datasets_with_column = None
-        num_of_processe = cpu_count() - 1 if cpu_count() > 1 else 1
-        with Pool(processes=num_of_processe) as pool:
+
+        with Pool(processes=cpu_count()) as pool:
             results = pool.starmap(self.get_gain_ratio,
-                                   [(attribute, current_entropy)
-                                    for attribute in self.attributes_names])
-            pool.close()
-            pool.join()
+                                   [(attribute, current_entropy) for attribute in self.attributes_names])
 
         for gain_ratio, datasets in results:
-            if gain_ratio is not None and best_information_gain < gain_ratio:
-                best_information_gain = gain_ratio
+            if gain_ratio is not None and best_gain_ratio < gain_ratio:
+                best_gain_ratio = gain_ratio
                 best_datasets_with_column = datasets
-        del results, current_entropy
-        return [best_information_gain, best_datasets_with_column]
+
+        return [best_gain_ratio, best_datasets_with_column]
 
     def is_tree_done(self, max_depth, min_values_in_leaf, min_gain_ratio):
         """
@@ -297,7 +296,7 @@ class ID3Tree:
         self.is_leaf = True
         self.label = self.most_common_label()
         return None, None
-    @profile()
+    #@profile()
     def build_tree(self, max_depth: int, min_values_in_leaf: int, min_gain_ratio: float):
         """
         Recursively builds the decision tree from the current node.
@@ -312,19 +311,22 @@ class ID3Tree:
             return
 
         self.splitting_attribute = best_attribute_and_datasets[0]
+        attribute = best_attribute_and_datasets[0]
 
-        splitted_indexes_list = best_attribute_and_datasets[1]
-
-        self.show_tree_building_process()
-
-        for i, subset_indices in enumerate(splitted_indexes_list):
+        for value, subset_indices in self.split_data_by_column(attribute):
             if len(subset_indices) == 0:
                 continue
+
             new_attributes_names = [attr for attr in self.attributes_names if attr != self.splitting_attribute]
-            new_node = ID3Tree(self.dataset, new_attributes_names, self.target_attribute,
-                               label_encoders=self.label_encoders, indices_list=subset_indices, parent=self,
-                               value_of_attribute_splitting=self.dataset.loc[
-                                   subset_indices[0], self.splitting_attribute], node_depth=self.node_depth + 1)
+            new_node = ID3Tree(
+                self.dataset,
+                new_attributes_names,
+                self.target_attribute,
+                indices_list=subset_indices,
+                parent=self,
+                value_of_attribute_splitting=value,
+                node_depth=self.node_depth + 1
+            )
             new_node.build_tree(max_depth, min_values_in_leaf, min_gain_ratio)
             self.children.append(new_node)
 
@@ -391,20 +393,9 @@ class ID3Tree:
             min_values_in_leaf (int): The minimum number of data points required in a leaf.
             min_gain_ratio (float): The minimum gain ratio required for a split.
         """
-        leaf_list = self.find_leafs_with_values_more_or_equal_than(min_values_in_leaf)
-        len_leaf = len(leaf_list)
-        for i, leaf in enumerate(leaf_list):
+        for leaf in self.find_leafs_with_values_more_or_equal_than(min_values_in_leaf):
             leaf.change_leaf_status()
             leaf.build_tree(max_depth, min_values_in_leaf, min_gain_ratio)
-            if len_leaf <= 400 and (i == int(len_leaf / 4) or (i == int(len_leaf / 2)) or (
-                    i == int(3 * len_leaf/ 4))):
-                self.save_tree(
-                    f"tmp_expanded_tree_d{self.get_distance_to_farthest_leaf()-1}_done_{i}:{len(leaf_list)}.pkl",
-                    is_temporary=True)
-            elif len_leaf > 400 and (((i + 1) / 60) == 0):
-                self.save_tree(
-                    f"tmp_expanded_tree_d{self.get_distance_to_farthest_leaf()-1}_done_{i}:{len(leaf_list)}.pkl",
-                    )
 
     def get_distance_to_farthest_leaf(self, recurrent_call: bool = False):
         """
@@ -716,6 +707,7 @@ def main(depth: int,
     id_tree.build_tree(max_depth=depth, min_values_in_leaf=2000, min_gain_ratio=0.2)
 
     print(f"Build successfully completed in {time.time() - start} seconds")
+    id_tree.save_tree("yield_tree.pkl")
 
 
 
@@ -723,7 +715,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--depth', type=int, default=3, help='depth of tree')
     parser.add_argument('--filepath', type=str,
-                        default='Uno/games_data/Naive_Bayes_Data.csv',
+                        default='Uno/games_data/MergedCSV/20240728_2356_uno_game_693MB_testing.csv',
                         help='link for csv file to train the tree on')
     args = parser.parse_args()
     main(args.depth, args.filepath)

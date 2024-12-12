@@ -4,10 +4,10 @@ from datetime import datetime
 from Uno.players.RandomBot import BotRandom
 from Uno.players.BasicLogicBot import BasicLogicBot
 from Uno.players.AgressiveBot import AgressiveBot
-from Uno.players.BLBUpgradedColorChoosing import BLBUpgradedColorChoosing
+from Uno.players.BLBUpgradedColorChoosingBot import BLBUpgradedColorChoosing
 from Uno.AIPlayers.ID3Bot import ID3Bot
 from Uno.AIPlayers.NaiveBayesianBot import NaiveBayesianBot
-from Uno.AIPlayers.ID3Tree import ID3Tree, load_tree
+from Uno.DecisionTrees.ID3Tree import ID3Tree, load_tree
 from Uno.AIPlayers.C4_5BaggingEnsemble import C4_5BaggingEnsebleBot
 from Uno.game.Game import Game
 from rich.console import Console
@@ -21,10 +21,10 @@ bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Z
 # last_tree: ID3Tree = load_tree("/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/DecisionTrees/20240824_1537_expanded_tree_d10.pkl")
 # last_tree.decode_values()
 # last_tree.decode_target_values()
-# tree_instances = [load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240727_1631_id_tree.pkl"),
+tree_instances = [load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240727_1631_id_tree.pkl"),
 #                   load_tree("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/DecisionTrees/20240801_2159_improved_7_nodes_deep_decoded_target_values_tree.pkl"),
 #                   last_tree,
-#                   ]
+                   ]
 pd.set_option('future.no_silent_downcasting', True)
 # data: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data.csv")
 # data, label = encode_data(data)

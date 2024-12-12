@@ -27,6 +27,13 @@ class Card:
     def img_url(self):
         return f"uno_card-{self.color.lower()}{self.value.lower()}.png"
 
+    def rich_str(self):
+        """Returns string for console rich module printing"""
+        if self.color == "Colors":
+            return "[red]+[/][rgb(255,165,0)]4[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
+                   "255)]r[/][magenta]s[/] "
+        return f"[bold {self.color}]{self.value} {self.color}[/]"
+
     def __str__(self):
         return f"{self.value} {self.color}"
 

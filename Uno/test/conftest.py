@@ -2,7 +2,10 @@ from Uno.players.Bot import Bot
 from Uno.game.Deck import Deck
 from Uno.game.Game import Game
 import pytest
-
+import sys
+import os
+from Uno.DecisionTrees.ID3Tree import calculate_entropy_numba
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'Uno/DecisionTrees/ID3Tree.py')))
 @pytest.fixture(scope="class")
 def deck_instance():
     deck_obj = Deck()

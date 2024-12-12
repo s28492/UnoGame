@@ -15,11 +15,12 @@ class Game:
     # transposes int values to str values
     values = map(lambda val: str(val), values)
 
-    def __init__(self, players: list):
+    def __init__(self, players: list, has_human_player: bool = False):
         """Initialize game start state"""
         self.console = Console()
         self.game_id = None
         self.players: list[Player] = self.check_number_of_players(players)
+        self.has_human_player = has_human_player
         self.move_history = []
         self.round = 0
         self.ranking_table = [None for _ in players]
@@ -55,9 +56,6 @@ class Game:
 
     def get_direction(self):
         return self.direction
-
-    # def get_enemy_hand_num(self):
-    #     return
 
     def get_game_over(self):
         return self.game_over
@@ -170,12 +168,18 @@ class Game:
         """changes current player list indicator"""
         return (self.index_of_a_player + self.direction) % len(self.players)
 
+    def show_num_of_cards_for_all(self):
+        messege = ""
+        for player in self.players:
+            messege += f"{player.rich_str()}: {len(player.hand)} | "
+        return messege
+
     def show_state(self, player) -> None:
         """Shows current player, card on top, players hand and state of the game"""
-       # print("Game show_state")
-        self.console.print(f"{player}")
+        self.console.print("\n\n")
+        self.console.print(f"{player.rich_str()}")
         self.console.print(f"Card on the top -> [{self.card_on_top.color.lower()}]{self.card_on_top}[/]")
-
+        self.console.print(self.show_num_of_cards_for_all())
         if self.cards_to_take != 0:
             self.console.print(f"Cards to take -> {self.cards_to_take}\nWrite Draw to take or play valid plus card.")
         elif self.turns_to_stop != 0:
@@ -208,8 +212,9 @@ class Game:
             self.cards_to_take = self.cards_to_take - 1 if self.cards_to_take != 0 else 0
 
         if self.cards_to_take != 0 and self.is_valid_plus_card(first_card_taken):
-            # self.console.print(
-            #     f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
+            if not isinstance(self.get_player(), Bot):
+                self.console.print(
+                 f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
             player_move = player.move(first_card_taken)
             if isinstance(player_move, DrawCard):
                 for i in range(self.cards_to_take):
@@ -221,8 +226,9 @@ class Game:
             else:
                 self.manage_draw(player, first_card_taken=first_card_taken)
         elif self.cards_to_take == 0 and first_card_taken is not None and first_card_taken.match(self.card_on_top):
-            # self.console.print(
-            #     f"You have drawed {first_card_taken}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
+            if not isinstance(self.get_player(), Bot):
+                self.console.print(
+                 f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.cards_to_take} remaining cards")
             player_move = player.move(first_card_taken)
             if player_move == first_card_taken or (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value):
                 player.play_card(player_move)
@@ -230,8 +236,9 @@ class Game:
             elif isinstance(player_move, DrawCard):
                 return
             else:
-                # self.console.print(
-                #     "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
+                if not isinstance(self.get_player(), Bot):
+                    self.console.print(
+                     "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
                 self.manage_draw(player, first_card_taken=first_card_taken)
         else:
             for i in range(self.cards_to_take):
@@ -248,6 +255,7 @@ class Game:
             data_for_bot = (self.players, self.pile, self.card_on_top
                             , self.direction, self.turns_to_stop, self.cards_to_take)
             bot.set_bot_data(data_for_bot)
+
     def update_ai(self, bot):
         if isinstance(bot, BaseAIBot.BaseAIBot):
             bot_features = bot.extract_features(self)
@@ -258,6 +266,8 @@ class Game:
     def manage_player_move(self, player):
         self.update_bot(player)
         self.update_ai(player)
+        if not isinstance(player, Bot):
+            self.show_state(player)
         player_features = player.extract_features(self)
         #player.show_hand()
         card_played = player.move()
@@ -300,8 +310,15 @@ class Game:
         return features
     def reset_all_bots(self):
         for player in self.players:
-            if isinstance(player, BaseAIBot.BaseAIBot):
-                player.bot_reset()
+            if isinstance(player, Bot):
+                del player
+    def show_infinite_mistakes(self):
+        print("Game too long")
+        self.show_state(self.get_player())
+        print(f"ID3 hand len {len(self.get_player().hand)}")
+        print(f"Cards in deck {len(self.deck.deck)}")
+        print(f"Cards on pile {len(self.pile)}")
+
 
     def play(self) -> list:
         """Main game method. Controls game flow"""
@@ -310,11 +327,7 @@ class Game:
             self.round += 1
             player = self.get_player()
             if self.round > 1_000 and isinstance(player, BaseAIBot.BaseAIBot):
-                print("Game too long")
-                self.show_state(player)
-                print(f"ID3 hand len {len(player.hand)}")
-                print(f"Cards in deck {len(self.deck.deck)}")
-                print(f"Cards on pile {len(self.pile)}")
+                self.show_infinite_mistakes()
                 break
             # Checks if player is stopped
             if player.stopped:

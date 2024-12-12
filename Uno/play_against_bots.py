@@ -1,17 +1,6 @@
 '''
 @author Cyprian Szewczak s28492
-Documentation:
 
-create_game_with_players(*players) -> Game
-This function creates game with initialized starting state of a game
-
-def main() -> None
-This function creates lobby that allows player to set players and bots and starts the game
-
-def start_bot_thread(bot: Bot, game: Game) -> None:
-This function starts bot thread
-
-Total lanes of code: 706
 '''
 import time
 

@@ -29,7 +29,7 @@ class Card:
 
     def rich_str(self):
         """Returns string for console rich module printing"""
-        pass
+        return f"[bold {self.color}]{self.value} {self.color}[/]"
 
     def __str__(self):
         return f"{self.value} {self.color}"

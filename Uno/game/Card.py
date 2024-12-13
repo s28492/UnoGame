@@ -29,10 +29,7 @@ class Card:
 
     def rich_str(self):
         """Returns string for console rich module printing"""
-        if self.color == "Colors":
-            return "[red]+[/][rgb(255,165,0)]4[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
-                   "255)]r[/][magenta]s[/] "
-        return f"[bold {self.color}]{self.value} {self.color}[/]"
+        pass
 
     def __str__(self):
         return f"{self.value} {self.color}"
@@ -138,6 +135,13 @@ class ColorCard(Card):
     def __str__(self):
         return f"{self.value} {self.color}"
 
+    def rich_str(self):
+        """Returns string for console rich module printing"""
+        if self.color == "Colors":
+            return "[red]A[/][rgb(255,165,0)]l[/][rgb(255,200,60)]l[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
+                   "255)]r[/][magenta]s[/] "
+        return f"[bold {self.color}]{self.value} {self.color}[/]"
+
     def img_url(self):
         return f"uno_card-wildchange.png"
 
@@ -166,6 +170,13 @@ class Plus4Card(ColorCard):
 
     def __str__(self):
         return f"{self.value} {self.color}"
+
+    def rich_str(self):
+        """Returns string for console rich module printing"""
+        if self.color == "Colors":
+            return "[red]+[/][rgb(255,165,0)]4[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
+                   "255)]r[/][magenta]s[/] "
+        return f"[bold {self.color}]{self.value} {self.color}[/]"
 
     def img_url(self):
         return f"uno_card-wilddraw4.png"

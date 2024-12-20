@@ -110,12 +110,21 @@ class C4_5Tree:
             self.is_leaf = True
             return self
 
+        child_remaining_columns = self.remaining_column_indices[self.remaining_column_indices != best_column_index]
+
         for i in range(0, best_split_values.shape[0]):
             is_enough_data_in_node: bool = best_split_indexes[i].shape[0] >= min_values_per_leaf
+            child_data_indices = best_split_indexes[i]
             if is_enough_data_in_node:
-                new_node = C4_5Tree(self.X_data, self.Y_data, remaining_data_indices=best_split_indexes[i],
-                                    remaining_column_indices=best_split_indexes[i], labels_encodes=self.labels_encodes,
-                                    parent=self, node_depth=self.node_depth+1)
+                new_node = C4_5Tree(
+                    X_data=self.X_data,
+                    Y_data=self.Y_data,
+                    remaining_data_indices=child_data_indices,
+                    remaining_column_indices=child_remaining_columns,
+                    labels_encodes=self.labels_encodes,
+                    parent=self,
+                    node_depth=self.node_depth + 1
+                )
                 self.children.append(new_node)
                 new_node.build_tree(max_depth, min_values_per_leaf, min_information_gain)
 

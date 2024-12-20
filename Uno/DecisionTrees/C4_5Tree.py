@@ -80,7 +80,12 @@ class C4_5Tree:
             information_gain, split_values, split_indexes = self.calculate_information_gain_for_column(column_index,
                                                                                                        current_entropy)
             split_information = self.calculate_split_information_for_column(column_index)
-            gain_ratio = information_gain / split_information
+
+            # If split_information == 0 then to avoid division by 0 set information gain as 0
+            if split_information == 0:
+                gain_ratio = 0
+            else:
+                gain_ratio = information_gain / split_information
 
             gain_ratios.append(gain_ratio)
             all_split_values.append(split_values)
@@ -102,14 +107,16 @@ class C4_5Tree:
 
 
 
-    def build_tree(self, max_depth: int, min_values_per_leaf: int, min_information_gain: float) ->'C4_5Tree':
+    def build_tree(self, max_depth: int, min_values_per_leaf: int, min_gain_ratio: float) -> 'C4_5Tree':
+        # Calculating the best split based on gain ratio
         best_column_index, max_gain_ratio, best_split_values, best_split_indexes = self.calculate_best_gain_ratio()
 
-
-        if (self.node_depth == max_depth) or (max_gain_ratio < min_information_gain):
+        # Checking stopping conditions
+        if (self.node_depth == max_depth) or (max_gain_ratio < min_gain_ratio):
             self.is_leaf = True
             return self
 
+        # Updating remaining_column_indices for children
         child_remaining_columns = self.remaining_column_indices[self.remaining_column_indices != best_column_index]
 
         for i in range(0, best_split_values.shape[0]):
@@ -126,7 +133,7 @@ class C4_5Tree:
                     node_depth=self.node_depth + 1
                 )
                 self.children.append(new_node)
-                new_node.build_tree(max_depth, min_values_per_leaf, min_information_gain)
+                new_node.build_tree(max_depth, min_values_per_leaf, min_gain_ratio)
 
         return self
 

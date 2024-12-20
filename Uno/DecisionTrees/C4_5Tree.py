@@ -30,7 +30,7 @@ class C4_5Tree:
     def calculate_entropy(self, indexes):
         # Entropy(S) = - ( Sum(P * log_2 (P))
         entropy = 0
-        
+
         _, counts = np.unique(self.Y_data[indexes], return_counts=True)
         for count in counts:
             p = count / self.Y_data[indexes].shape[0]
@@ -40,7 +40,7 @@ class C4_5Tree:
     def calculate_information_gain_for_column(self, column_index: int, current_entropy) -> tuple:
         # Column values for the current subset
         x_column = self.X_data[:, column_index]
-        x_column_values, counts = np.unique(x_column[self.remaining_column_indices], return_counts=True)
+        x_column_values, counts = np.unique(x_column[self.remaining_data_indices], return_counts=True)
         split_indexes = []
         values_from_splitted_indexes = []
 
@@ -48,8 +48,8 @@ class C4_5Tree:
         for x_column_value, count in zip(x_column_values, counts):
             proportion_of_given_value_in_column = count / self.remaining_data_indices.shape[0]
 
-            # Mapping filtered indexes values to remaining_column_indices for data alignment
-            indexes_of_given_value = self.remaining_column_indices[
+            # Mapping filtered indexes values to remaining_data_indices for data alignment
+            indexes_of_given_value = self.remaining_data_indices[
                 np.where(x_column[self.remaining_data_indices] == x_column_value)[0]
             ]
             values_from_splitted_indexes.append(x_column_value)
@@ -62,7 +62,7 @@ class C4_5Tree:
     def calculate_split_information_for_column(self, column_index: int):
         split_information = 0
         x_column = self.X_data[:, column_index]
-        _, counts = np.unique(x_column[self.remaining_column_indices], return_counts=True)
+        _, counts = np.unique(x_column[self.remaining_data_indices], return_counts=True)
         for count in counts:
             proportion_of_value = count / self.remaining_data_indices.shape[0]
             split_information -= proportion_of_value * np.log2(proportion_of_value)
@@ -73,7 +73,7 @@ class C4_5Tree:
         all_split_values = []  # Collects split values for each column
         all_split_indexes = []  # Collects indexes for each split
         # Current entropy for the entire dataset
-        current_entropy = self.calculate_entropy(self.remaining_column_indices)
+        current_entropy = self.calculate_entropy(self.remaining_data_indices)
 
         # Adds all columns' information gains to an array
         for column_index in self.remaining_column_indices:
@@ -102,7 +102,7 @@ class C4_5Tree:
 
 
 
-    def build_tree(self, max_depth: int, min_values_per_leaf: int, min_information_gain: float) -> C4_5Tree:
+    def build_tree(self, max_depth: int, min_values_per_leaf: int, min_information_gain: float) ->'C4_5Tree':
         best_column_index, max_gain_ratio, best_split_values, best_split_indexes = self.calculate_best_gain_ratio()
 
 

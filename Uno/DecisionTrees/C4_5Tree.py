@@ -4,8 +4,7 @@ import numpy as np
 import datetime
 import pickle
 import time
-
-from multiprocessing import Pool, cpu_count, freeze_support
+import os
 from Uno.games_data.dataHandler import *
 
 
@@ -14,7 +13,8 @@ class C4_5Tree:
     def __init__(
             self, X_data: np.array, Y_data: np.array, remaining_data_indices: np.array = None,
             remaining_column_indices: np.array = None, labels_encodes: dict = None, parent: 'C4_5Tree' = None,
-            node_depth: int = 0, is_leaf: bool = False, node_value: str = None, split_attribute: int = None
+            node_depth: int = 0, is_leaf: bool = False, node_value: str = None, split_attribute: int = None,
+            column_names: list =None
                  ):
         self.X_data = X_data
         self.Y_data = Y_data
@@ -34,6 +34,7 @@ class C4_5Tree:
         self.node_depth = node_depth
         self.node_value = node_value
         self.split_attribute = split_attribute
+        self.column_names = column_names
 
     def get_labels(self):
         return self.labels_encodes
@@ -161,26 +162,44 @@ class C4_5Tree:
                 )
                 self.children.append(new_node)
                 new_node.build_tree(max_depth, min_values_per_leaf, min_gain_ratio)
-
+        if len(self.children) == 0:
+            self.is_leaf = True
         return self
 
 
 
-    def predict_from_df(self, data_to_predict: pd.DataFrame):
+    def predict(self, data_to_predict: pd.DataFrame):
         columns = np.array(data_to_predict.columns.shape[0])
         encoded_data = encode_data_with_label(data_to_predict, self.labels_encodes)
 
         if self.is_leaf:
-            cards, counts = np.unique(self.Y_data[self.remaining_data_indices], return_counts=True)
-            output_series = pd.Series(data=dict(zip(cards, counts)), name="card_played").sort_values(ascending=False)
+            # cards, counts = np.unique(self.Y_data[self.remaining_data_indices], return_counts=True)
+            # output_series = pd.Series(data=dict(zip(cards, counts)), name="card_played").sort_values(ascending=False)
+            output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
+                self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
+
             return output_series
 
+        # var = ""
+        # for i in range (0, self.node_depth):
+        #     var += "\t"
+        #
+        # print(var, f"Column considered = {self.split_attribute}")
+
+
+
         for child in self.children:
-            if child.node_value == encoded_data[child.split_attribute].iloc[0]:
-                return child.predict_from_df(data_to_predict)
+
+            if child.node_value == encoded_data.iloc[0, self.split_attribute]:
+                return child.predict(data_to_predict)
+
+        output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
+            self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
+
+        return output_series
 
 
-    def save_tree(self, filename, is_temporary=False, directory=""):
+    def save_tree(self, filename, is_temporary=False, directory="Uno/DecisionTrees/Models"):
         """
         Saves the tree to a file using pickle.
 
@@ -208,9 +227,13 @@ class C4_5Tree:
         spaces = ""
         for i in range(self.node_depth):
             spaces += "|     "
-        print(f"{spaces}{self.node_depth}. {self.node_value}: {list(self.labels_encodes.keys())[self.split_attribute]}")
+        print(f"{spaces}{self.node_depth}. {self.node_value}: {list(self.labels_encodes.keys())[self.split_attribute]} -> len: {self.remaining_data_indices.shape[0]}")
 
 
+def load_tree(filename):
+    abs_path = os.path.abspath(filename)
+    with open(abs_path, 'rb') as f:
+        return pickle.load(f)
 
 
 
@@ -223,10 +246,10 @@ def main():
     Y_data = df.iloc[:, -1].to_numpy()
     start = time.time()
     tree = C4_5Tree(X_data=X_data, Y_data=Y_data, remaining_data_indices=df.index.to_numpy(),
-                    labels_encodes=label_encoders)
-    tree.build_tree(max_depth=3, min_values_per_leaf=100, min_gain_ratio=0.04)
-    tree.save_tree("C4_5Tree_tree.pkl")
+                    labels_encodes=label_encoders, column_names=df.columns.to_list()[:-1])
+    tree.build_tree(max_depth=20, min_values_per_leaf=1000, min_gain_ratio=0.04)
     print(f"Tree successfully built in {time.time() - start} seconds.")
+    tree.save_tree("C4_5Tree_tree.pkl")
 
 if __name__ == "__main__":
     main()

@@ -86,20 +86,27 @@ class C4_5Tree:
             split_information -= proportion_of_value * np.log2(proportion_of_value)
         return split_information
 
+    def find_best_split(self, column_index, current_entropy):
+        information_gain, split_values, split_indexes = \
+            self.calculate_information_gain_for_column(column_index, current_entropy)
+        split_information = self.calculate_split_information_for_column(column_index)
+        return information_gain, split_values, split_indexes, split_information
+
     def calculate_best_gain_ratio(self) -> tuple:
-        gain_ratios = []
-        all_split_values = []  # Collects split values for each column
-        all_split_indexes = []  # Collects indexes for each split
-        # Current entropy for the entire dataset
         current_entropy = self.calculate_entropy(self.remaining_data_indices)
 
-        # Adds all columns' information gains to an array
-        for column_index in self.remaining_column_indices:
-            information_gain, split_values, split_indexes = self.calculate_information_gain_for_column(column_index,
-                                                                                                       current_entropy)
-            split_information = self.calculate_split_information_for_column(column_index)
+        # Parallel processing: each column’s best split
+        with Pool(cpu_count()) as pool:
+            results = pool.starmap(
+                self.find_best_split,
+                [(col_idx, current_entropy) for col_idx in self.remaining_column_indices]
+            )
 
-            # If split_information == 0 then to avoid division by 0 set information gain as 0
+        gain_ratios = []
+        all_split_values = []
+        all_split_indexes = []
+
+        for (information_gain, split_values, split_indexes, split_information) in results:
             if split_information == 0:
                 gain_ratio = 0
             else:
@@ -109,20 +116,17 @@ class C4_5Tree:
             all_split_values.append(split_values)
             all_split_indexes.append(split_indexes)
 
-        # Convert information gains to numpy array for efficient operations
         gain_ratios = np.array(gain_ratios)
 
-        # Find the best column
-        best_column_idx = np.argmax(gain_ratios)
-        # Adjust best index to reference "remaining_column_indexes" not "information_gains"
-        best_column_index = self.remaining_column_indices[best_column_idx]
-        best_split_values = np.array(all_split_values[best_column_idx])
-        best_split_indexes = all_split_indexes[best_column_idx]
+        # Find the index of the best gain ratio
+        best_idx = np.argmax(gain_ratios)
+        best_gain_ratio = gain_ratios[best_idx]
 
-        max_gain_ratio = gain_ratios[best_column_idx]
-        return best_column_index, max_gain_ratio, best_split_values, best_split_indexes
+        best_column_index = self.remaining_column_indices[best_idx]
+        best_split_values = np.array(all_split_values[best_idx])
+        best_split_indexes = all_split_indexes[best_idx]
 
-
+        return best_column_index, best_gain_ratio, best_split_values, best_split_indexes
 
 
     def build_tree(self, max_depth: int, min_values_per_leaf: int, min_gain_ratio: float) -> 'C4_5Tree':

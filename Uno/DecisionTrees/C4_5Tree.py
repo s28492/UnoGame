@@ -180,23 +180,25 @@ class C4_5Tree:
 
             return output_series
 
-        # var = ""
-        # for i in range (0, self.node_depth):
-        #     var += "\t"
-        #
-        # print(var, f"Column considered = {self.split_attribute}")
 
+        if (len(self.children) > encoded_data.iloc[0, self.split_attribute]) and self.children[encoded_data.iloc[0, self.split_attribute]].node_value == encoded_data.iloc[0, self.split_attribute]:
+            return self.children[encoded_data.iloc[0, self.split_attribute]].predict(data_to_predict)
+        else:
+            for child in self.children:
 
+                if child.node_value == encoded_data.iloc[0, self.split_attribute]:
+                    return child.predict(data_to_predict)
 
-        for child in self.children:
-
-            if child.node_value == encoded_data.iloc[0, self.split_attribute]:
-                return child.predict(data_to_predict)
-
-        output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
-            self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
+            output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
+                self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
 
         return output_series
+
+
+    def sort_children(self):
+        self.children.sort(key=lambda x: x.node_value, reverse=False)
+        for child in self.children:
+            child.sort_children()
 
 
     def save_tree(self, filename, is_temporary=False, directory="Uno/DecisionTrees/Models"):
@@ -240,16 +242,27 @@ def load_tree(filename):
 def main():
     df = pd.read_csv("Uno/games_data/MergedCSV/20240728_2356_uno_game_693MB_testing.csv")
     df = prepare_data_for_learning(df)
-    df, label_encoders = encode_data(df)
-    print("Data loaded...")
+    df = df.loc[df["card_played"] != "Draw"]
+    df = df.loc[df["card_played"] != "All Colors"]
+    df = df.loc[df["card_played"] != "+4 Colors"]
+    new_df = pd.DataFrame(columns=df.columns)
+    for card in df["card_played"].value_counts().index:
+        new_df = pd.concat([new_df, df[df["card_played"] == card].iloc[:9780]], ignore_index=True)
+    print(new_df["card_played"].value_counts())
+    print(f"Data loaded...: \n {df["card_played"].value_counts()}")
+    df, label_encoders = encode_data(new_df)
     X_data = df.iloc[:, :-1].to_numpy()
     Y_data = df.iloc[:, -1].to_numpy()
     start = time.time()
     tree = C4_5Tree(X_data=X_data, Y_data=Y_data, remaining_data_indices=df.index.to_numpy(),
                     labels_encodes=label_encoders, column_names=df.columns.to_list()[:-1])
-    tree.build_tree(max_depth=20, min_values_per_leaf=1000, min_gain_ratio=0.04)
+    max_depth = 25
+    min_values_in_leaf = 1000
+    min_gain_ratio = 0.4
+    tree.build_tree(max_depth=25, min_values_per_leaf=1000, min_gain_ratio=0.04)
     print(f"Tree successfully built in {time.time() - start} seconds.")
-    tree.save_tree("C4_5Tree_tree.pkl")
+    tree.sort_children()
+    tree.save_tree(f"C4_5Tree_tree_d{max_depth}_mvl{min_values_in_leaf}_gr{min_gain_ratio}.pkl")
 
 if __name__ == "__main__":
     main()

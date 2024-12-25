@@ -308,10 +308,12 @@ class Game:
             features["game_id"] = self.game_id
             features["card_played"] = move
         return features
+
     def reset_all_bots(self):
         for player in self.players:
             if isinstance(player, Bot):
                 del player
+
     def show_infinite_mistakes(self):
         print("Game too long")
         self.show_state(self.get_player())

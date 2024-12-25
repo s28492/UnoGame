@@ -15,6 +15,7 @@ class Bot(Player):
         self.stop_cards = []
         self.plus_2_cards = []
         self.plus_4_cards = []
+        self.all_color_cards = []
         self.possible_colors = ["Red", "Green", "Blue", "Yellow"]
 
     def __str__(self):
@@ -26,7 +27,7 @@ class Bot(Player):
     def set_bot_data(self, data) -> None:
         """Updates game data for bot"""
         self.players, self.pile, self.card_on_top, self.direction, self.turns_to_stop, self.cards_to_take = data
-        self.stop_cards, self.plus_2_cards, self.plus_4_cards = [], [], []
+        self.stop_cards, self.plus_2_cards, self.plus_4_cards, self.all_color_cards = [], [], [], []
         for card in self.hand:
             if isinstance(card, StopCard):
                 self.stop_cards.append(card)
@@ -34,6 +35,8 @@ class Bot(Player):
                 self.plus_2_cards.append(card)
             elif isinstance(card, Plus4Card):
                 self.plus_4_cards.append(card)
+            elif isinstance(card, ColorCard):
+                self.all_color_cards.append(card)
 
 
     def stop_card_on_hand(self) -> list:

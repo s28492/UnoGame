@@ -28,6 +28,7 @@ class Player:
             "Stop": 0,
             "+2": 0,
             "+4": 0,
+            "Colors": 0
         }
         for card in self.hand:
             if card.color in card_dict:
@@ -46,6 +47,7 @@ class Player:
             'num_stop': card_counts["Stop"],
             'num_plus2': card_counts["+2"],
             'num_plus4': card_counts["+4"],
+            'num_all_color': card_counts["Colors"], 
             'top_card': str(game.get_card_on_top()),
             'num_cards_left_in_deck': game.get_num_cards_left_in_deck(),
             'round': game.get_round(),

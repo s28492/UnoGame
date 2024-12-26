@@ -37,6 +37,8 @@ class BaseAIBot (Bot):
                     valid_cards_to_put.append(card)
         return valid_cards_to_put
 
+
+
     def valid_cards(self, card_taken=None) -> list:
         """Creates a list of cards that can be played. If there isn't any, puts DrawCard()"""
         valid_cards = []
@@ -107,6 +109,16 @@ class BaseAIBot (Bot):
         else:
             card = Card(card_value, card_color)
         return card
+
+    def create_color_cards(self, plus_card: bool = False) -> list:
+        cards = []
+        if plus_card:
+            for color in ["Red", "Green", "Blue", "Yellow"]:
+                cards.append(Plus4Card().change_color(color))
+        else:
+            for color in ["Red", "Green", "Blue", "Yellow"]:
+                cards.append(ColorCard().change_color(color))
+        return cards
 
     def bot_reset(self):
         pass

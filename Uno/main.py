@@ -23,8 +23,9 @@ bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Z
 # last_tree: ID3Tree = load_tree("/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/DecisionTrees/20240824_1537_expanded_tree_d10.pkl")
 # last_tree.decode_values()
 # last_tree.decode_target_values()
-tree_instances = [#load_tree("Uno/DecisionTrees/20240727_1631_id_tree.pkl"),
-                   load_C4_5("Uno/DecisionTrees/Models/20241222_2233_C4_5Tree_tree.pkl")
+tree_instances = [
+                   load_C4_5("Uno/DecisionTrees/Models/20241222_2233_C4_5Tree_tree.pkl"),
+                   load_C4_5("Uno/DecisionTrees/Models/20241226_1957_3GB_Dataset_C4_5Tree_tree_d100_mvl200_gr0.03.pkl")
 #                   last_tree,
                    ]
 pd.set_option('future.no_silent_downcasting', True)
@@ -70,7 +71,7 @@ def create_instances(bots):
             instances_to_return.append(bot)
         elif bot == "BaggingBot":
             name = "BaggingBot"
-            bot: C4_5BaggingEnsebleBot = C4_5BaggingEnsebleBot(name, "Uno/DecisionTrees/BaggingTrees/n10_d4_sp0.63_dseTrue")
+            bot: C4_5BaggingEnsebleBot = C4_5BaggingEnsebleBot(name, "Uno/DecisionTrees/Models")
             instances_to_return.append(bot)
         else:
             instances_to_return.append(BLBUpgradedColorChoosing("BLBUpgradedColorChoosing"))
@@ -152,8 +153,8 @@ if __name__ == "__main__":
         # ["NaiveBayesianBot1", "ID3Bot1"],
         # ["RandomBot", "ID3Bot3"],
         #["BaggingBot", "RandomBot"],
-        ["ID3Bot1", "AgressiveBot"]
-        # ["ID3Bot3", "ID3Bot1"],
+        ["ID3Bot2", "AgressiveBot"]
+        #  ["ID3Bot1", "ID3Bot1"]
         # ["ID3Bot3", "ID3Bot2"]
         # ["ID3Bot2", "ID3Bot2"],
         # ["ID3Bot2", "ID3Bot2"],

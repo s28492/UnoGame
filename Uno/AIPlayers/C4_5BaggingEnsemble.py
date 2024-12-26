@@ -5,7 +5,9 @@ import pandas as pd
 
 from Uno.DecisionTrees.ID3Tree import ID3Tree
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
-from Uno.DecisionTrees.ID3Tree import load_tree
+from Uno.DecisionTrees.C4_5Tree import C4_5Tree, load_tree
+# from Uno.DecisionTrees.ID3Tree import load_tree
+
 
 
 class C4_5BaggingEnsebleBot(BaseAIBot):
@@ -88,7 +90,6 @@ class C4_5BaggingEnsebleBot(BaseAIBot):
             for name in files:
                 full_path = os.path.join(root, name)
                 tree: ID3Tree = load_tree(full_path)
-                tree.decode_target_values()
                 self.trees.append(tree)
 
     def bot_reset(self):

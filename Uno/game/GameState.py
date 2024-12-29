@@ -11,12 +11,11 @@ class GameState:
     Encapsulates the game's state data.
     """
 
-    def __init__(self, players: list, has_human_player: bool = False):
+    def __init__(self, players: list, is_simulation=False):
         """Initialize game start state"""
         self.console = Console()
         self.game_id = str(uuid.uuid4())
         self.players: list[Player] = self._check_number_of_players(players)
-        self.has_human_player = has_human_player
         self.move_history = []
         self.round = 0
         self.ranking_table = [None for _ in players]
@@ -32,6 +31,88 @@ class GameState:
         self.game_over = False
         self.features_list = []
         self.deal_cards_to_players()
+        self.is_simulation = is_simulation
+
+    def set_move_history(self, move_history):
+        self.move_history = move_history
+
+    def get_move_history(self):
+        return self.move_history
+
+    def set_features_list(self, features_list):
+        self.features_list = features_list
+
+    def get_features_list(self):
+        return self.features_list
+
+    def set_reset_colors(self, reset_colors):
+        self.reset_colors = reset_colors
+
+    def set_round(self, round):
+        self.round = round
+
+    def get_round(self):
+        return self.round
+
+    def set_ranking_table(self, ranking_table):
+        self.ranking_table = ranking_table
+
+    def get_ranking_table(self):
+        return self.ranking_table
+
+    def set_deck(self, deck):
+        self.deck = deck
+
+    def get_deck(self):
+        return self.deck
+
+    def set_pile(self, pile):
+        self.pile = pile
+
+    def get_pile(self):
+        return self.pile
+
+    def set_card_on_top(self, card_on_top):
+        self.card_on_top = card_on_top
+
+    def get_card_on_top(self):
+        return self.card_on_top
+
+    def set_index_of_a_player(self, index_of_a_player):
+        self.index_of_a_player = index_of_a_player
+
+    def get_index_of_a_player(self):
+        return self.index_of_a_player
+
+    def set_direction(self, direction):
+        self.direction = direction
+
+    def get_direction(self):
+        return self.direction
+
+    def set_turns_to_stop(self, turns_to_stop):
+        self.turns_to_stop = turns_to_stop
+
+    def get_turns_to_stop(self):
+        return self.turns_to_stop
+
+    def set_cards_to_take(self, cards_to_take):
+        self.cards_to_take = cards_to_take
+
+    def get_cards_to_take(self):
+        return self.cards_to_take
+
+    def set_first_taken(self, first_taken):
+        self.first_taken = first_taken
+
+    def get_first_taken(self):
+        return self.first_taken
+
+    def set_game_over(self, game_over):
+        self.game_over = game_over
+
+    def get_game_over(self):
+        return self.game_over
 
     @staticmethod
     def _check_number_of_players(players) -> list[Player]:
@@ -168,8 +249,17 @@ class GameState:
         sum = 0
         for player in self.players:
             sum += len(player.hand)
-        if len(self.deck.deck) + len(self.pile) + sum != 108:
-            raise ValueError("Not enough cards in deck or pile")
+        num_of_cards = len(self.deck.deck) + len(self.pile) + sum
+
+        if num_of_cards != 108:
+            if self.is_simulation:
+                print("SIMULATION ERROR")
+                print("Pile: ", len(self.pile))
+                for card in self.pile:
+                    print(card)
+                print("Deck: ", len(self.deck.deck))
+                print("players: ", sum)
+            raise ValueError(f"Not enough cards in deck or pile. Expected 108, got {num_of_cards}")
 
     def reset_all_bots(self):
         for player in self.players:

@@ -7,12 +7,15 @@ class Game:
     Manages the game logic and interactions with GameState.
     """
 
-    def __init__(self, players: list, has_human_player: bool = False):
-        self.game_state = GameState(players, has_human_player)
+    def __init__(self, players: list):
+        self.game_state = GameState(players)
         self.initialize_game()
     def initialize_game(self) -> None:
         """Initializes a game"""
         self.game_state.put_card(self.game_state.deck.draw_card())
+
+    def get_game_state(self):
+        return self.game_state
 
     def manage_stop(self, player, card):
         """
@@ -74,24 +77,28 @@ class Game:
         if card.__class__ == self.game_state.card_on_top.__class__ or isinstance(card, Plus4Card):
             return True
         return False
+
     def update_bot(self, bot):
         if isinstance(bot, Bot):
             data_for_bot = (self.game_state.get_players(), self.game_state.pile, self.game_state.card_on_top
                             , self.game_state.direction, self.game_state.turns_to_stop, self.game_state.cards_to_take)
             bot.set_bot_data(data_for_bot)
+            # bot.set_game_state(self.game_state)
+
     def update_ai(self, bot):
         if isinstance(bot, BaseAIBot.BaseAIBot):
             bot_features = bot.extract_features(self.game_state)
             game_features = self.upgrade_features(data_for_bot=True)
             result = {**bot_features, **game_features}
             bot.create_row(result)
+
     def manage_player_move(self, player):
         self.update_bot(player)
         self.update_ai(player)
         if not isinstance(player, Bot):
            self.game_state.show_state(player)
         player_features = player.extract_features(self.game_state)
-        card_played = player.move()
+        card_played = player.move(game=self)
         if card_played.match(self.game_state.card_on_top):
             if self.game_state.turns_to_stop != 0:
                 if not self.manage_stop(player, card_played):

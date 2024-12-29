@@ -38,6 +38,12 @@ class Deck:
             deck.append(ColorCard("All", "Colors"))
         return deck
 
+    def set_deck(self, deck):
+        self.deck = deck
+
+    def get_deck(self):
+        return self.deck
+
     def get_deck_len(self):
         return len(self.deck)
 

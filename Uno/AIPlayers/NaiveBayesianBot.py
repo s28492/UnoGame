@@ -16,7 +16,7 @@ class NaiveBayesianBot(BaseAIBot):
         self.target_label_to_encode = {value: key for key, value in self.all_labels_to_decode['card_played'].items()}
         pd.set_option('future.no_silent_downcasting', True)
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         valid_cards = self.valid_cards(card_taken=first_card_taken)
         valid_cards = self.append_colors(valid_cards)
 

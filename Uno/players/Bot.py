@@ -38,6 +38,11 @@ class Bot(Player):
             elif isinstance(card, ColorCard):
                 self.all_color_cards.append(card)
 
+    def get_hand(self):
+        return self.hand
+
+    def set_hand(self, cards):
+        self.hand = cards
 
     def stop_card_on_hand(self) -> list:
         """Create and return all stop cards in bot "hand"""
@@ -54,6 +59,6 @@ class Bot(Player):
     def change_color(self, card: ColorCard):
         pass
 
-    def move(self, first_card_taken = None):
+    def move(self, first_card_taken = None, game=None):
         """Handles a different situations of game state and reacts accordingly"""
         pass

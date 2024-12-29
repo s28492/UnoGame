@@ -37,7 +37,7 @@ class ID3Bot(BaseAIBot):
 
 
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         """
         Determines the bot's move based on the current game state and the ID3 decision tree.
 
@@ -52,7 +52,7 @@ class ID3Bot(BaseAIBot):
         if len(valid_cards) == 1 and not isinstance(valid_cards[0], ColorCard):
             return valid_cards[0]
         node_values = self.id_tree.predict(self.current_row)
-        for predicted_card in node_values:
+        for predicted_card in node_values.index.to_list():
             splitted_index = predicted_card.split(" ")
             if len(splitted_index) == 1:
                 card = self.create_card_instance(splitted_index[0])

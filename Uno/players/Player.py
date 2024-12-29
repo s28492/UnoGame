@@ -19,6 +19,11 @@ class Player:
     def get_features(self):
         return self.features
 
+    def set_game_state(self, game_state):
+        pass
+    def set_game_copy(self, game_copy):
+        pass
+
     def count_cards(self):
         card_dict = {
             "Red": 0,
@@ -82,7 +87,7 @@ class Player:
     def get_game_state(self, game):
         pass
 
-    def move(self, card_taken = None):
+    def move(self, card_taken = None, game=None):
         self.console.print(self.show_hand())
         card_to_play = input().split(" ")
 

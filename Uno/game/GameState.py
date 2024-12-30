@@ -48,6 +48,9 @@ class GameState:
     def set_reset_colors(self, reset_colors):
         self.reset_colors = reset_colors
 
+    def get_reset_colors(self):
+        return self.reset_colors
+
     def set_round(self, round):
         self.round = round
 
@@ -201,6 +204,10 @@ class GameState:
             messege += f"{player.rich_str()}: {len(player.hand)} | "
         return messege
 
+    def show_game_over(self):
+        self.console.print("\n\n[yellow]Game Over!!![/]")
+        self.console.print(f"Winner: {self.ranking_table[0].rich_str()}")
+
     def add_cards_to_take(self, how_many: int):
         self.cards_to_take += how_many
 
@@ -233,12 +240,18 @@ class GameState:
         """Shows current player, card on top, players hand and state of the game"""
         self.console.print("\n\n")
         self.console.print(f"{player.rich_str()}")
-        self.console.print(f"Card on the top -> [{self.card_on_top.color.lower()}]{self.card_on_top}[/]")
+        self.console.print(f"Card on the top -> {self.card_on_top.rich_str()}")
         self.console.print(self.show_num_of_cards_for_all())
         if self.cards_to_take != 0:
             self.console.print(f"Cards to take -> {self.cards_to_take}\nWrite Draw to take or play valid plus card.")
         elif self.turns_to_stop != 0:
             self.console.print(f"Turns to stop -> {self.turns_to_stop}\nWrite Stop to stop or play valid stop card.")
+        self.console.print(f"Your cards:")
+        self.console.print(player.show_hand())
+
+    def show_card_played(self, card) -> None:
+        """Shows card played"""
+        self.console.print(f"Card played -> {card.rich_str()}")
 
     def empty_hand(self, player) -> None:
         """Checks if hand is empty. If yes, the player has finished and is removed from players list"""
@@ -253,13 +266,32 @@ class GameState:
 
         if num_of_cards != 108:
             if self.is_simulation:
-                print("SIMULATION ERROR")
-                print("Pile: ", len(self.pile))
+                self.console.print("SIMULATION ERROR")
+                self.console.print("Pile: ", len(self.pile))
                 for card in self.pile:
-                    print(card)
-                print("Deck: ", len(self.deck.deck))
-                print("players: ", sum)
+                    self.console.print(card)
+                self.console.print("Deck: ", len(self.deck.deck))
+                self.console.print("players: ", sum)
+                self.check_for_missing_cards(self.deck.get_deck() + self.pile + [card for player in self.players for card in player.hand])
             raise ValueError(f"Not enough cards in deck or pile. Expected 108, got {num_of_cards}")
+
+    def check_for_missing_cards(self, all_cards):
+        deck = Deck()
+        self.console.print("Deck: ", len(deck.get_deck()))
+        self.console.print("visible cards: ", len(all_cards))
+        for card in all_cards:
+            if card in deck.get_deck():
+                success = deck.remove_card_from_deck(card)
+                if not success:
+                    self.console.print("ERROR: Card was not removed from deck")
+                    self.console.print(card.rich_str())
+                    raise ValueError("ERROR: Card was not removed from deck")
+        self.console.print("Missing cards: ")
+        rich_string = ""
+        for card in deck.get_deck():
+            rich_string += f"{card.rich_str()} | "
+        self.console.print(rich_string)
+        print()
 
     def reset_all_bots(self):
         for player in self.players:
@@ -267,11 +299,9 @@ class GameState:
                 del player
 
     def show_infinite_mistakes(self):
-        print("Game too long")
-        self.show_state(self.get_player())
-        print(f"ID3 hand len {len(self.get_player().hand)}")
-        print(f"Cards in deck {len(self.deck.deck)}")
-        print(f"Cards on pile {len(self.pile)}")
+        if self.is_simulation:
+            raise ValueError("SIMULATION ERROR. Game is too long")
+        raise ValueError("SIMULATION ERROR. Game is too long")
 
     def get_features_list(self):
         return self.features_list

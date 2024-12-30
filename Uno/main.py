@@ -11,6 +11,7 @@ from Uno.DecisionTrees.ID3Tree import ID3Tree, load_tree
 from Uno.DecisionTrees.C4_5Tree import C4_5Tree
 from Uno.DecisionTrees.C4_5Tree import load_tree as load_C4_5
 from Uno.AIPlayers.C4_5BaggingEnsemble import C4_5BaggingEnsebleBot
+from Uno.AIPlayers.MonteCarloTreeSearch.MCTSBot import MCTSBot
 from Uno.game.Game import Game
 from rich.console import Console
 from multiprocessing import Pool, Manager, cpu_count
@@ -25,7 +26,7 @@ bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Z
 # last_tree.decode_target_values()
 tree_instances = [
                    load_C4_5("Uno/DecisionTrees/Models/20241222_2233_C4_5Tree_tree.pkl"),
-                   load_C4_5("Uno/DecisionTrees/Models/20241226_1957_3GB_Dataset_C4_5Tree_tree_d100_mvl200_gr0.03.pkl")
+                   load_C4_5("Uno/DecisionTrees/Models/20241227_1251_3GB_Dataset_with_child_map.pkl")
 #                   last_tree,
                    ]
 pd.set_option('future.no_silent_downcasting', True)
@@ -73,6 +74,18 @@ def create_instances(bots):
             name = "BaggingBot"
             bot: C4_5BaggingEnsebleBot = C4_5BaggingEnsebleBot(name, "Uno/DecisionTrees/Models")
             instances_to_return.append(bot)
+        elif bot == "MCTSBot1":
+            name = "MCTSBot1"
+            bot: MCTSBot = MCTSBot(name, num_of_simulations=200, c_param=1.85)
+            instances_to_return.append(bot)
+        elif bot == "MCTSBot2":
+            name = "MCTSBot2"
+            bot: MCTSBot = MCTSBot(name, num_of_simulations=200, c_param=1.95)
+            instances_to_return.append(bot)
+        elif bot == "MCTSBot3":
+            name = "MCTSBot3"
+            bot: MCTSBot = MCTSBot(name, num_of_simulations=10_000, c_param=1.9)
+            instances_to_return.append(bot)
         else:
             instances_to_return.append(BLBUpgradedColorChoosing("BLBUpgradedColorChoosing"))
         
@@ -119,6 +132,8 @@ def start_many_games(matchup, number_of_games=1000):
 
     end_time = time.time()
     print("Time taken to play:", round((end_time - start_time) / 60, 2), "min\n")
+    return
+
 
 def assign_did_win(df):
     df['did_win'] = False  # Najpierw ustaw wszystkie wartości na False
@@ -153,7 +168,11 @@ if __name__ == "__main__":
         # ["NaiveBayesianBot1", "ID3Bot1"],
         # ["RandomBot", "ID3Bot3"],
         #["BaggingBot", "RandomBot"],
-        ["ID3Bot2", "AgressiveBot"]
+        # ["AgressiveBot", "MCTSBot1"],
+        # ["AgressiveBot", "MCTSBot2"],
+        ["AgressiveBot", "MCTSBot3"]
+        # ["MCTSBot", "AgressiveBot"]
+        # ["MCTSBot", "AgressiveBot"]
         #  ["ID3Bot1", "ID3Bot1"]
         # ["ID3Bot3", "ID3Bot2"]
         # ["ID3Bot2", "ID3Bot2"],
@@ -161,11 +180,11 @@ if __name__ == "__main__":
         # ["NaiveBayesianBot1", "NaiveBayesianBot1"]
     ]
 
-    number_of_games = 10_000
+    number_of_games = 1_000
     for _ in range(1):
         start_time = time.time()
         for matchup in matchups:
             start_many_games(matchup, number_of_games)
 
-        print(f"All {number_of_games*len(matchups):_} games played in ", round((time.time() - start_time)/60, 2), "minutes\n")
+        print(f"All {number_of_games*len(matchups):_} games played in ", (time.time() - start_time)%60, "minutes\n")
         print(f"Games ended at: {time.ctime(time.time())}")

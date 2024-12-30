@@ -13,11 +13,31 @@ class Player:
         self.stop_status = 0
         self.stopped = False
         self.takes_status = 0
+        self.cards_to_take = 0
         self.first_taken = False
         self.console = Console()
         self.features = {}
+
+    def get_name(self):
+        return self.name
+
     def get_features(self):
         return self.features
+
+    def current_state_to_string(self):
+        state_string = ""
+        state_string += f"Player: {self.name}\n"
+        state_string += f"Hand: "
+        for card in self.hand:
+            state_string += f"{card} |  "
+        state_string += "\n"
+        state_string += f"Stop status: {self.stop_status}\n"
+        state_string += f"cards to take status: {self.cards_to_take}\n"
+        state_string += f"First taken: {self.first_taken}\n"
+        for feature in self.features:
+            state_string += f"{feature}: {self.features[feature]}\n"
+        return state_string
+
 
     def set_game_state(self, game_state):
         pass
@@ -88,7 +108,6 @@ class Player:
         pass
 
     def move(self, card_taken = None, game=None):
-        self.console.print(self.show_hand())
         card_to_play = input().split(" ")
 
         if card_to_play[0] == "Surrender":  # Surrenders

@@ -10,6 +10,7 @@ class Game:
     def __init__(self, players: list):
         self.game_state = GameState(players)
         self.initialize_game()
+
     def initialize_game(self) -> None:
         """Initializes a game"""
         self.game_state.put_card(self.game_state.deck.draw_card())
@@ -44,7 +45,7 @@ class Game:
             if not isinstance(self.game_state.get_player(), Bot):
                 self.game_state.console.print(
                  f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
-            player_move = player.move(first_card_taken)
+            player_move = player.move(first_card_taken, game=self)
             if isinstance(player_move, DrawCard):
                 for i in range(self.game_state.cards_to_take):
                     self.game_state.take_card(player)
@@ -58,7 +59,7 @@ class Game:
             if not isinstance(self.game_state.get_player(), Bot):
                 self.game_state.console.print(
                  f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.game_state.cards_to_take} remaining cards")
-            player_move = player.move(first_card_taken)
+            player_move = player.move(first_card_taken, game=self)
             if player_move == first_card_taken or (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value):
                 player.play_card(player_move)
                 self.game_state.put_card(player_move.play(self.game_state))

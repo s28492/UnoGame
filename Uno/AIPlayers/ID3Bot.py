@@ -43,7 +43,7 @@ class ID3Bot(BaseAIBot):
 
         Parameters:
             first_card_taken (Card, optional): The first card taken during the bot's turn. Defaults to None.
-
+            :param game:
         Returns:
             Card: The card selected by the bot to play.
         """

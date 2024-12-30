@@ -37,7 +37,7 @@ class C4_5BaggingEnsebleBot(BaseAIBot):
             new_list.append(card.__str__())
         return new_list
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         # print("========================================")
         valid_cards = self.valid_cards(first_card_taken)
         # print("A len of valid cards: ", len(valid_cards))

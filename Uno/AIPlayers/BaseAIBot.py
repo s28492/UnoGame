@@ -124,10 +124,14 @@ class BaseAIBot (Bot):
         cards = []
         if plus_card:
             for color in ["Red", "Green", "Blue", "Yellow"]:
-                cards.append(Plus4Card().change_color(color))
+                card = Plus4Card()
+                card.change_color(color)
+                cards.append(card)
         else:
             for color in ["Red", "Green", "Blue", "Yellow"]:
-                cards.append(ColorCard().change_color(color))
+                card = ColorCard()
+                card.change_color(color)
+                cards.append(card)
         return cards
 
     def bot_reset(self):

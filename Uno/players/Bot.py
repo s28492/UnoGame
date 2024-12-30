@@ -21,8 +21,18 @@ class Bot(Player):
     def __str__(self):
         return f"{self.name}"
 
+    def set_bot_turns_to_stop(self, turns_to_stop):
+        self.turns_to_stop = turns_to_stop
+
+    def set_bot_cards_to_take(self, cards_to_take):
+        self.cards_to_take = cards_to_take
+
+
     def rich_str(self):
         return f":robot:[bold cyan]{self.name}[/]"
+
+    def get_name(self):
+        return self.name
 
     def set_bot_data(self, data) -> None:
         """Updates game data for bot"""

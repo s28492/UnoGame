@@ -36,6 +36,8 @@ class C4_5Tree:
         self.split_attribute = split_attribute
         self.column_names = column_names
         self.prediction_data = None
+        self.children_map = None
+        self.deleted_data = False
 
     def get_labels(self):
         return self.labels_encodes
@@ -51,14 +53,6 @@ class C4_5Tree:
         return entropy
 
     def calculate_information_gain_for_column(self, column_index: int, current_entropy) -> tuple:
-        # Column values for the current subset
-        # print("Col index ", column_index)
-        # print("Col index type ", type(column_index))
-        # print("Columns left ", self.remaining_column_indices)
-        # print("Column of column index ", self.remaining_column_indices[column_index])
-        # print("X Data ", self.X_data)
-        # print("X Data type", type(self.X_data))
-        # print("X Data values", self.X_data.iloc[:, column_index])
         x_column = self.X_data[:, column_index]
         x_column_values, counts = np.unique(x_column[self.remaining_data_indices], return_counts=True)
         split_indexes = []
@@ -127,8 +121,9 @@ class C4_5Tree:
 
 
 
-    def build_tree(self, max_depth: int, min_values_per_leaf: int, min_gain_ratio: float) -> 'C4_5Tree':
+    def build_tree(self, max_depth: int, min_values_per_leaf: int, min_gain_ratio: float, show_building_peocess:bool=True) -> 'C4_5Tree':
         # Calculating the best split based on gain ratio
+        self.__assign_prediction_data()
         best_column_index, max_gain_ratio, best_split_values, best_split_indexes = self.calculate_best_gain_ratio()
 
         self.split_attribute = best_column_index
@@ -144,8 +139,8 @@ class C4_5Tree:
 
         # Updating remaining_column_indices for children
         child_remaining_columns = self.remaining_column_indices[self.remaining_column_indices != best_column_index]
-
-        self.show_tree_building_process()
+        if show_building_peocess:
+            self.__show_tree_building_process()
 
         for i in range(0, best_split_values.shape[0]):
             child_data_indices = np.array(best_split_indexes[i])
@@ -162,7 +157,7 @@ class C4_5Tree:
                     node_value=best_split_values[i]
                 )
                 self.children.append(new_node)
-                new_node.build_tree(max_depth, min_values_per_leaf, min_gain_ratio)
+                new_node.build_tree(max_depth, min_values_per_leaf, min_gain_ratio, show_building_peocess=show_building_peocess)
         if len(self.children) == 0:
             self.is_leaf = True
         return self
@@ -170,47 +165,44 @@ class C4_5Tree:
 
 
     def predict(self, data_to_predict: pd.DataFrame):
-        columns = np.array(data_to_predict.columns.shape[0])
         encoded_data = encode_data_with_label(data_to_predict, self.labels_encodes)
 
         if self.is_leaf:
-            # cards, counts = np.unique(self.Y_data[self.remaining_data_indices], return_counts=True)
-            # output_series = pd.Series(data=dict(zip(cards, counts)), name="card_played").sort_values(ascending=False)
-            output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
-                self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
+            # print(self.prediction_data)
+            # output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
+            #     self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
+            return self.prediction_data
 
-            return output_series
+        child = self.children_map.get(encoded_data.iloc[0, self.split_attribute])
+        if child:
+            return child.predict(data_to_predict)
+        return self.prediction_data
 
-
-        if (len(self.children) > encoded_data.iloc[0, self.split_attribute]) and self.children[encoded_data.iloc[0, self.split_attribute]].node_value == encoded_data.iloc[0, self.split_attribute]:
-            return self.children[encoded_data.iloc[0, self.split_attribute]].predict(data_to_predict)
-        else:
-            for child in self.children:
-
-                if child.node_value == encoded_data.iloc[0, self.split_attribute]:
-                    return child.predict(data_to_predict)
-
-            output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
-                self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
-
-        return output_series
-
-    def assign_prediction_data(self):
+    def __assign_prediction_data(self):
         self.prediction_data = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
             self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values()).value_counts(sort=True)
 
-
-        if self.is_leaf:
-            return
-
-        for child in self.children:
-            child.assign_prediction_data()
 
     def sort_children(self):
         self.children.sort(key=lambda x: x.node_value, reverse=False)
         for child in self.children:
             child.sort_children()
 
+    def create_children_map(self):
+        self.children_map = {child.node_value: child for child in self.children}
+
+        for child in self.children:
+            child.create_children_map()
+
+    def drop_data(self):
+        self.X_data = None
+        self.Y_data = None
+        self.remaining_data_indices = None
+        self.remaining_column_indices = None
+        self.node_depth = None
+        self.deleted_data = True
+        for child in self.children:
+            child.drop_data()
 
     def save_tree(self, filename, is_temporary=False, directory="Uno/DecisionTrees/Models"):
         """
@@ -233,7 +225,7 @@ class C4_5Tree:
             pickle.dump(self, f)
         return filename
 
-    def show_tree_building_process(self):
+    def __show_tree_building_process(self):
         """
         Prints the progress of the tree building process in a readable format.
         """
@@ -263,7 +255,7 @@ def load_tree(filename):
 
 
 def main():
-    df = pd.read_csv("Uno/games_data/MergedCSV/20241226_1734_uno_game.csv")
+    df = pd.read_csv("Uno/games_data/MergedCSV/20241228_2318_uno_game.csv")
     df = prepare_data_for_learning(df)
     print(df.head())
     # new_df = pd.DataFrame(columns=df.columns)
@@ -280,9 +272,7 @@ def main():
     min_gain_ratio = 0.03
     tree.build_tree(max_depth=max_depth, min_values_per_leaf=min_values_in_leaf, min_gain_ratio=min_gain_ratio)
     print(f"Tree successfully built in {time.time() - start} seconds.")
-    tree.sort_children()
     tree.print_tree()
-    tree.assign_prediction_data()
     tree.save_tree(f"3GB_Dataset_C4_5Tree_tree_d{max_depth}_mvl{min_values_in_leaf}_gr{min_gain_ratio}.pkl")
 
 if __name__ == "__main__":

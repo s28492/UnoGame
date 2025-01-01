@@ -15,6 +15,7 @@ class AgressiveBot(Bot):
     def colors_of_list(list):
         return [card.color for card in list]
 
+
     def choose_color(self) -> str:
         """Bot chooses color of "Color" card based on what color he has the most in "hand\""""
         possible_colors = ["Red", "Green", "Blue", "Yellow"]
@@ -45,7 +46,7 @@ class AgressiveBot(Bot):
     def change_color(self, card: ColorCard):
         card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         """Handles a different situations of game state and reacts accordingly"""
         # If bot could be stopped it plays stop card
         if isinstance(first_card_taken, ColorCard):

@@ -55,7 +55,7 @@ class BotRandom(Bot):
     def change_color(self, card: ColorCard):
         card.change_color(self.choose_color())
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         """Handles a different situations of game state and reacts accordingly"""
         if isinstance(first_card_taken, ColorCard):
             self.change_color(first_card_taken)

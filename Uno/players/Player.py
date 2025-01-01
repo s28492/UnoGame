@@ -13,11 +13,36 @@ class Player:
         self.stop_status = 0
         self.stopped = False
         self.takes_status = 0
+        self.cards_to_take = 0
         self.first_taken = False
         self.console = Console()
         self.features = {}
+
+    def get_name(self):
+        return self.name
+
     def get_features(self):
         return self.features
+
+    def current_state_to_string(self):
+        state_string = ""
+        state_string += f"Player: {self.name}\n"
+        state_string += f"Hand: "
+        for card in self.hand:
+            state_string += f"{card} |  "
+        state_string += "\n"
+        state_string += f"Stop status: {self.stop_status}\n"
+        state_string += f"cards to take status: {self.cards_to_take}\n"
+        state_string += f"First taken: {self.first_taken}\n"
+        for feature in self.features:
+            state_string += f"{feature}: {self.features[feature]}\n"
+        return state_string
+
+
+    def set_game_state(self, game_state):
+        pass
+    def set_game_copy(self, game_copy):
+        pass
 
     def count_cards(self):
         card_dict = {
@@ -28,6 +53,7 @@ class Player:
             "Stop": 0,
             "+2": 0,
             "+4": 0,
+            "Colors": 0
         }
         for card in self.hand:
             if card.color in card_dict:
@@ -46,6 +72,7 @@ class Player:
             'num_stop': card_counts["Stop"],
             'num_plus2': card_counts["+2"],
             'num_plus4': card_counts["+4"],
+            'num_all_color': card_counts["Colors"], 
             'top_card': str(game.get_card_on_top()),
             'num_cards_left_in_deck': game.get_num_cards_left_in_deck(),
             'round': game.get_round(),
@@ -80,8 +107,7 @@ class Player:
     def get_game_state(self, game):
         pass
 
-    def move(self, card_taken = None):
-        self.console.print(self.show_hand())
+    def move(self, card_taken = None, game=None):
         card_to_play = input().split(" ")
 
         if card_to_play[0] == "Surrender":  # Surrenders

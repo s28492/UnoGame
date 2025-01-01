@@ -38,6 +38,12 @@ class Deck:
             deck.append(ColorCard("All", "Colors"))
         return deck
 
+    def set_deck(self, deck):
+        self.deck = deck
+
+    def get_deck(self):
+        return self.deck
+
     def get_deck_len(self):
         return len(self.deck)
 
@@ -69,6 +75,22 @@ class Deck:
 
     def deck_length(self):
         return len(self.deck)
+
+    def remove_card_from_deck(self, card):
+        if isinstance(card, Plus4Card):
+            plus_4_card = Plus4Card()
+            return self.remove_card(plus_4_card)
+        elif isinstance(card, ColorCard):
+            color_card = ColorCard("All", "Colors")
+            return self.remove_card(color_card)
+        else:
+            return self.remove_card(card)
+
+    def remove_card(self, card):
+        if card in self.deck:
+            self.deck.remove(card)
+            return True
+        return False
 
     def show_cards_in_deck(self):
         if len(self.deck) == 0:

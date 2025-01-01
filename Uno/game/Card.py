@@ -78,6 +78,10 @@ class DrawCard:
     def __str__(self):
         return f"{self.value}"
 
+    def rich_str(self):
+        """Returns string for console rich module printing"""
+        return f"[bold magenta]DrawCard[/]"
+
     @staticmethod
     def match(other: Card) -> bool:
         """:returns true"""

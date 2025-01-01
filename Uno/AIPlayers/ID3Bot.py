@@ -4,7 +4,9 @@ import pickle
 
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
 from Uno.DecisionTrees.ID3Tree import ID3Tree
+from Uno.DecisionTrees.C4_5Tree import C4_5Tree
 from Uno.game.Card import *
+
 
 
 class ID3Bot(BaseAIBot):
@@ -35,13 +37,13 @@ class ID3Bot(BaseAIBot):
 
 
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         """
         Determines the bot's move based on the current game state and the ID3 decision tree.
 
         Parameters:
             first_card_taken (Card, optional): The first card taken during the bot's turn. Defaults to None.
-
+            :param game:
         Returns:
             Card: The card selected by the bot to play.
         """
@@ -49,9 +51,9 @@ class ID3Bot(BaseAIBot):
         valid_cards: list = self.valid_cards(card_taken=first_card_taken)
         if len(valid_cards) == 1 and not isinstance(valid_cards[0], ColorCard):
             return valid_cards[0]
-        node_values = self.id_tree.predict(self.current_row).value_counts(sort=True)
-        for index_card in node_values.index.to_list():
-            splitted_index = index_card[0].split(" ")
+        node_values = self.id_tree.predict(self.current_row)
+        for predicted_card in node_values.index.to_list():
+            splitted_index = predicted_card.split(" ")
             if len(splitted_index) == 1:
                 card = self.create_card_instance(splitted_index[0])
             else:

@@ -5,7 +5,9 @@ import pandas as pd
 
 from Uno.DecisionTrees.ID3Tree import ID3Tree
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
-from Uno.DecisionTrees.ID3Tree import load_tree
+from Uno.DecisionTrees.C4_5Tree import C4_5Tree, load_tree
+# from Uno.DecisionTrees.ID3Tree import load_tree
+
 
 
 class C4_5BaggingEnsebleBot(BaseAIBot):
@@ -35,7 +37,7 @@ class C4_5BaggingEnsebleBot(BaseAIBot):
             new_list.append(card.__str__())
         return new_list
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         # print("========================================")
         valid_cards = self.valid_cards(first_card_taken)
         # print("A len of valid cards: ", len(valid_cards))
@@ -88,7 +90,6 @@ class C4_5BaggingEnsebleBot(BaseAIBot):
             for name in files:
                 full_path = os.path.join(root, name)
                 tree: ID3Tree = load_tree(full_path)
-                tree.decode_target_values()
                 self.trees.append(tree)
 
     def bot_reset(self):

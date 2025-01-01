@@ -68,7 +68,7 @@ class BLBUpgradedColorChoosing(Bot):
     def change_color(self, card: ColorCard):
         card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
 
-    def move(self, first_card_taken=None):
+    def move(self, first_card_taken=None, game=None):
         """Handles a different situations of game state and reacts accordingly"""
         # If bot could be stopped it plays stop card
         if isinstance(first_card_taken, ColorCard):

@@ -1,5 +1,6 @@
 import pandas as pd
 import random
+import copy
 import os
 import pickle
 import sys
@@ -12,6 +13,14 @@ class BaseAIBot (Bot):
         super().__init__(name)
         self.current_data = pd.DataFrame()
         self.current_row = pd.DataFrame()
+        self.game_state_copy = None
+        self.game_copy = None
+
+    def set_game_state(self, game_state):
+        self.game_state_copy = copy.deepcopy(game_state)
+
+    def set_game_copy(self, game):
+        self.game_copy = copy.deepcopy(game)
 
     def create_row(self, dict):
         self.current_row = pd.DataFrame(data=[dict])
@@ -36,6 +45,8 @@ class BaseAIBot (Bot):
                 else:
                     valid_cards_to_put.append(card)
         return valid_cards_to_put
+
+
 
     def valid_cards(self, card_taken=None) -> list:
         """Creates a list of cards that can be played. If there isn't any, puts DrawCard()"""
@@ -107,6 +118,21 @@ class BaseAIBot (Bot):
         else:
             card = Card(card_value, card_color)
         return card
+
+
+    def create_color_cards(self, plus_card: bool = False) -> list:
+        cards = []
+        if plus_card:
+            for color in ["Red", "Green", "Blue", "Yellow"]:
+                card = Plus4Card()
+                card.change_color(color)
+                cards.append(card)
+        else:
+            for color in ["Red", "Green", "Blue", "Yellow"]:
+                card = ColorCard()
+                card.change_color(color)
+                cards.append(card)
+        return cards
 
     def bot_reset(self):
         pass

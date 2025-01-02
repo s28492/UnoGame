@@ -8,6 +8,7 @@ from Uno.players.Player import Player
 from Uno.players.Bot import Bot
 from Uno.players.RandomBot import BotRandom
 from Uno.AIPlayers.ID3Bot import ID3Bot
+from Uno.AIPlayers.MonteCarloTreeSearch.MCTSBot import MCTSBot
 
 from Uno.game.Game import Game
 from rich.console import Console
@@ -27,12 +28,14 @@ def main() -> None:
     random.shuffle(bot_names)
     bots = []
     game = None
-    print("Starting the game")
-    console.print("[bold magenta]Welcome to UNO game![/bold magenta]")
-    console.print("1. Play with other humans.")
-    console.print("2. Watch bots playing with each other.")
-    console.print("3. Play with humans and bots.")
-    console.print("[bold gold]4. Dawaj to Dima!!![/]")
+    console.print("\n[bold magenta]Welcome to UNO game![/bold magenta]",justify="center", end="\n\n")
+    console.print("1. Play with other humans.", justify="center")
+    console.print("2. Watch bots playing with each other.", justify="center")
+    console.print("3. Play with humans and bots.", justify="center")
+    console.print(
+        "4. Play with bots and Dima (AI).", justify="center"
+    )
+    console.print("[bold gold]4. Dawaj to Dima!!![/]", justify="center", end="\n\n")
 
 
     choice = console.input("[bold green]Pick an option (1-4): [/bold green]")
@@ -52,7 +55,7 @@ def main() -> None:
         bots = [Bot(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
         game = create_game_with_players(players+bots, True)
     elif choice == "4":
-        bots = [ Player("Dima"), ID3Bot("AI")]
+        bots = [ Player("Dima"), MCTSBot(bot_names.pop(), 50_000, 1.9)]
         random.shuffle(bots)
         game = create_game_with_players(bots)
         game.play()

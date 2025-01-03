@@ -7,7 +7,8 @@ class Game:
     Manages the game logic and interactions with GameState.
     """
 
-    def __init__(self, players: list):
+    def __init__(self, players: list, has_human_player=False):
+        self.has_human_player = has_human_player
         self.game_state = GameState(players)
         self.initialize_game()
 

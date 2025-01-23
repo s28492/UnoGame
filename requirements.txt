@@ -364,3 +364,4 @@ zict
 zipp
 zope.interface
 zstandard
+rich==13.9.4

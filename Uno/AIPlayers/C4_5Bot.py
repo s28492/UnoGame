@@ -9,7 +9,7 @@ from Uno.game.Card import *
 
 
 
-class ID3Bot(BaseAIBot):
+class C4_5Bot(BaseAIBot):
     """
     Represents an AI bot for playing UNO that utilizes an ID3 decision tree.
     """

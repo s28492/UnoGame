@@ -167,11 +167,9 @@ class C4_5Tree:
     def predict(self, data_to_predict: pd.DataFrame):
         encoded_data = encode_data_with_label(data_to_predict, self.labels_encodes)
 
-        if self.is_leaf:
-            # print(self.prediction_data)
-            # output_series = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
-            #     self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values())
+        if self.is_leaf or self.children_map is None:
             return self.prediction_data
+
 
         child = self.children_map.get(encoded_data.iloc[0, self.split_attribute])
         if child:
@@ -248,6 +246,15 @@ class C4_5Tree:
             child.print_tree()
 
 def load_tree(filename):
+    """
+    Loads a serialized C4.5 decision tree from a file.
+
+    Parameters:
+        filename (str): The path to the file containing the serialized tree.
+
+    Returns:
+        C4.5Tree: The deserialized ID3 decision tree instance.
+    """
     abs_path = os.path.abspath(filename)
     with open(abs_path, 'rb') as f:
         return pickle.load(f)
@@ -255,7 +262,7 @@ def load_tree(filename):
 
 
 def main():
-    df = pd.read_csv("Uno/games_data/MergedCSV/20241228_2318_uno_game.csv")
+    df = pd.read_csv("Uno/DecisionTrees/Models/20250111_1355_3GB_Dataset_C4_5Tree_tree_d100_mvl200_gr0_03.pkl")
     df = prepare_data_for_learning(df)
     print(df.head())
     # new_df = pd.DataFrame(columns=df.columns)

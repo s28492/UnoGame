@@ -213,6 +213,9 @@ class C4_5Tree:
         Returns:
             str: The full path of the saved file.
         """
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         if is_temporary:
             filename = "tmp/" + filename
         else:

@@ -4,8 +4,8 @@ import pandas as pd
 
 
 def merge_csv_files_in_chunks(output_filename='uno_game.csv', chunk_size=100000):
-    if not os.path.exists('MergedCSV'):
-        os.makedirs('MergedCSV')
+    if not os.path.exists('/Uno/games_data/MergedCSV'):
+        os.makedirs('/Uno/games_data/MergedCSV')
     output_filename = f"MergedCSV/{datetime.now().strftime('%Y%m%d_%H%M')}_"+output_filename
     for filename in os.listdir('.'):
         if filename.endswith('uno_game.csv'):

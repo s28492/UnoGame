@@ -1,9 +1,10 @@
+#!/usr/bin/env python
 import copy
 import random
 
 from Uno.players.Bot import Bot
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
-from Uno.AIPlayers.ID3Bot import ID3Bot
+from Uno.AIPlayers.C4_5Bot import C4_5Bot
 from Uno.AIPlayers.MonteCarloTreeSearch.Node import Node
 from Uno.game.Card import Card, Plus4Card, DrawCard, ColorCard, StopCard
 from Uno.game.Game import Game
@@ -11,7 +12,8 @@ from Uno.game.GameState import GameState
 from Uno.game.Deck import Deck
 from Uno.players.AgressiveBot import AgressiveBot
 from Uno.players.RandomBot import BotRandom
-from Uno.AIPlayers.MonteCarloTreeSearch.game.GameSimulation import GameSimulation
+from Uno.AIPlayers.MonteCarloTreeSearch.game.CGameSimulation import GameSimulation
+# from Uno.AIPlayers.MonteCarloTreeSearch.game.GameSimulation import GameSimulation
 
 class Simulation:
     """

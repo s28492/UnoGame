@@ -14,6 +14,7 @@ class BLBUpgradedColorChoosing(Bot):
         """Initializes bot"""
         super().__init__(name)
         self.card_in_game_dict_instance = None
+        print("Bye")
 
     def __str__(self):
         return f":robot:[cyan]BLB {self.name}[/]"

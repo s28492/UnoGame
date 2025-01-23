@@ -5,7 +5,7 @@ from Uno.players.RandomBot import BotRandom
 from Uno.players.BasicLogicBot import BasicLogicBot
 from Uno.players.AgressiveBot import AgressiveBot
 from Uno.players.BLBUpgradedColorChoosingBot import BLBUpgradedColorChoosing
-from Uno.AIPlayers.ID3Bot import ID3Bot
+from Uno.AIPlayers.C4_5Bot import C4_5Bot
 from Uno.AIPlayers.NaiveBayesianBot import NaiveBayesianBot
 from Uno.DecisionTrees.ID3Tree import ID3Tree, load_tree
 from Uno.DecisionTrees.C4_5Tree import C4_5Tree
@@ -24,11 +24,7 @@ bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Z
 # last_tree: ID3Tree = load_tree("/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/DecisionTrees/20240824_1537_expanded_tree_d10.pkl")
 # last_tree.decode_values()
 # last_tree.decode_target_values()
-tree_instances = [
-                   load_C4_5("Uno/DecisionTrees/Models/20241222_2233_C4_5Tree_tree.pkl"),
-                   load_C4_5("Uno/DecisionTrees/Models/20241227_1251_3GB_Dataset_with_child_map.pkl")
-#                   last_tree,
-                   ]
+
 pd.set_option('future.no_silent_downcasting', True)
 # data: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data.csv")
 # data, label = encode_data(data)
@@ -40,7 +36,7 @@ def create_game_with_players(*players) -> Game:
     """returns game with initialized starting state"""
     return Game(players)
 
-def create_instances(bots):
+def create_instances(bots, location=None):
     names = bot_names.copy()
     random.shuffle(names)
     instances_to_return = []
@@ -51,17 +47,13 @@ def create_instances(bots):
             instances_to_return.append(AgressiveBot("AgressiveBot"))
         elif bot == "RandomBot":
             instances_to_return.append(BotRandom("BotRandom"))
-        elif bot == "ID3Bot1":
-            name = "PreviousID3Bot"
-            instances_to_return.append(ID3Bot(name, tree_instance=tree_instances[0]))
-        elif bot == "ID3Bot2":
-            name = "LaterId3Bot"
-            bot: ID3Tree = tree_instances[1]
-            instances_to_return.append(ID3Bot(name, tree_instance=bot))
-        elif bot == "ID3Bot3":
-            name = "LaterId3Bot2"
-            bot: ID3Tree = tree_instances[2]
-            instances_to_return.append(ID3Bot(name, tree_instance=bot))
+        elif bot == "C4_5Bot":
+            name = "C4_5Bot"
+            if location is not None:
+                tree = load_C4_5(location)
+            else:
+                tree = load_C4_5("Uno/DecisionTrees/Models/20250111_1355_3GB_Dataset_C4_5Tree_tree_d100_mvl200_gr0_03.pkl")
+            instances_to_return.append(C4_5Bot(name, tree_instance=tree))
         elif bot == "NaiveBayesianBot1":
             name = "NaiveBayesianBot1"
             bot: NaiveBayesianBot = NaiveBayesianBot(name, data=data.copy(), labels_to_decode=label)
@@ -80,7 +72,7 @@ def create_instances(bots):
             instances_to_return.append(bot)
         elif bot == "MCTSBot2":
             name = "MCTSBot2"
-            bot: MCTSBot = MCTSBot(name, num_of_simulations=200, c_param=1.95)
+            bot: MCTSBot = MCTSBot(name, num_of_simulations=10_000, c_param=1.95)
             instances_to_return.append(bot)
         elif bot == "MCTSBot3":
             name = "MCTSBot3"
@@ -91,9 +83,9 @@ def create_instances(bots):
         
     return instances_to_return
 
-def play_game(matchup):
+def play_game(matchup, location=None):
     # time.sleep(random.randint(0, cpu_count() - 1))
-    bots = create_instances(matchup)
+    bots = create_instances(matchup, location)
     game = start_2_bot_games(bots)
     bots.clear()
     current_game_data = assign_did_win(pd.DataFrame(game[0]))
@@ -104,7 +96,7 @@ def start_2_bot_games(matchup):
     game = create_game_with_players(*matchup)
     return game.play()
 
-def start_many_games(matchup, number_of_games=1000):
+def start_many_games(matchup, number_of_games=1000, location=None):
     manager = Manager()
     games_data = manager.list()  # Use Manager list
     who_won = manager.list()
@@ -118,7 +110,7 @@ def start_many_games(matchup, number_of_games=1000):
     num_of_processes = cpu_count() - 1 if cpu_count() > 1 else 1
     print("Games starting...")
     with Pool(processes=num_of_processes-2) as pool:
-        results = [pool.apply_async(play_game, (matchup,), callback=collect_results) for _ in range(number_of_games)]
+        results = [pool.apply_async(play_game, (matchup,location,), callback=collect_results) for _ in range(number_of_games)]
         pool.close()
         pool.join()
 
@@ -163,28 +155,34 @@ def save_to_csv(data, filename='uno_game.csv', folder='Uno/games_data'):
     return filename
 
 if __name__ == "__main__":
-    matchups = [
-        # ["ID3Bot2", "NaiveBayesianBot1"],
-        # ["NaiveBayesianBot1", "ID3Bot1"],
-        # ["RandomBot", "ID3Bot3"],
-        #["BaggingBot", "RandomBot"],
-        # ["AgressiveBot", "MCTSBot1"],
-        # ["AgressiveBot", "MCTSBot2"],
-        ["AgressiveBot", "MCTSBot3"]
-        # ["MCTSBot", "AgressiveBot"]
-        # ["MCTSBot", "AgressiveBot"]
-        #  ["ID3Bot1", "ID3Bot1"]
-        # ["ID3Bot3", "ID3Bot2"]
-        # ["ID3Bot2", "ID3Bot2"],
-        # ["ID3Bot2", "ID3Bot2"],
-        # ["NaiveBayesianBot1", "NaiveBayesianBot1"]
-    ]
+    print("Initializing bot games")
+    print("Pick '1' to make basic bots play against each other")
+    print("Pick '2' to make C4.5Bot play against all basic bots")
+    x = input()
+    location = None
 
-    number_of_games = 1_000
+    print("How many games would you like each bot to play? Recomended  1_000 for C4.5Bot")
+    number_of_games = int(input())
+    if x == "1":
+        matchups = [
+            ["RandomBot", "AgressiveBot"],
+            ["RandomBot", "BasicLogicBot"],
+            ["AgressiveBot", "BasicLogicBot"]
+        ]
+    elif x == "2":
+        matchups = [
+            ["C4_5Bot", "AgressiveBot"],
+            ["RandomBot", "C4_5Bot"],
+            ["C4_5Bot", "BasicLogicBot"]
+        ]
+        print("Input location of trained tree model")
+        location = input()
+    if number_of_games is None:
+        number_of_games = 1_000
     for _ in range(1):
         start_time = time.time()
         for matchup in matchups:
-            start_many_games(matchup, number_of_games)
+            start_many_games(matchup, number_of_games, location)
 
-        print(f"All {number_of_games*len(matchups):_} games played in ", (time.time() - start_time)%60, "minutes\n")
+        print(f"All {number_of_games*len(matchups):_} games played in ", round((time.time() - start_time)/60, 2), "minutes\n")
         print(f"Games ended at: {time.ctime(time.time())}")

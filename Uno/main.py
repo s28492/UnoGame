@@ -8,6 +8,7 @@ from Uno.players.BLBUpgradedColorChoosingBot import BLBUpgradedColorChoosing
 from Uno.AIPlayers.C4_5Bot import C4_5Bot
 from Uno.AIPlayers.NaiveBayesianBot import NaiveBayesianBot
 from Uno.DecisionTrees.C4_5Tree import load_tree as load_C4_5
+from Uno.DecisionTrees.C4_5Tree import C4_5Tree
 from Uno.AIPlayers.C4_5BaggingEnsemble import C4_5BaggingEnsebleBot
 from Uno.game.Game import Game
 from rich.console import Console

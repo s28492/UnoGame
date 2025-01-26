@@ -3,14 +3,17 @@ import os
 import pandas as pd
 
 
-def merge_csv_files_in_chunks(output_filename='uno_game.csv', chunk_size=100000):
-    if not os.path.exists('/Uno/games_data/MergedCSV'):
-        os.makedirs('/Uno/games_data/MergedCSV')
-    output_filename = f"MergedCSV/{datetime.now().strftime('%Y%m%d_%H%M')}_"+output_filename
-    for filename in os.listdir('.'):
+def merge_csv_files_in_chunks(output_filename='uno_game.csv', chunk_size=100_000):
+    script_directory = os.path.abspath(os.path.dirname(__file__))
+    print(script_directory)
+    if not os.path.exists(script_directory+'/MergedCSV'):
+        print("AAA")
+        os.makedirs(script_directory+'/MergedCSV')
+    output_filename = script_directory + f"/MergedCSV/{datetime.now().strftime('%Y%m%d_%H%M')}_"+output_filename
+    for filename in os.listdir(script_directory):
         if filename.endswith('uno_game.csv'):
             print(filename)
-            for chunk in pd.read_csv(filename, chunksize=chunk_size):
+            for chunk in pd.read_csv(script_directory+"/"+filename, chunksize=chunk_size):
                 if not os.path.exists(output_filename):
                     chunk.to_csv(output_filename, mode='w', index=False, header=True)
                 else:
@@ -37,5 +40,5 @@ def operate_data():
 def read():
     merge_csv_files_in_chunks()
 
-
-read()
+if __name__ == '__main__':
+    read()

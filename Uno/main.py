@@ -19,17 +19,8 @@ from collections import Counter
 
 console = Console()
 bot_names = ["Beta", "Andromeda", "Sora", "Korgi", "Ultron", "Vien", "Polak", "Ziemniak", "Hal 9000", "Agent Smith"]
-# last_tree: ID3Tree = load_tree("/mnt/587A903A7A90173A/Projekty/Python/NewUnoGame/UnoGame/Uno/DecisionTrees/20240824_1537_expanded_tree_d10.pkl")
-# last_tree.decode_values()
-# last_tree.decode_target_values()
 
 pd.set_option('future.no_silent_downcasting', True)
-# data: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data.csv")
-# data, label = encode_data(data)
-# data2: pd.DataFrame = pd.read_csv("/mnt/587A903A7A90173A/Projekty/Python/UnoGame/Uno/games_data/Naive_Bayes_Data1.csv")
-# print(data2.info())
-# data2, label2 = encode_data(data2)
-# print(data2.info())
 def create_game_with_players(*players) -> Game:
     """returns game with initialized starting state"""
     return Game(players)
@@ -82,7 +73,6 @@ def create_instances(bots, location=None):
     return instances_to_return
 
 def play_game(matchup, location=None):
-    # time.sleep(random.randint(0, cpu_count() - 1))
     bots = create_instances(matchup, location)
     game = start_2_bot_games(bots)
     bots.clear()

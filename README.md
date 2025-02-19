@@ -1,4 +1,4 @@
-#Uno with AI Players
+# Uno with AI Players
 
 This repository contains a Python implementation of the card game Uno, along with AI players that use decision trees and simple neural networks to play the game. The goal is to develop AI agents that can learn and make intelligent decisions in Uno.
 Features
@@ -11,7 +11,7 @@ Features
     Data Handling: Provides tools for collecting, processing, and analyzing game data.
     Modular Design: Allows for easy extension and experimentation with new AI algorithms and game variations.
 
-How it Works
+## How it Works
 
     Game State: The GameState class stores all the information about the current state of the game, including players' hands, the discard pile, and the current player.
     AI Players: The AI players inherit from the BaseAIBot class and implement their own logic for selecting cards to play based on their chosen algorithm (decision tree or neural network).
@@ -19,14 +19,14 @@ How it Works
     Neural Network: The SimpleNNBot uses a neural network to predict the probability of winning with each possible card in hand.
     Game Simulation: The Game class simulates Uno games between AI players, allowing for data collection and training.
 
-Getting Started
+## Getting Started
 
     Clone the repository: git clone https://github.com/your-username/uno-ai.git
     Install dependencies: pip install -r requirements.txt
     Run a game: python main.py (You might need to modify main.py to specify the AI players and game settings.)
     Train AI agents: Use the provided scripts (BuildTree.py, RF_Creator.py, baggingCreator.py) to train the decision trees and neural network.
 
-Future Work
+## Future Work
 
     Improved AI: Experiment with more advanced AI algorithms, such as reinforcement learning or deeper neural networks.
     Game Variations: Implement different rule variations of Uno.

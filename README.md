@@ -21,10 +21,10 @@ Features
 
 ## Getting Started
 
-    Clone the repository: git clone https://github.com/your-username/uno-ai.git
+    Clone the repository
     Install dependencies: pip install -r requirements.txt
-    Run a game: python main.py (You might need to modify main.py to specify the AI players and game settings.)
-    Train AI agents: Use the provided scripts (BuildTree.py, RF_Creator.py, baggingCreator.py) to train the decision trees and neural network.
+    Generate training data for Decision Tree: python main.py (You might need to modify main.py to specify the AI players and game settings.)
+    Train AI agents: use generated data to train your AI (BuildTree.py, RF_Creator.py, baggingCreator.py) to train the decision trees and neural network.
 
 ## Future Work
 

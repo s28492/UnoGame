@@ -1,4 +1,4 @@
-# Uno with AI Players
+# Uno with AI Agents
 
 This repository contains a Python implementation of the card game Uno, along with AI players that use decision trees and simple neural networks to play the game. The goal is to develop AI agents that can learn and make intelligent decisions in Uno.
 Features

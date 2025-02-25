@@ -1,73 +1,35 @@
-#Uno Game
+# Uno with AI Agents
 
-###Wprowadzenie
-Niniejszy projekt opisuje implementację gry karcianej UNO w języku Python. Program obsługuje różne tryby rozgrywki, w tym:
+This repository contains a Python implementation of the card game Uno, along with AI players that use decision trees and simple neural networks to play the game. The goal is to develop AI agents that can learn and make intelligent decisions in Uno.
+Features
 
-- grę z ludźmi
-- grę z botami
-- obserwację rozgrywki pomiędzy botami
+    Game Logic: Implements the complete rules of Uno, including special cards and actions.
+    AI Players:
+        Decision Tree Bots: Utilize ID3 and C4.5 decision tree algorithms to make game decisions based on learned patterns from game data.
+        Neural Network Bot: Employs a simple neural network to predict the best card to play.
+    Training: Includes scripts to train decision trees and neural networks using collected game data.
+    Data Handling: Provides tools for collecting, processing, and analyzing game data.
+    Modular Design: Allows for easy extension and experimentation with new AI algorithms and game variations.
 
-Gry są zarządzane przez wielowątkowość, co pozwala na równoczesną obsługę logiki gry i działań botów.
+## How it Works
 
-Składniki Gry:
-Gra składa się z kilku kluczowych komponentów:
+    Game State: The GameState class stores all the information about the current state of the game, including players' hands, the discard pile, and the current player.
+    AI Players: The AI players inherit from the BaseAIBot class and implement their own logic for selecting cards to play based on their chosen algorithm (decision tree or neural network).
+    Decision Trees: The ID3Tree and C4_5Tree classes implement the respective decision tree algorithms. These trees are trained on game data to predict the best card to play given a particular game state.
+    Neural Network: The SimpleNNBot uses a neural network to predict the probability of winning with each possible card in hand.
+    Game Simulation: The Game class simulates Uno games between AI players, allowing for data collection and training.
 
-* Player: Reprezentuje gracza, zarówno ludzkiego, jak i bota oraz kontroluje poprawnośc decyzji gracza.
-* Bot: Podklasa Player, implementująca logikę prostego bota z zaimplementowaną podstawową taktyką.
-* Game: Zarządza stanem gry, w tym kartami, kolejnością graczy i zasadami.
-* Card: Reprezentuje pojedynczą kartę w grze UNO, z atrybutami wartości i koloru oraz metodami pozwalającymi na interakcje między kartami.
+## Getting Started
 
-## Jak grać
-Aby rozpocząć rozgrywkę wystarczy uruchomić plik "main.py".
+    Clone the repository
+    Install dependencies: pip install -r requirements.txt
+    Generate training data for Decision Tree: python main.py (You might need to modify main.py to specify the AI players and game settings.)
+    Train AI agents: use generated data to train your AI (BuildTree.py, RF_Creator.py, baggingCreator.py) to train the decision trees and neural network.
 
-Gdy to zrobisz następnym krokiem jest wybranie trybu gry:
+## Future Work
 
-- Wybierz 1 jeśli chcesz grać z innymi ludźmi
-- Wybierz 2 jeśli chcesz grać z botami
-- Wybierz 3 jeśli chcesz obserwować grę botów
-- Wybierz 4 jeśli twoim zamiarem jest gra zarówno z innymi ludźmi, jak i botami
-
-W przypadku opcji 1 i 4, będziesz musiał podać nazwy wszystkich graczy. W przypadku opcji 2, 3, 4 będziesz musiał podać liczbę botów.
-
-Po zainicjalizowaniu gry w terminalu pojawią się informacje typu:
-
-- którego gracza tura
-- ile kart ma w ręku
-- jakie karty ma w ręku
-- jakie efekty są na niego nałożone
-
-Aby zagrać kartę należy podać jej wartość i kolor. Jeśli chcesz dobrać kartę musisz napisać "Draw", jeśli natomiast chcesz się poddać, napisz "Surrender"
-
-##Talia
-    19 czerwonych kart ponumerowanych od 0 do 9 (jedna karta z numerem 0 oraz po dwie karty z numerami od 1 do 9)
-    19 zielonych kart ponumerowanych od 0 do 9 (jedna karta z numerem 0 oraz po dwie karty z numerami od 1 do 9)
-    19 niebieskich kart ponumerowanych od 0 do 9 (jedna karta z numerem 0 oraz po dwie karty z numerami od 1 do 9)
-    19 żółtych kart ponumerowanych od 0 do 9 (jedna karta z numerem 0 oraz po dwie karty z numerami od 1 do 9)
-
-oraz kart funkcyjnych:
-
-    8 kart stopu (Postój) po dwie z każdego koloru
-    8 kart zmiany kierunku (Zmiana kierunku) po dwie z każdego koloru
-    8 kart +2 (Weź dwie) po dwie z każdego koloru
-    4 czarne karty +4 ze zmianą koloru (Wybierz kolor + Weź cztery)
-    4 czarne karty zmiana koloru (Wybierz kolor)
-
-## Zasady gry
-
-Na początku gry rozdaje się po 7 kart każdemu graczowi i jedną z talii kładzie się na środek.  Gracz musi dopasować swoją kartę numerem, kolorem lub symbolem do odkrytej karty. Jeżeli gracz nie posiada żadnej karty pasującej do tej odkrytej, musi pociągnąć kartę z talii. Jeśli wyciągnięta karta pasuje do odkrytej, jeszcze w tej samej kolejce gracz może ją dołożyć. Jeżeli nie – ruch ma kolejny gracz. Nie ma przymusu w dokładaniu kart.
-
-W talii są także karty specjalne takie jak Postój, Zmiana kierunku, Weź dwie, Wybierz kolor + Weź cztery, Wybierz kolor.
-
-    Postój (jak 4 w makao) – następny gracz traci (stoi) kolejkę
-    Zmiana kierunku (jak As w kunjo) – karta zmieniająca kierunek gry
-    Weź dwie – następny gracz bierze dwie karty
-    Wybierz kolor + Weź cztery – zagrywający kartę deklaruje zmianę koloru na dowolnie przez siebie wybrany, następny gracz bierze 4 karty.
-    Wybierz kolor – zagrywający kartę deklaruje zmianę koloru na dowolnie przez siebie wybrany (jeden z kolorów dostępnych w grze)
-
-Karty Postój, Zmiana kierunku, Weź dwie można kłaść do danego karcie koloru – natomiast karty Wybierz kolor + Weź cztery można kłaść na dowolną kartę.
-
-# Jak zagrać w grę?
-
-1. Aby zagrać w grę trzeba będąc w katalogu "UnoGame" uruchomić komendę "python3 -m Uno.play_against_bots"
-2. Następnie trzeba wybrać format gry którą chcesz rozgrywać (4 dla ciebie Dima)
+    Improved AI: Experiment with more advanced AI algorithms, such as reinforcement learning or deeper neural networks.
+    Game Variations: Implement different rule variations of Uno.
+    User Interface: Develop a graphical user interface for playing against AI agents.
+    Performance Optimization: Optimize the code for faster game simulations and training.
 

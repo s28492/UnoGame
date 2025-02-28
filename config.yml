@@ -1,0 +1,5 @@
+# config.yaml
+
+main:
+  NUMBER_OF_GAMES: 1_000
+

@@ -35,6 +35,13 @@ This repository contains a Python implementation of the card game Uno, along wit
 
 - **MCTSBot**: Implements a Monte Carlo Tree Search algorithm to explore possible moves and select the most promising one.
 
+## Report
+
+In "Raport_z_projektu.pdf" i provided report on this project which elaborates on the game implementation and C4.5 algorithm. Soon this report will be expanded to elaborate on different algorithms such as MCYS, Naive Bayes and Imitation Learning.
+
+<span style="color: firebrick"> Report is only in Polish language.</span>
+
+
 
 ## Getting Started
 

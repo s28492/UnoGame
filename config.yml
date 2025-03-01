@@ -1,5 +1,21 @@
 # config.yaml
 
 main:
-  NUMBER_OF_GAMES: 1_000
+  number_of_games: 1_000
+
+
+
+# MCTS set up
+mcts:
+  name: "MCTSBot"
+  # Number of simulation run for each MCTS move
+  number_of_games: 1000
+  # Parameter scaling exploration vs exploitation (higher value favors exploration)
+  c_parameter: 1.85
+
+c4_5:
+  file_path: "FILE_PATH"
+  max_depth: 5
+  min_values_in_leaf: 200
+  min_gain_ratio: 0.03
 

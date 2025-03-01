@@ -1,8 +1,6 @@
 from Uno.game.Card import Card, SurrenderCard, DrawCard, StopCard, ColorCard
 from rich.console import Console
 
-IMAGE_DIRECTORY = "CardsImage"  # Added directory path for card images
-
 class Player:
     def __init__(self, name: str = ""):
         if name == "":
@@ -24,6 +22,9 @@ class Player:
     def get_features(self):
         return self.features
 
+    def add_card_to_hand(self, card: Card):
+        self.hand.append(card)
+
     def current_state_to_string(self):
         state_string = ""
         state_string += f"Player: {self.name}\n"
@@ -42,6 +43,8 @@ class Player:
     def set_game_state(self, game_state):
         pass
     def set_game_copy(self, game_copy):
+        pass
+    def get_game_state(self, game):
         pass
 
     def count_cards(self):

@@ -1,7 +1,9 @@
 import random
 import os
 import pickle
+import yaml
 
+from src.utils import open_config, load_tree
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
 from Uno.DecisionTrees.ID3Tree import ID3Tree
 from Uno.DecisionTrees.C4_5Tree import C4_5Tree
@@ -13,7 +15,7 @@ class C4_5Bot(BaseAIBot):
     """
     Represents an AI bot for playing UNO that utilizes an ID3 decision tree.
     """
-    def __init__(self, name: str
+    def __init__(self, name: str = None
                  , tree_file: str = None
                  , tree_instance = None):
         """
@@ -27,13 +29,20 @@ class C4_5Bot(BaseAIBot):
         If neither `tree_file` nor `tree_instance` is provided, a default tree is loaded.
         """
         super().__init__(name)
+        configs = open_config()
+
+        if name is None:
+            self.name = configs["c4_5Bot"]["name"]
+
         if tree_file is not None:
-            self.id_tree: ID3Tree = load_tree(tree_file)
+            self.id_tree: C4_5Tree = load_tree(tree_file)
         elif tree_instance is not None:
             self.id_tree = tree_instance
         else:
-            self.id_tree: ID3Tree = load_tree(
-                "Uno/DecisionTrees/20240801_2159_improved_7_nodes_deep_decoded_target_values_tree.pkl")
+            print("AAA")
+            file_path = configs["c4_5Bot"]["file_path"]
+            self.id_tree: C4_5Tree = load_tree(file_path)
+            print("BBB")
 
 
 
@@ -75,13 +84,13 @@ class C4_5Bot(BaseAIBot):
 
 def load_tree(filename):
     """
-    Loads a serialized ID3 decision tree from a file.
+    Loads a serialized C4_5 decision tree from a file.
 
     Parameters:
         filename (str): The path to the file containing the serialized tree.
 
     Returns:
-        ID3Tree: The deserialized ID3 decision tree instance.
+        C4_5Tree: The deserialized ID3 decision tree instance.
     """
     abs_path = os.path.abspath(filename)
     with open(abs_path, 'rb') as f:

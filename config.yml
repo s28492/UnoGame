@@ -13,9 +13,16 @@ mcts:
   # Parameter scaling exploration vs exploitation (higher value favors exploration)
   c_parameter: 1.85
 
+# C4.5 training parameters set up
 c4_5:
+  # path to data that will be used to train algorithm
   file_path: "FILE_PATH"
+  # Maximum depth that will be reached during training
   max_depth: 5
+  # Minimal values that has to be in leaf node
   min_values_in_leaf: 200
   min_gain_ratio: 0.03
 
+c4_5Bot:
+  name: "C4_5Bot"
+  file_path: "Uno/DecisionTrees/Models/20250301_1655_d5_mvl200_gr0.03.pkl"

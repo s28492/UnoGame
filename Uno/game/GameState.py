@@ -51,8 +51,8 @@ class GameState:
     def get_reset_colors(self):
         return self.reset_colors
 
-    def set_round(self, round):
-        self.round = round
+    def set_round(self,  sett_round):
+        self.round = sett_round
 
     def get_round(self):
         return self.round
@@ -111,7 +111,7 @@ class GameState:
     def get_first_taken(self):
         return self.first_taken
 
-    def set_game_over(self, game_over):
+    def set_game_over(self, game_over: bool):
         self.game_over = game_over
 
     def get_game_over(self):
@@ -150,9 +150,9 @@ class GameState:
                 self.pile = [last_card]
             else:
                 return None
-        card_drawed = self.deck.draw_card()
-        player.hand.append(card_drawed)
-        return card_drawed
+        card_drew = self.deck.draw_card()
+        player.add_card_to_hand(card_drew)
+        return card_drew
 
     def move_pile_to_deck(self) -> None:
         """Moves cards from the pile to the deck exlcuding top card on pile"""
@@ -161,23 +161,8 @@ class GameState:
             self.deck.reshuffle_discard_pile(self.pile)
             self.pile = [last_card]
 
-    def get_card_on_top(self):
-        return self.card_on_top
-
     def get_num_cards_left_in_deck(self):
         return self.deck.get_deck_len()
-
-    def get_round(self):
-        return self.round
-
-    def get_pile(self):
-        return self.pile
-
-    def get_direction(self):
-        return self.direction
-
-    def get_game_over(self):
-        return self.game_over
 
     def get_state(self) -> tuple:
         """Returns bot data"""
@@ -199,10 +184,10 @@ class GameState:
         return (self.index_of_a_player + self.direction) % len(self.players)
 
     def show_num_of_cards_for_all(self):
-        messege = ""
+        num_of_cards_message = ""
         for player in self.players:
-            messege += f"{player.rich_str()}: {len(player.hand)} | "
-        return messege
+            num_of_cards_message += f"{player.rich_str()}: {len(player.hand)} | "
+        return num_of_cards_message
 
     def show_game_over(self):
         self.console.print("\n\n[yellow]Game Over!!![/]")
@@ -302,10 +287,3 @@ class GameState:
         if self.is_simulation:
             raise ValueError("SIMULATION ERROR. Game is too long")
         raise ValueError("SIMULATION ERROR. Game is too long")
-
-    def get_features_list(self):
-        return self.features_list
-
-    def set_game_over(self):
-        self.game_over = True
-

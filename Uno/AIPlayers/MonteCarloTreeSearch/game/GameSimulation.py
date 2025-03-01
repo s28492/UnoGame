@@ -88,7 +88,7 @@ class GameSimulation:
             data_for_bot = (self.game_state.get_players(), self.game_state.pile, self.game_state.card_on_top
                             , self.game_state.direction, self.game_state.turns_to_stop, self.game_state.cards_to_take)
             bot.set_bot_data(data_for_bot)
-            # bot.set_game_state(self.game_state)
+            # bot.set_game_state(self.__game_state)
 
     def update_ai(self, bot):
         if isinstance(bot, BaseAIBot.BaseAIBot):
@@ -130,7 +130,7 @@ class GameSimulation:
             return self.manage_player_move(player)
 
         if player.get_count_cards_in_hand() == 0:
-             self.game_state.set_game_over()
+             self.game_state.set_game_over(True)
         player_features = self.upgrade_features(player_features, card_played)
         self.game_state.features_list.append(player_features)
         if self.show_game:

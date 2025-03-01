@@ -121,7 +121,7 @@ class Game:
             return self._manage_player_move(player)
 
         if player.get_count_cards_in_hand() == 0:
-             self.__game_state.set_game_over()
+             self.__game_state.set_game_over(True)
         player_features = self._upgrade_features(player_features, card_played)
         self.__game_state.features_list.append(player_features)
 

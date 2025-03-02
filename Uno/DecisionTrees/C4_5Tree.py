@@ -1,9 +1,10 @@
 import argparse
-
 import datetime
 import pickle
 import time
 import os
+import yaml
+from src.utils import open_config
 from Uno.games_data.dataHandler import *
 
 
@@ -247,7 +248,7 @@ class C4_5Tree:
         for child in self.children:
             child.print_tree()
 
-def load_tree(filename):
+def load_tree(filename) -> C4_5Tree:
     """
     Loads a serialized C4.5 decision tree from a file.
 
@@ -258,12 +259,18 @@ def load_tree(filename):
         C4.5Tree: The deserialized ID3 decision tree instance.
     """
     abs_path = os.path.abspath(filename)
-    with open(abs_path, 'rb') as f:
+    with open(abs_path, "rb") as f:
         return pickle.load(f)
 
 
 
-def main(file_path: str, depth: int=8):
+def main():
+    configs = open_config()
+    file_path = configs["c4_5"]["file_path"]
+    max_depth = configs["c4_5"]["max_depth"]
+    min_values_in_leaf = configs["c4_5"]["min_values_in_leaf"]
+    min_gain_ratio = configs["c4_5"]["min_gain_ratio"]
+
     df = pd.read_csv(file_path)
     df = prepare_data_for_learning(df)
     print(df.head())
@@ -273,45 +280,17 @@ def main(file_path: str, depth: int=8):
     df, label_encoders = encode_data(df)
     X_data = df.iloc[:, :-1].to_numpy()
     Y_data = df.iloc[:, -1].to_numpy()
+
     start = time.time()
     tree = C4_5Tree(X_data=X_data, Y_data=Y_data, remaining_data_indices=df.index.to_numpy(),
                     labels_encodes=label_encoders, column_names=df.columns.to_list()[:-1])
-    max_depth = depth
-    min_values_in_leaf = 200
-    min_gain_ratio = 0.03
     tree.build_tree(max_depth=max_depth, min_values_per_leaf=min_values_in_leaf, min_gain_ratio=min_gain_ratio)
     print(f"Tree successfully built in {time.time() - start} seconds.")
-    tree.save_tree(f"d{max_depth}_mvl{min_values_in_leaf}_gr{min_gain_ratio}.pkl")
+    file_name = tree.save_tree(f"d{max_depth}_mvl{min_values_in_leaf}_gr{min_gain_ratio}.pkl")
+    print("Tree saved to file:\n", file_name)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--depth', type=int, default=3, help='depth of tree')
-    parser.add_argument('--filepath', type=str,
-                        default='Uno/games_data/MergedCSV/20240728_2356_uno_game_693MB_testing.csv',
-                        help='link for csv file to train the tree on')
-    args = parser.parse_args()
-    main(file_path=args.filepath, depth=args.depth)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    main()
 
 
 

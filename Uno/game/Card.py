@@ -24,6 +24,12 @@ class Card:
         else:
             return False
 
+    def get_color(self):
+        return self.color
+
+    def get_value(self):
+        return self.value
+
     def img_url(self):
         return f"uno_card-{self.color.lower()}{self.value.lower()}.png"
 

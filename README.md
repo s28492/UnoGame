@@ -78,6 +78,4 @@ or
 
 - **User Interface**: Develop more approachable UI allowing user for less interaction with raw Command Line.
 
-- **Performance Optimization**: Optimize the code for faster game simulations and training. I'm already implementing Cython version of game simulation that will benefit speed of play overall, but especially MCTS since its so intense reliance on conducting tens od thousand simulations for each game.
-
-- **Add configs**: Just add configs. 
+- **Performance Optimization**: Optimize the code for faster game simulations and training. There's already Cython version of game simulation implemented, that will benefit speed of play overall, but especially MCTS since its so intense reliance on conducting tens od thousand simulations for each game.

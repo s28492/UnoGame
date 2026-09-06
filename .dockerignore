@@ -1,0 +1,40 @@
+# Plik .dockerignore
+
+# Repozytorium Git - BARDZO WAŻNE
+.git/
+.gitignore
+
+# Foldery i pliki IDE oraz cache'u Pythona
+.idea/
+.vscode/
+__pycache__/
+*.pyc
+
+# Foldery wirtualnego środowiska
+.venv/
+venv/
+env/
+
+# ##################################################################
+# NAJWAŻNIEJSZE: Dodaj tutaj nazwy folderów z dużymi danymi!
+# To jest część, która rozwiąże Twój problem z gigabajtami danych.
+# Użyj WizTree, aby znaleźć nazwy tych folderów.
+# Poniżej przykłady, które prawdopodobnie będą Ci potrzebne:
+# ##################################################################
+
+# Przykłady z Twojego projektu (zignoruj CAŁE foldery z danymi i modelami)
+Uno/games_data/
+Uno/DecisionTrees/
+**/MergedCSV/
+
+# Możesz dodać inne foldery, jeśli je znajdziesz
+# np. jesli masz folder "stare_symulacje"
+stare_symulacje/
+
+# Pliki generowane lokalnie (dzięki **/* zadziała w każdym podfolderze)
+**/*.csv
+**/*.pkl
+**/*.log
+**/*.zip
+**/*.tar
+**/*.pdf

@@ -3,13 +3,29 @@
 main:
   number_of_games: 1_000
 
+deep_q_learning:
+    win: 1000
+    lose: -1000
+    opponent_draw_per_card: 50
+    force_opponent_draw: 100
+    rewards:
+      terminal_state_win: 100
+      terminal_state_loose: -100
+      playing_card: 1
+      draw_card: -1
+      less_cards_then_opponents: 0.5
+      more_cards_then_opponents: -0.5
+      stopped: 0.2
 
+    additional_statistics_extracted: ["num_red", "num_green", "num_blue", "num_yellow", "num_stop",
+                                      "num_plus2", "num_plus4", "num_all_color", "num_cards_left_in_deck",
+                                      "round", "num_enemy_cards", "num_colors_in_hand", "num_cards_in_hand"]
 
 # MCTS set up
 mcts:
   name: "MCTSBot"
   # Number of simulation run for each MCTS move
-  number_of_games: 1000
+  number_of_games: 12_000
   # Parameter scaling exploration vs exploitation (higher value favors exploration)
   c_parameter: 1.85
 
@@ -22,6 +38,7 @@ c4_5:
   # Minimal values that has to be in leaf node
   min_values_in_leaf: 200
   min_gain_ratio: 0.03
+
 
 c4_5Bot:
   name: "C4_5Bot"

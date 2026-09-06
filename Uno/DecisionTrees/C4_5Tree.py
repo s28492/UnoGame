@@ -118,9 +118,6 @@ class C4_5Tree:
         max_gain_ratio = gain_ratios[best_column_idx]
         return best_column_index, max_gain_ratio, best_split_values, best_split_indexes
 
-
-
-
     def build_tree(self, max_depth: int, min_values_per_leaf: int, min_gain_ratio: float, show_building_peocess:bool=True) -> 'C4_5Tree':
         # Calculating the best split based on gain ratio
         self.__assign_prediction_data()
@@ -162,8 +159,6 @@ class C4_5Tree:
             self.is_leaf = True
         return self
 
-
-
     def predict(self, data_to_predict: pd.DataFrame):
         encoded_data = encode_data_with_label(data_to_predict, self.labels_encodes)
 
@@ -179,7 +174,6 @@ class C4_5Tree:
     def __assign_prediction_data(self):
         self.prediction_data = pd.Series(data=self.Y_data[self.remaining_data_indices]).replace(
             self.labels_encodes["card_played"].keys(), self.labels_encodes["card_played"].values()).value_counts(sort=True)
-
 
     def sort_children(self):
         self.children.sort(key=lambda x: x.node_value, reverse=False)

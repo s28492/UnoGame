@@ -9,15 +9,10 @@ class GameSimulation:
 
     def __init__(self, players: list, show_game=False):
         self.game_state = GameState(players, is_simulation=True)
-        self.initialize_game()
         self.show_game = show_game
 
     def set_game_state(self, game_state):
         self.game_state = game_state
-
-    def initialize_game(self) -> None:
-        """Initializes a game"""
-        self.game_state.put_card(self.game_state.deck.draw_card())
 
     def get_game_state(self):
         return self.game_state
@@ -40,16 +35,19 @@ class GameSimulation:
             self.game_state.put_card(card)
             return True
         return False
+
     def manage_draw(self, player, first_card_taken = None):
+        #Takes first card from deck if not provided and lowers number of cards to take
         if first_card_taken is None:
             first_card_taken = self.game_state.take_card(player)
             self.game_state.cards_to_take = self.game_state.cards_to_take - 1 if self.game_state.cards_to_take != 0 else 0
 
+        # If player has to take more than one card and first card can be put instantly
         if self.game_state.cards_to_take != 0 and self.is_valid_plus_card(first_card_taken):
             if not isinstance(self.game_state.get_player(), Bot):
                 self.game_state.console.print(
                  f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
-            player_move = player.move(first_card_taken)
+            player_move = player.move(first_card_taken= first_card_taken)
             if isinstance(player_move, DrawCard):
                 for i in range(self.game_state.cards_to_take):
                     self.game_state.take_card(player)
@@ -63,14 +61,16 @@ class GameSimulation:
             if not isinstance(self.game_state.get_player(), Bot):
                 self.game_state.console.print(
                  f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.game_state.cards_to_take} remaining cards")
-            player_move = player.move(first_card_taken)
+            player_move = player.move(game=self, first_card_taken= first_card_taken)
             if player_move == first_card_taken or (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value):
                 player.play_card(player_move)
                 self.game_state.put_card(player_move.play(self.game_state))
             elif isinstance(player_move, DrawCard):
                 return
             else:
-                if not isinstance(self.game_state.get_player(), Bot):
+                if True:#not isinstance(self.game_state.get_player(), Bot):
+                    print(type(player).__name__)
+                    print(first_card_taken)
                     self.game_state.console.print(
                      "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
                 self.manage_draw(player, first_card_taken=first_card_taken)
@@ -88,28 +88,16 @@ class GameSimulation:
             data_for_bot = (self.game_state.get_players(), self.game_state.pile, self.game_state.card_on_top
                             , self.game_state.direction, self.game_state.turns_to_stop, self.game_state.cards_to_take)
             bot.set_bot_data(data_for_bot)
-            # bot.set_game_state(self.__game_state)
-
-    def update_ai(self, bot):
-        if isinstance(bot, BaseAIBot.BaseAIBot):
-            bot_features = bot.extract_features(self.game_state)
-            game_features = self.upgrade_features(data_for_bot=True)
-            result = {**bot_features, **game_features}
-            bot.create_row(result)
 
     def manage_player_move(self, player, forced_first_move=None):
 
         self.update_bot(player)
-        self.update_ai(player)
         if self.show_game:
            self.game_state.show_state(player)
-        player_features = player.extract_features(self.game_state)
         if forced_first_move is not None:
-            # print(f"Player: {player.name} forced first move: {forced_first_move}")
-            player.show_hand()
             card_played = forced_first_move
         else:
-            card_played = player.move(first_card_taken=forced_first_move, game=self)
+            card_played = player.move()
         if card_played.match(self.game_state.card_on_top):
             if self.game_state.turns_to_stop != 0:
                 if not self.manage_stop(player, card_played):
@@ -129,23 +117,11 @@ class GameSimulation:
         else:
             return self.manage_player_move(player)
 
-        if player.get_count_cards_in_hand() == 0:
+        if player.get_num_of_cards_in_hand() == 0:
              self.game_state.set_game_over(True)
-        player_features = self.upgrade_features(player_features, card_played)
-        self.game_state.features_list.append(player_features)
         if self.show_game:
            self.game_state.show_card_played(card_played)
         return
-
-    def upgrade_features(self, features = None, move = None, data_for_bot = False):
-        if features is None:
-            features = {}
-        features["is_game_over"] = self.game_state.get_game_over()
-        features["index_of_a_player"] = self.game_state.index_of_a_player
-        if not data_for_bot:
-           features["game_id"] = self.game_state.game_id
-           features["card_played"] = move
-        return features
 
     def play(self, forced_first_move:Card=None) -> list:
         """Main game method. Controls game flow"""

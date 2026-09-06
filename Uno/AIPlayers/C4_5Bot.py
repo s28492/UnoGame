@@ -3,10 +3,9 @@ import os
 import pickle
 import yaml
 
-from src.utils import open_config, load_tree
+from src.utils import open_config
 from Uno.AIPlayers.BaseAIBot import BaseAIBot
-from Uno.DecisionTrees.ID3Tree import ID3Tree
-from Uno.DecisionTrees.C4_5Tree import C4_5Tree
+from Uno.DecisionTrees.C4_5Tree import C4_5Tree, load_tree
 from Uno.game.Card import *
 
 
@@ -39,11 +38,14 @@ class C4_5Bot(BaseAIBot):
         elif tree_instance is not None:
             self.id_tree = tree_instance
         else:
-            print("AAA")
             file_path = configs["c4_5Bot"]["file_path"]
-            self.id_tree: C4_5Tree = load_tree(file_path)
-            print("BBB")
+            self.id_tree = load_tree(file_path)
 
+    def get_config(self):
+        return {
+            "type": "C4_5Bot",
+            "tree_source": "file_or_instance"
+        }
 
 
     def move(self, first_card_taken=None, game=None):
@@ -80,18 +82,5 @@ class C4_5Bot(BaseAIBot):
         """
         self.id_tree: None
         self.id_tree = None
-        self.id_tree: ID3Tree = None
+        self.id_tree: C4_5Tree = None
 
-def load_tree(filename):
-    """
-    Loads a serialized C4_5 decision tree from a file.
-
-    Parameters:
-        filename (str): The path to the file containing the serialized tree.
-
-    Returns:
-        C4_5Tree: The deserialized ID3 decision tree instance.
-    """
-    abs_path = os.path.abspath(filename)
-    with open(abs_path, 'rb') as f:
-        return pickle.load(f)

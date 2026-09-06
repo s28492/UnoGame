@@ -13,7 +13,7 @@ cdef class GameSimulation:
     """
 
     # Deklaracje atrybutów w klasie cdef
-    cdef object game_state       # lub cdef GameState game_state (jeśli masz cimport do GameState)
+    cdef object game_state       # lub cdef GameState __game_state (jeśli masz cimport do GameState)
     cdef bint show_game
 
     def __init__(self, list players, bint show_game=False):
@@ -64,14 +64,14 @@ cdef class GameSimulation:
                     f"You have drawed {first_card_taken.rich_str()}. "
                     f"Do you want to put it? Write \"Draw\" if you want to take rest of the cards."
                 )
-            player_move = player.move(first_card_taken)
+            player_move = player.move()
             if isinstance(player_move, DrawCard):
                 for i in range(self.game_state.cards_to_take):
                     self.game_state.take_card(player)
                 self.game_state.cards_to_take = 0
             elif (
-                player_move.match(self.game_state.card_on_top) and
-                player_move == first_card_taken
+                    player_move.match(self.game_state.card_on_top) and
+                    player_move == first_card_taken
             ) or (
                 isinstance(first_card_taken, ColorCard) and
                 first_card_taken.value == player_move.value
@@ -82,9 +82,9 @@ cdef class GameSimulation:
                 self.manage_draw(player, first_card_taken=first_card_taken)
 
         elif (
-            self.game_state.cards_to_take == 0 and
-            first_card_taken is not None and
-            first_card_taken.match(self.game_state.card_on_top)
+                self.game_state.cards_to_take == 0 and
+                first_card_taken is not None and
+                first_card_taken.match(self.game_state.card_on_top)
         ):
             if not isinstance(self.game_state.get_player(), Bot):
                 self.game_state.console.print(
@@ -92,7 +92,7 @@ cdef class GameSimulation:
                     f"Do you want to put it? Write \"Draw\" if you want to keep it and take "
                     f"{self.game_state.cards_to_take} remaining cards"
                 )
-            player_move = player.move(first_card_taken)
+            player_move = player.move()
             if (
                 player_move == first_card_taken or
                 (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value)
@@ -146,10 +146,10 @@ cdef class GameSimulation:
 
         player_features = player.extract_features(self.game_state)
         if forced_first_move is not None:
-            player.show_hand()
+            player.hand_to_string()
             card_played = forced_first_move
         else:
-            card_played = player.move(first_card_taken=forced_first_move, game=self)
+            card_played = player.move()
 
         if card_played.match(self.game_state.card_on_top):
             if self.game_state.turns_to_stop != 0:
@@ -159,9 +159,9 @@ cdef class GameSimulation:
                 player.play_card(card_played)
                 self.game_state.put_card(card_played.play(self.game_state))
             elif (
-                self.game_state.cards_to_take != 0 and
-                not self.is_valid_plus_card(card_played) and
-                not isinstance(card_played, DrawCard)
+                    self.game_state.cards_to_take != 0 and
+                    not self.is_valid_plus_card(card_played) and
+                    not isinstance(card_played, DrawCard)
             ):
                 self.manage_player_move(player)
             elif isinstance(card_played, DrawCard):
@@ -174,15 +174,15 @@ cdef class GameSimulation:
         else:
             return self.manage_player_move(player)
 
-        if player.get_count_cards_in_hand() == 0:
-            self.game_state.set_game_over()
+        if player.get_num_of_cards_in_hand() == 0:
+            print(type(self.game_state))
+            self.game_state.set_game_over(True)
 
         player_features = self.upgrade_features(player_features, card_played)
         self.game_state.features_list.append(player_features)
 
         if self.show_game:
             self.game_state.show_card_played(card_played)
-
         return
 
     cpdef dict upgrade_features(self, features=None, move=None, bint data_for_bot=False):

@@ -296,7 +296,7 @@ class ID3Tree:
         self.is_leaf = True
         self.label = self.most_common_label()
         return None, None
-    #@profile()
+
     def build_tree(self, max_depth: int, min_values_in_leaf: int, min_gain_ratio: float):
         """
         Recursively builds the decision tree from the current node.

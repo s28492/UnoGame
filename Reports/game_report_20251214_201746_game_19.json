@@ -1,0 +1,17 @@
+{
+    "game_id": "game_19",
+    "timestamp": "2025-12-14T20:17:46.269828",
+    "winner": "C4_5Bot",
+    "duration_minutes": 41.61479640007019,
+    "bots": {
+        "C4_5Bot": {
+            "type": "C4_5Bot",
+            "tree_source": "file_or_instance"
+        },
+        "MCTSBot sim:10000_c:1.85": {
+            "type": "MCTSBot",
+            "num_simulations": 10000,
+            "c_param": 1.85
+        }
+    }
+}

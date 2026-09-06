@@ -7,7 +7,6 @@ def merge_csv_files_in_chunks(output_filename='uno_game.csv', chunk_size=100_000
     script_directory = os.path.abspath(os.path.dirname(__file__))
     print(script_directory)
     if not os.path.exists(script_directory+'/MergedCSV'):
-        print("AAA")
         os.makedirs(script_directory+'/MergedCSV')
     output_filename = script_directory + f"/MergedCSV/{datetime.now().strftime('%Y%m%d_%H%M')}_"+output_filename
     for filename in os.listdir(script_directory):

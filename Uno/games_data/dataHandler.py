@@ -20,10 +20,31 @@ def decode_data(df: pd.DataFrame, label_encoders):
     return new_df
 
 
-def encode_data_with_label(df: pd.DataFrame, label_encoders):
-    for column in df.columns.to_list():
-        df[column] = df[column].replace(label_encoders[column].values(), label_encoders[column].keys()).astype(np.int32)
-    return df
+def encode_data_with_label(df: pd.DataFrame, label_encoders: dict) -> pd.DataFrame:
+    """
+    Koduje tylko te kolumny z DataFrame, dla których istnieje enkoder w słowniku.
+    Kolumny bez enkodera pozostają nietknięte.
+    """
+    # Robimy kopię, aby uniknąć modyfikacji oryginalnego DataFrame poza funkcją (dobra praktyka)
+    df_encoded = df.copy()
+
+    # Iterujemy tylko po tych kolumnach, które są KLUCZAMI w naszym słowniku enkoderów
+    for column in label_encoders.keys():
+        # Sprawdzamy, czy taka kolumna w ogóle istnieje w naszym DataFrame
+        if column in df_encoded.columns:
+            try:
+                # Pobieramy konkretny enkoder dla tej kolumny
+                encoder = label_encoders[column]
+
+                # Używamy .map() zamiast .replace(), jest bardziej wydajne i przeznaczone do tego celu.
+                # Wartości, których nie ma w enkoderze, zostaną zamienione na NaN, co musimy obsłużyć.
+                df_encoded[column] = df_encoded[column].map(encoder).astype('Int32')  # Używamy Int32, które wspiera NaN
+
+            except Exception as e:
+                # Dodajemy więcej kontekstu do błędu, jeśli coś pójdzie nie tak
+                print(f"Warning: Could not encode column '{column}'. Error: {e}. Skipping this column.")
+
+    return df_encoded
 
 def encode_data(df: pd.DataFrame):
     label_encoders = {}

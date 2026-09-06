@@ -1,0 +1,644 @@
+[
+    {
+        "game_type": "MCTSBot vs C4_5Bot",
+        "timestamp_start": "Sun Dec 14 09:29:18 2025",
+        "timestamp_end": "Sun Dec 14 10:06:11 2025",
+        "number_of_games": 100,
+        "duration_minutes": 36.89,
+        "win_rates": {
+            "C4_5Bot": {
+                "wins": 50,
+                "win_rate_percent": 50.0
+            },
+            "MCTSBot sim:10000_c:1.85": {
+                "wins": 50,
+                "win_rate_percent": 50.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs AgressiveBot",
+        "timestamp_start": "Sun Dec 14 10:07:54 2025",
+        "timestamp_end": "Sun Dec 14 10:42:02 2025",
+        "number_of_games": 100,
+        "duration_minutes": 34.15,
+        "win_rates": {
+            "AgressiveBot": {
+                "wins": 45,
+                "win_rate_percent": 45.0
+            },
+            "MCTSBot sim:10000_c:1.85": {
+                "wins": 55,
+                "win_rate_percent": 55.0
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs MCTSBot",
+        "timestamp_start": "Sun Dec 14 10:42:02 2025",
+        "timestamp_end": "Sun Dec 14 11:19:50 2025",
+        "number_of_games": 100,
+        "duration_minutes": 37.8,
+        "win_rates": {
+            "MCTSBot sim:10000_c:1.85": {
+                "wins": 53,
+                "win_rate_percent": 53.0
+            },
+            "BotRandom": {
+                "wins": 47,
+                "win_rate_percent": 47.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sun Dec 14 11:19:50 2025",
+        "timestamp_end": "Sun Dec 14 11:55:17 2025",
+        "number_of_games": 100,
+        "duration_minutes": 35.45,
+        "win_rates": {
+            "MCTSBot sim:10000_c:1.85": {
+                "wins": 57,
+                "win_rate_percent": 57.0
+            },
+            "BasicLogicBot": {
+                "wins": 43,
+                "win_rate_percent": 43.0
+            }
+        }
+    },
+    {
+        "game_type": "C4_5Bot vs AgressiveBot",
+        "timestamp_start": "Sun Dec 14 12:19:34 2025",
+        "timestamp_end": "Sun Dec 14 12:29:20 2025",
+        "number_of_games": 1000,
+        "duration_minutes": 9.76,
+        "win_rates": {
+            "C4_5Bot": {
+                "wins": 563,
+                "win_rate_percent": 56.3
+            },
+            "AgressiveBot": {
+                "wins": 437,
+                "win_rate_percent": 43.7
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs C4_5Bot",
+        "timestamp_start": "Sun Dec 14 12:29:20 2025",
+        "timestamp_end": "Sun Dec 14 12:39:36 2025",
+        "number_of_games": 1000,
+        "duration_minutes": 10.27,
+        "win_rates": {
+            "C4_5Bot": {
+                "wins": 526,
+                "win_rate_percent": 52.6
+            },
+            "BotRandom": {
+                "wins": 474,
+                "win_rate_percent": 47.4
+            }
+        }
+    },
+    {
+        "game_type": "C4_5Bot vs BasicLogicBot",
+        "timestamp_start": "Sun Dec 14 12:39:36 2025",
+        "timestamp_end": "Sun Dec 14 12:49:47 2025",
+        "number_of_games": 1000,
+        "duration_minutes": 10.19,
+        "win_rates": {
+            "C4_5Bot": {
+                "wins": 556,
+                "win_rate_percent": 55.6
+            },
+            "BasicLogicBot": {
+                "wins": 444,
+                "win_rate_percent": 44.4
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs AgressiveBot",
+        "timestamp_start": "Fri Sep  4 19:53:18 2026",
+        "timestamp_end": "Fri Sep  4 19:53:36 2026",
+        "number_of_games": 10000,
+        "duration_minutes": 0.31,
+        "win_rates": {
+            "AgressiveBot": {
+                "wins": 4887,
+                "win_rate_percent": 48.87
+            },
+            "BotRandom": {
+                "wins": 5113,
+                "win_rate_percent": 51.13
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 19:53:37 2026",
+        "timestamp_end": "Fri Sep  4 19:53:58 2026",
+        "number_of_games": 10000,
+        "duration_minutes": 0.34,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 5004,
+                "win_rate_percent": 50.04
+            },
+            "BotRandom": {
+                "wins": 4996,
+                "win_rate_percent": 49.96
+            }
+        }
+    },
+    {
+        "game_type": "AgressiveBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 19:53:59 2026",
+        "timestamp_end": "Fri Sep  4 19:54:17 2026",
+        "number_of_games": 10000,
+        "duration_minutes": 0.31,
+        "win_rates": {
+            "AgressiveBot": {
+                "wins": 5007,
+                "win_rate_percent": 50.07
+            },
+            "BasicLogicBot": {
+                "wins": 4993,
+                "win_rate_percent": 49.93
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs AgressiveBot",
+        "timestamp_start": "Fri Sep  4 19:54:59 2026",
+        "timestamp_end": "Fri Sep  4 19:59:07 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.14,
+        "win_rates": {
+            "BotRandom": {
+                "wins": 51113,
+                "win_rate_percent": 51.11
+            },
+            "AgressiveBot": {
+                "wins": 48887,
+                "win_rate_percent": 48.89
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 20:05:02 2026",
+        "timestamp_end": "Fri Sep  4 20:09:51 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.82,
+        "win_rates": {
+            "BotRandom": {
+                "wins": 50951,
+                "win_rate_percent": 50.95
+            },
+            "BasicLogicBot": {
+                "wins": 49049,
+                "win_rate_percent": 49.05
+            }
+        }
+    },
+    {
+        "game_type": "AgressiveBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 20:09:56 2026",
+        "timestamp_end": "Fri Sep  4 20:14:45 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.83,
+        "win_rates": {
+            "AgressiveBot": {
+                "wins": 50506,
+                "win_rate_percent": 50.51
+            },
+            "BasicLogicBot": {
+                "wins": 49494,
+                "win_rate_percent": 49.49
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 20:23:56 2026",
+        "timestamp_end": "Fri Sep  4 20:25:38 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 1.7,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 10259,
+                "win_rate_percent": 10.26
+            },
+            "BotRandom": {
+                "wins": 15195,
+                "win_rate_percent": 15.2
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 20:29:28 2026",
+        "timestamp_end": "Fri Sep  4 20:34:11 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.72,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 53139,
+                "win_rate_percent": 53.14
+            },
+            "BotRandom": {
+                "wins": 46861,
+                "win_rate_percent": 46.86
+            }
+        }
+    },
+    {
+        "game_type": "AgressiveBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 20:34:15 2026",
+        "timestamp_end": "Fri Sep  4 20:39:01 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.76,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 52885,
+                "win_rate_percent": 52.89
+            },
+            "AgressiveBot": {
+                "wins": 47115,
+                "win_rate_percent": 47.12
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 20:41:32 2026",
+        "timestamp_end": "Fri Sep  4 21:42:35 2026",
+        "number_of_games": 100,
+        "duration_minutes": 61.04,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 35,
+                "win_rate_percent": 35.0
+            },
+            "MCTSBot sim:20000_c:1.85": {
+                "wins": 65,
+                "win_rate_percent": 65.0
+            }
+        }
+    },
+    {
+        "game_type": "AgressiveBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 22:14:45 2026",
+        "timestamp_end": "Fri Sep  4 22:19:34 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.82,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 49170,
+                "win_rate_percent": 49.17
+            },
+            "AgressiveBot": {
+                "wins": 50830,
+                "win_rate_percent": 50.83
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs AgressiveBot",
+        "timestamp_start": "Fri Sep  4 22:56:59 2026",
+        "timestamp_end": "Fri Sep  4 23:01:53 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.9,
+        "win_rates": {
+            "BotRandom": {
+                "wins": 46816,
+                "win_rate_percent": 46.82
+            },
+            "AgressiveBot": {
+                "wins": 53184,
+                "win_rate_percent": 53.18
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 23:01:57 2026",
+        "timestamp_end": "Fri Sep  4 23:06:46 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.81,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 57811,
+                "win_rate_percent": 57.81
+            },
+            "BotRandom": {
+                "wins": 42189,
+                "win_rate_percent": 42.19
+            }
+        }
+    },
+    {
+        "game_type": "AgressiveBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 23:06:50 2026",
+        "timestamp_end": "Fri Sep  4 23:11:36 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.76,
+        "win_rates": {
+            "AgressiveBot": {
+                "wins": 45443,
+                "win_rate_percent": 45.44
+            },
+            "BasicLogicBot": {
+                "wins": 54557,
+                "win_rate_percent": 54.56
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 23:35:04 2026",
+        "timestamp_end": "Fri Sep  4 23:39:50 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.77,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 59130,
+                "win_rate_percent": 59.13
+            },
+            "BotRandom": {
+                "wins": 40870,
+                "win_rate_percent": 40.87
+            }
+        }
+    },
+    {
+        "game_type": "AgressiveBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 23:39:54 2026",
+        "timestamp_end": "Fri Sep  4 23:44:42 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 4.8,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 55507,
+                "win_rate_percent": 55.51
+            },
+            "AgressiveBot": {
+                "wins": 44493,
+                "win_rate_percent": 44.49
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Fri Sep  4 23:45:41 2026",
+        "timestamp_end": "Sat Sep  5 00:15:59 2026",
+        "number_of_games": 1000,
+        "duration_minutes": 30.29,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 528,
+                "win_rate_percent": 52.8
+            },
+            "MCTSBot sim:1000_c:1.85": {
+                "wins": 472,
+                "win_rate_percent": 47.2
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 14:00:58 2026",
+        "timestamp_end": "Sat Sep  5 14:59:43 2026",
+        "number_of_games": 100,
+        "duration_minutes": 58.75,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 55,
+                "win_rate_percent": 55.0
+            },
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 45,
+                "win_rate_percent": 45.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 15:12:31 2026",
+        "timestamp_end": "Sat Sep  5 15:47:13 2026",
+        "number_of_games": 100,
+        "duration_minutes": 34.69,
+        "win_rates": {
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 51,
+                "win_rate_percent": 51.0
+            },
+            "BasicLogicBot": {
+                "wins": 49,
+                "win_rate_percent": 49.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 15:53:28 2026",
+        "timestamp_end": "Sat Sep  5 16:22:54 2026",
+        "number_of_games": 100,
+        "duration_minutes": 29.44,
+        "win_rates": {
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 53,
+                "win_rate_percent": 53.0
+            },
+            "BasicLogicBot": {
+                "wins": 47,
+                "win_rate_percent": 47.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 16:23:32 2026",
+        "timestamp_end": "Sat Sep  5 16:46:01 2026",
+        "number_of_games": 100,
+        "duration_minutes": 22.47,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 46,
+                "win_rate_percent": 46.0
+            },
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 54,
+                "win_rate_percent": 54.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 20:20:17 2026",
+        "timestamp_end": "Sat Sep  5 20:20:20 2026",
+        "number_of_games": 100,
+        "duration_minutes": 0.05,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 1,
+                "win_rate_percent": 1.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 20:43:06 2026",
+        "timestamp_end": "Sat Sep  5 21:01:26 2026",
+        "number_of_games": 100,
+        "duration_minutes": 18.32,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 42,
+                "win_rate_percent": 42.0
+            },
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 58,
+                "win_rate_percent": 58.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 21:14:05 2026",
+        "timestamp_end": "Sat Sep  5 21:25:40 2026",
+        "number_of_games": 100,
+        "duration_minutes": 11.6,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 49,
+                "win_rate_percent": 49.0
+            },
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 51,
+                "win_rate_percent": 51.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 21:35:39 2026",
+        "timestamp_end": "Sat Sep  5 21:48:41 2026",
+        "number_of_games": 100,
+        "duration_minutes": 13.03,
+        "win_rates": {
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 45,
+                "win_rate_percent": 45.0
+            },
+            "BasicLogicBot": {
+                "wins": 55,
+                "win_rate_percent": 55.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs AgressiveBot",
+        "timestamp_start": "Sat Sep  5 22:27:54 2026",
+        "timestamp_end": "Sat Sep  5 22:38:34 2026",
+        "number_of_games": 100,
+        "duration_minutes": 10.67,
+        "win_rates": {
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 65,
+                "win_rate_percent": 65.0
+            },
+            "AgressiveBot": {
+                "wins": 35,
+                "win_rate_percent": 35.0
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs MCTSBot",
+        "timestamp_start": "Sat Sep  5 22:38:36 2026",
+        "timestamp_end": "Sat Sep  5 22:52:04 2026",
+        "number_of_games": 100,
+        "duration_minutes": 13.47,
+        "win_rates": {
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 71,
+                "win_rate_percent": 71.0
+            },
+            "BotRandom": {
+                "wins": 29,
+                "win_rate_percent": 29.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep  5 22:52:06 2026",
+        "timestamp_end": "Sat Sep  5 23:02:43 2026",
+        "number_of_games": 100,
+        "duration_minutes": 10.63,
+        "win_rates": {
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 62,
+                "win_rate_percent": 62.0
+            },
+            "BasicLogicBot": {
+                "wins": 38,
+                "win_rate_percent": 38.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs AgressiveBot",
+        "timestamp_start": "Sun Sep  6 11:17:33 2026",
+        "timestamp_end": "Sun Sep  6 11:29:29 2026",
+        "number_of_games": 100,
+        "duration_minutes": 11.93,
+        "win_rates": {
+            "AgressiveBot": {
+                "wins": 34,
+                "win_rate_percent": 34.0
+            },
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 66,
+                "win_rate_percent": 66.0
+            }
+        }
+    },
+    {
+        "game_type": "RandomBot vs MCTSBot",
+        "timestamp_start": "Sun Sep  6 11:29:30 2026",
+        "timestamp_end": "Sun Sep  6 11:41:41 2026",
+        "number_of_games": 100,
+        "duration_minutes": 12.18,
+        "win_rates": {
+            "BotRandom": {
+                "wins": 29,
+                "win_rate_percent": 29.0
+            },
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 71,
+                "win_rate_percent": 71.0
+            }
+        }
+    },
+    {
+        "game_type": "MCTSBot vs BasicLogicBot",
+        "timestamp_start": "Sun Sep  6 11:41:42 2026",
+        "timestamp_end": "Sun Sep  6 11:51:56 2026",
+        "number_of_games": 100,
+        "duration_minutes": 10.23,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 35,
+                "win_rate_percent": 35.0
+            },
+            "MCTSBot sim:12000_c:1.85": {
+                "wins": 65,
+                "win_rate_percent": 65.0
+            }
+        }
+    }
+]

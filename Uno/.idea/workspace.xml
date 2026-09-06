@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="1104b825-9d14-425b-8e19-3d0c90f4edfc" name="Changes" comment="Game modified to accomodate AI simplicity needs.&#10;Feature extraction methods added to Player.py">
-      <change afterPath="$PROJECT_DIR$/.ipynb_checkpoints/games_id" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UNO.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot_game.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Card.py" beforeDir="false" afterPath="$PROJECT_DIR$/Card.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Game.py" beforeDir="false" afterPath="$PROJECT_DIR$/Game.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ID3Bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/ID3Bot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Player.py" beforeDir="false" afterPath="$PROJECT_DIR$/Player.py" afterDir="false" />
-    </list>
+    <list default="true" id="1104b825-9d14-425b-8e19-3d0c90f4edfc" name="Changes" comment="Added GameSimulation.py for simulating games for MCTSBot" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,11 +20,39 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="try-again" />
+        <entry key="$PROJECT_DIR$/.." value="MCTS" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;s28492&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/s28492/UnoGame.git&quot;,
+    &quot;accountId&quot;: &quot;e9af207e-520d-4a43-a221-b66bb30e8d93&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/AIPlayers/BaseAIBot.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/AIPlayers/QlearningBot.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/AIPlayers/__init__.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/DecisionTrees/C4_5Tree.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/Card.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/Game.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/games_data/MergeCSV.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/games_data/dataHandler.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/main.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/run_game.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="2e0TE5ZRFeuMUTNjKfrLVJ6tAJp" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -39,15 +61,84 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../../Studia pliki/4 Semestr/NAI - Narzędzia Sztucznej Inteligencji/Ćwiczenia/Programy" />
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.C4_5Tree.executor&quot;: &quot;Run&quot;,
+    &quot;Python.MergeCSV.executor&quot;: &quot;Run&quot;,
+    &quot;Python.dataHandler.executor&quot;: &quot;Run&quot;,
+    &quot;Python.operate_on_trees.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;&lt;unknown&gt;&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/Projekty/Python/NewUnoGame/UnoGame/Uno&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/AIPlayers/MonteCarloTreeSearch/game" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/test/func" />
+      <recent name="$PROJECT_DIR$/test" />
+      <recent name="$PROJECT_DIR$/AIPlayers/MonteCarloTree_search" />
+    </key>
   </component>
-  <component name="RunManager" selected="Python.bot_game">
+  <component name="RunManager" selected="Python.operate_on_trees">
+    <configuration name="C4_5Tree" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Uno" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DecisionTrees" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DecisionTrees/C4_5Tree.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="MergeCSV" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Uno" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/games_data" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/games_data/MergeCSV.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="bot_game" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Uno" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -58,6 +149,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bot_game.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -67,22 +159,47 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="dataHandler" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Uno" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/games_data" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/games_data/dataHandler.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="operate_on_trees" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Uno" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DecisionTrees" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DecisionTrees/operate_on_trees.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
       <option name="INPUT_FILE" value="" />
@@ -90,10 +207,21 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.operate_on_trees" />
+        <item itemvalue="Python.C4_5Tree" />
+        <item itemvalue="Python.MergeCSV" />
+        <item itemvalue="Python.dataHandler" />
         <item itemvalue="Python.bot_game" />
-        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PY-243.26574.90" />
+        <option value="bundled-python-sdk-c1fac28bca04-4df51de95216-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.26574.90" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -103,6 +231,31 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1711040381149</updated>
+      <workItem from="1734907829485" duration="1695000" />
+      <workItem from="1734946989347" duration="1697000" />
+      <workItem from="1734963638492" duration="22527000" />
+      <workItem from="1735132809802" duration="2552000" />
+      <workItem from="1735211759340" duration="14969000" />
+      <workItem from="1735246619491" duration="16724000" />
+      <workItem from="1735318704433" duration="5585000" />
+      <workItem from="1735339258441" duration="1885000" />
+      <workItem from="1735383010417" duration="8149000" />
+      <workItem from="1735420752387" duration="10638000" />
+      <workItem from="1735477688732" duration="28261000" />
+      <workItem from="1735508704490" duration="1337000" />
+      <workItem from="1735553597429" duration="6657000" />
+      <workItem from="1735560629884" duration="52462000" />
+      <workItem from="1735831606133" duration="4080000" />
+      <workItem from="1735844610933" duration="4251000" />
+      <workItem from="1735914285213" duration="190000" />
+      <workItem from="1736518546784" duration="4621000" />
+      <workItem from="1736594768013" duration="4804000" />
+      <workItem from="1737463758859" duration="2505000" />
+      <workItem from="1740736178519" duration="522000" />
+      <workItem from="1741536411079" duration="239000" />
+      <workItem from="1764345234569" duration="1897000" />
+      <workItem from="1764445022020" duration="17000" />
+      <workItem from="1764445043932" duration="365000" />
     </task>
     <task id="LOCAL-00001" summary="Game modified to accomodate AI simplicity needs.&#10;Feature extraction methods added to Player.py">
       <created>1716756378223</created>
@@ -111,8 +264,147 @@
       <option name="project" value="LOCAL" />
       <updated>1716756378223</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added children sorting for faster predictions">
+      <option name="closed" value="true" />
+      <created>1734965049151</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1734965049151</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Added &quot;num_all_color&quot; to DataFrame">
+      <option name="closed" value="true" />
+      <created>1735133253049</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1735133253049</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Upgraded ID3Bot.py card choosing">
+      <option name="closed" value="true" />
+      <created>1735249251841</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1735249251841</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added __init__.py files">
+      <option name="closed" value="true" />
+      <created>1735478392257</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1735478392257</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Minor changes to accomodate for MCTS bot">
+      <option name="closed" value="true" />
+      <created>1735478580809</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1735478580809</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added getters and setters for game simulations">
+      <option name="closed" value="true" />
+      <created>1735478658958</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1735478658958</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Few tweeks to accomodate MCTS">
+      <option name="closed" value="true" />
+      <created>1735589116619</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1735589116619</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Added __init__.py">
+      <option name="closed" value="true" />
+      <created>1735589208078</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1735589208078</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Added game to move function for better data analysis">
+      <option name="closed" value="true" />
+      <created>1735589429317</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1735589429318</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Fully functional MCTS Bot that uses  agressive bots for simulations">
+      <option name="closed" value="true" />
+      <created>1735589545289</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1735589545289</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Renamed from play_against_bots.py">
+      <option name="closed" value="true" />
+      <created>1735846640161</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1735846640161</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Added Cython version of Simulation.py. Still needed some developments">
+      <option name="closed" value="true" />
+      <created>1735846696970</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1735846696970</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Added setup.py for cython simulation">
+      <option name="closed" value="true" />
+      <created>1735914316248</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1735914316248</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added has_human_palyer_variable">
+      <option name="closed" value="true" />
+      <created>1735914344749</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1735914344749</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Fully functioning Monte Carlo Tree Search Bot">
+      <option name="closed" value="true" />
+      <created>1735914389492</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1735914389492</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Node for MCTSBot">
+      <option name="closed" value="true" />
+      <created>1735914404054</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1735914404054</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Added GameSimulation.py for simulating games for MCTSBot">
+      <option name="closed" value="true" />
+      <created>1735914462694</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1735914462694</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -124,11 +416,33 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Game modified to accomodate AI simplicity needs.&#10;Feature extraction methods added to Player.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Game modified to accomodate AI simplicity needs.&#10;Feature extraction methods added to Player.py" />
+    <MESSAGE value="Added children sorting for faster predictions" />
+    <MESSAGE value="Added &quot;num_all_color&quot; to DataFrame" />
+    <MESSAGE value="Upgraded ID3Bot.py card choosing" />
+    <MESSAGE value="Added __init__.py files" />
+    <MESSAGE value="Minor changes to accomodate for MCTS bot" />
+    <MESSAGE value="Added getters and setters for game simulations" />
+    <MESSAGE value="Few tweeks to accomodate MCTS" />
+    <MESSAGE value="Added __init__.py" />
+    <MESSAGE value="Added game to move function for better data analysis" />
+    <MESSAGE value="Fully functional MCTS Bot that uses  agressive bots for simulations" />
+    <MESSAGE value="Renamed from play_against_bots.py" />
+    <MESSAGE value="Added Cython version of Simulation.py. Still needed some developments" />
+    <MESSAGE value="Added setup.py for cython simulation" />
+    <MESSAGE value="Added has_human_palyer_variable" />
+    <MESSAGE value="Fully functioning Monte Carlo Tree Search Bot" />
+    <MESSAGE value="Node for MCTSBot" />
+    <MESSAGE value="Added GameSimulation.py for simulating games for MCTSBot" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added GameSimulation.py for simulating games for MCTSBot" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Uno$MergeCSV.coverage" NAME="MergeCSV Coverage Results" MODIFIED="1735424328949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/games_data" />
+    <SUITE FILE_PATH="coverage/Uno$C4_5Tree.coverage" NAME="C4_5Tree Coverage Results" MODIFIED="1735424418739" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/DecisionTrees" />
+    <SUITE FILE_PATH="coverage/Uno$operate_on_trees.coverage" NAME="operate_on_trees Coverage Results" MODIFIED="1735561390945" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/DecisionTrees" />
+    <SUITE FILE_PATH="coverage/Uno$dataHandler.coverage" NAME="dataHandler Coverage Results" MODIFIED="1735424320409" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/games_data" />
   </component>
 </project>

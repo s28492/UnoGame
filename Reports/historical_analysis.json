@@ -1,0 +1,181 @@
+{
+    "timestamp": "2025-12-14 13:06:17",
+    "analysis": {
+        "bot_performance_global": {
+            "C4_5Bot": {
+                "played": 15115,
+                "won": 7819,
+                "win_rate": 51.73
+            },
+            "AgressiveBot": {
+                "played": 261811,
+                "won": 130123,
+                "win_rate": 49.7
+            },
+            "BasicLogicBot": {
+                "played": 251610,
+                "won": 123723,
+                "win_rate": 49.17
+            },
+            "BotRandom": {
+                "played": 261811,
+                "won": 133246,
+                "win_rate": 50.89
+            },
+            "MCTSBot": {
+                "played": 7915,
+                "won": 4220,
+                "win_rate": 53.32
+            }
+        },
+        "matchup_performance": {
+            "AgressiveBot vs BasicLogicBot": {
+                "total_games": 124000,
+                "details": {
+                    "AgressiveBot": {
+                        "wins": 62855,
+                        "win_rate": 50.69
+                    },
+                    "BasicLogicBot": {
+                        "wins": 61145,
+                        "win_rate": 49.31
+                    }
+                }
+            },
+            "AgressiveBot vs BotRandom": {
+                "total_games": 134201,
+                "details": {
+                    "AgressiveBot": {
+                        "wins": 65677,
+                        "win_rate": 48.94
+                    },
+                    "BotRandom": {
+                        "wins": 68524,
+                        "win_rate": 51.06
+                    }
+                }
+            },
+            "AgressiveBot vs C4_5Bot": {
+                "total_games": 3005,
+                "details": {
+                    "AgressiveBot": {
+                        "wins": 1337,
+                        "win_rate": 44.49
+                    },
+                    "C4_5Bot": {
+                        "wins": 1668,
+                        "win_rate": 55.51
+                    }
+                }
+            },
+            "AgressiveBot vs MCTSBot": {
+                "total_games": 605,
+                "details": {
+                    "AgressiveBot": {
+                        "wins": 254,
+                        "win_rate": 41.98
+                    },
+                    "MCTSBot": {
+                        "wins": 351,
+                        "win_rate": 58.02
+                    }
+                }
+            },
+            "BasicLogicBot vs BotRandom": {
+                "total_games": 124000,
+                "details": {
+                    "BotRandom": {
+                        "wins": 63056,
+                        "win_rate": 50.85
+                    },
+                    "BasicLogicBot": {
+                        "wins": 60944,
+                        "win_rate": 49.15
+                    }
+                }
+            },
+            "BasicLogicBot vs C4_5Bot": {
+                "total_games": 3005,
+                "details": {
+                    "C4_5Bot": {
+                        "wins": 1640,
+                        "win_rate": 54.58
+                    },
+                    "BasicLogicBot": {
+                        "wins": 1365,
+                        "win_rate": 45.42
+                    }
+                }
+            },
+            "BasicLogicBot vs MCTSBot": {
+                "total_games": 605,
+                "details": {
+                    "MCTSBot": {
+                        "wins": 336,
+                        "win_rate": 55.54
+                    },
+                    "BasicLogicBot": {
+                        "wins": 269,
+                        "win_rate": 44.46
+                    }
+                }
+            },
+            "BotRandom vs C4_5Bot": {
+                "total_games": 3005,
+                "details": {
+                    "C4_5Bot": {
+                        "wins": 1617,
+                        "win_rate": 53.81
+                    },
+                    "BotRandom": {
+                        "wins": 1388,
+                        "win_rate": 46.19
+                    }
+                }
+            },
+            "BotRandom vs MCTSBot": {
+                "total_games": 605,
+                "details": {
+                    "BotRandom": {
+                        "wins": 278,
+                        "win_rate": 45.95
+                    },
+                    "MCTSBot": {
+                        "wins": 327,
+                        "win_rate": 54.05
+                    }
+                }
+            },
+            "C4_5Bot vs MCTSBot": {
+                "total_games": 6100,
+                "details": {
+                    "C4_5Bot": {
+                        "wins": 2894,
+                        "win_rate": 47.44
+                    },
+                    "MCTSBot": {
+                        "wins": 3206,
+                        "win_rate": 52.56
+                    }
+                }
+            }
+        },
+        "game_length_stats": {
+            "avg_turns": 53.51,
+            "min_turns": 13,
+            "max_turns": 446,
+            "total_games_analyzed": 399131
+        },
+        "starting_advantage": {
+            "Player_0": {
+                "wins": 203302,
+                "percentage": 50.94
+            },
+            "Player_1": {
+                "wins": 195829,
+                "percentage": 49.06
+            }
+        },
+        "total_records_processed": 21126076
+    }
+}

@@ -9,10 +9,14 @@ from Uno.players.Bot import Bot
 from Uno.players.RandomBot import BotRandom
 from Uno.AIPlayers.C4_5Bot import C4_5Bot
 from Uno.AIPlayers.MonteCarloTreeSearch.MCTSBot import MCTSBot
+# from Uno.AIPlayers.DQLBot.DQLBot import DQLBot
+
 
 from Uno.game.Game import Game
 from rich.console import Console
 import random
+
+from Uno.ReportingUtils import ReportGenerator
 
 console = Console()
 
@@ -28,6 +32,8 @@ def main() -> None:
     random.shuffle(bot_names)
     bots = []
     game = None
+    reporter = ReportGenerator()
+    
     console.print("\n[bold magenta]Welcome to UNO game![/bold magenta]",justify="center", end="\n\n")
     console.print("1. Play with other humans.", justify="center")
     console.print("2. Watch bots playing with each other.", justify="center")
@@ -62,18 +68,45 @@ def main() -> None:
         bots = [ Player(human_player_name), C4_5Bot(bot_names.pop())]
         random.shuffle(bots)
         game = create_game_with_players(bots)
-        game.play()
     elif choice == "5":
         bots = [ Player(human_player_name), MCTSBot(bot_names.pop(), 50_000, 1.9)]
         random.shuffle(bots)
         game = create_game_with_players(bots)
-        game.play()
     else:
         console.print("[bold red]Wrong choice![/bold red]\nLet's try again...\n")
-        main()
-    _, winner = game.play()
-    console.print(f"[bold]And the winner is [yellow] {winner}[/yellow][/bold]")
+        return main()
+        
+    if game:
+        start_time = time.time()
+        _, winner = game.play()
+        game_duration = (time.time() - start_time) / 60
+        
+        console.print(f"[bold]And the winner is [yellow] {winner}[/yellow][/bold]")
+        
+        # Report Generation
+        bots_config = {}
 
+        current_players = []
+        if hasattr(game, 'players'):
+            current_players = game.players
+        elif hasattr(game, 'get_players'):
+             current_players = game.get_players()
+        else:
+             pass
+
+        
+        for player in (game.players if hasattr(game, 'players') else []):
+             if hasattr(player, 'get_config'):
+                 bots_config[player.get_name()] = player.get_config()
+             else:
+                 bots_config[player.get_name()] = str(player)
+
+        reporter.save_game_report(
+            game_id=f"interactive_{int(time.time())}",
+            winner_name=str(winner),
+            duration=game_duration,
+            bots_config=bots_config
+        )
 
 
 def start_2_bot_games():
@@ -81,11 +114,22 @@ def start_2_bot_games():
     random.shuffle(bot_names)
     bots = []
     game = None
+    reporter = ReportGenerator()
 
     num_bots = 2
     bots = [BotRandom(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
     game = create_game_with_players(bots)
-    game.play()
+    start_time = time.time()
+    _, winner = game.play()
+    game_duration = (time.time() - start_time) / 60
+    
+    bots_config = {p.get_name(): p.get_config() for p in bots}
+    reporter.save_game_report(
+        game_id=f"bot2bot_{int(time.time())}",
+        winner_name=str(winner),
+        duration=game_duration,
+        bots_config=bots_config
+    )
 
 def start_many_games():
     number_of_games = 10

@@ -1,5 +1,5 @@
 """
-@author Cyprian Szewczak s2849
+@author Cyprian Szewczak s28492
 """
 from rich.console import Console
 
@@ -30,9 +30,6 @@ class Card:
     def get_value(self):
         return self.value
 
-    def img_url(self):
-        return f"uno_card-{self.color.lower()}{self.value.lower()}.png"
-
     def rich_str(self):
         """Returns string for console rich module printing"""
         return f"[bold {self.color}]{self.value} {self.color}[/]"
@@ -53,7 +50,7 @@ class SurrenderCard:
         self.color = "Surrender"
 
     def __eq__(self, other):
-        return True
+        return True if isinstance(other, SurrenderCard) else False
 
     def __str__(self):
         return f"{self.value}"
@@ -65,7 +62,7 @@ class SurrenderCard:
 
     @staticmethod
     def play(game) -> Card:
-        """Drops player from game. Returs card on top of a pile"""
+        """Drops player from game. Returns card on top of a pile"""
         player = game.get_player()
         console.print(f"Player: {player} has surrendered")
 
@@ -79,7 +76,7 @@ class DrawCard:
         self.color = "Draw"
 
     def __eq__(self, other):
-        return False
+        return True if isinstance(other, DrawCard) else False
 
     def __str__(self):
         return f"{self.value}"
@@ -113,8 +110,11 @@ class StopCard(Card):
     def __init__(self, value: str, color: str):
         super().__init__(value, color)
 
-    def img_url(self):
-        return f"uno_card-{self.color.lower()}skip.png"
+    def __str__(self):
+        if self.color == "Stop":
+            return f"{self.value}"
+        else:
+            return f"{self.value} {self.color}"
 
     def play(self, game):
         """Adds 1 to game.turns_to_stop, removes itself from player hand and returns itself"""
@@ -126,9 +126,6 @@ class Plus2Card(Card):
     def __init__(self, value: str, color: str):
         super().__init__(value, color)
         self.value = "+2"
-
-    def img_url(self):
-        return f"uno_card-{self.color.lower()}draw2.png"
 
     def play(self, game):
         """Adds 2 to game.cards_to_take, removes itself from player hand and returns itself"""
@@ -151,9 +148,6 @@ class ColorCard(Card):
             return "[red]A[/][rgb(255,165,0)]l[/][rgb(255,200,60)]l[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
                    "255)]r[/][magenta]s[/] "
         return f"[bold {self.color}]{self.value} {self.color}[/]"
-
-    def img_url(self):
-        return f"uno_card-wildchange.png"
 
     def play(self, game):
         """Changes color of itself, removes itself from player hand and returns itself"""
@@ -187,9 +181,6 @@ class Plus4Card(ColorCard):
             return "[red]+[/][rgb(255,165,0)]4[/] [rgb(0,255,0)]C[/][green]o[/][cyan]l[/][blue]o[/][rgb(255,0," \
                    "255)]r[/][magenta]s[/] "
         return f"[bold {self.color}]{self.value} {self.color}[/]"
-
-    def img_url(self):
-        return f"uno_card-wilddraw4.png"
 
     def play(self, game):
         """Changes color of itself, adds +4 to cards_to_take, removes itself from player hand and returns itself"""

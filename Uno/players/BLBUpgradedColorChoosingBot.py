@@ -34,7 +34,6 @@ class BLBUpgradedColorChoosing(Bot):
         cards = ""
         for card in card_of_given_type:
             cards += f"{card} "
-        # print(cards)
         all_colors = self.colors_of_list(self.pile)
         hand_colors = self.colors_of_list(self.hand)
         max_num = 0
@@ -42,9 +41,6 @@ class BLBUpgradedColorChoosing(Bot):
         for color in self.possible_colors:
             if color not in self.colors_of_list(card_of_given_type):
                 continue
-            # print(color)
-            # if card_of_given_type is not None:
-            # print(f"Wartość dla koloru: {color in self.colors_of_list(card_of_given_type)}")
             num_of_color = all_colors.count(color) / len(all_colors) + hand_colors.count(color) / len(hand_colors)
             max_num = num_of_color if max_num < num_of_color else max_num
             if color in hand_colors and card_of_given_type is None and num_of_color == max_num:
@@ -54,17 +50,6 @@ class BLBUpgradedColorChoosing(Bot):
         return color_to_return
 
         # return random.choice(possible_colors)
-
-    def valid_cards(self) -> list:
-        """Creates a list of cards that can be played. If there isn't any, bot takes a card"""
-        valid_cards_to_put = []
-        for card in self.hand:
-            if card.match(self.card_on_top):
-                valid_cards_to_put.append(card)
-        if len(valid_cards_to_put) > 0:
-            return valid_cards_to_put
-        else:
-            return []
 
     def change_color(self, card: ColorCard):
         card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
@@ -108,8 +93,8 @@ class BLBUpgradedColorChoosing(Bot):
 
         # If there are no unusual states it picks random card from those possible to play
         else:
-            if len(self.valid_cards()) > 0:
-                choosen_card = random.choice(self.valid_cards())
+            if len(self.valid_cards(first_card_taken)) > 0:
+                choosen_card = random.choice(self.valid_cards(first_card_taken))
                 if isinstance(choosen_card, ColorCard):
                     self.change_color(choosen_card)
                 return choosen_card

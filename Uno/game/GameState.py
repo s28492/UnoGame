@@ -1,10 +1,13 @@
 import uuid
 
 from Uno.players.Player import Player
+from Uno.players.Bot import Bot
 from Uno.game.Deck import Deck
 from Uno.game.Card import Card
 from rich.console import Console
 
+
+console = Console()
 
 class GameState:
     """
@@ -13,15 +16,13 @@ class GameState:
 
     def __init__(self, players: list, is_simulation=False):
         """Initialize game start state"""
-        self.console = Console()
-        self.game_id = str(uuid.uuid4())
         self.players: list[Player] = self._check_number_of_players(players)
+        self.console = console
+        self.deck = None
         self.move_history = []
         self.round = 0
         self.ranking_table = [None for _ in players]
-        self.deck = Deck()
         self.pile: list[Card] = []
-        self.reset_colors = []
         self.card_on_top = None
         self.index_of_a_player = 0
         self.direction = 1
@@ -30,11 +31,31 @@ class GameState:
         self.first_taken = False
         self.game_over = False
         self.features_list = []
-        self.deal_cards_to_players()
         self.is_simulation = is_simulation
+        if not self.is_simulation:
+            self.game_id = str(uuid.uuid4())
+            self.deck = Deck()
+            self.deal_cards_to_players()
+        else:
+            self.game_id = None
+
+
+
+    def get_is_simulation(self) -> bool:
+        return self.is_simulation
+
+    def calculate_average_opponents_cards(self):
+        sum_of_cards = 0.
+        for i in range(len(self.players)):
+            if i != self.index_of_a_player:
+                sum_of_cards += self.players[i].number_of_cards_in_hand()
+        return sum_of_cards / len(self.players)
 
     def set_move_history(self, move_history):
         self.move_history = move_history
+
+    def append_move_to_history(self, move):
+        self.move_history.append(move)
 
     def get_move_history(self):
         return self.move_history
@@ -44,12 +65,6 @@ class GameState:
 
     def get_features_list(self):
         return self.features_list
-
-    def set_reset_colors(self, reset_colors):
-        self.reset_colors = reset_colors
-
-    def get_reset_colors(self):
-        return self.reset_colors
 
     def set_round(self,  sett_round):
         self.round = sett_round
@@ -162,7 +177,7 @@ class GameState:
             self.pile = [last_card]
 
     def get_num_cards_left_in_deck(self):
-        return self.deck.get_deck_len()
+        return self.deck.deck_length()
 
     def get_state(self) -> tuple:
         """Returns bot data"""
@@ -183,7 +198,7 @@ class GameState:
         """changes current player list indicator"""
         return (self.index_of_a_player + self.direction) % len(self.players)
 
-    def show_num_of_cards_for_all(self):
+    def __show_num_of_cards_for_all(self):
         num_of_cards_message = ""
         for player in self.players:
             num_of_cards_message += f"{player.rich_str()}: {len(player.hand)} | "
@@ -204,7 +219,7 @@ class GameState:
 
     def drop_player(self, player: Player, did_not_surrender=False) -> None:
         """Removes player from players list
-        If player did_not_surrender he is added to first empty slot from the beggining
+        If player did_not_surrender he is added to first empty slot from the beginning
         If player did_not_surrender = False he is added to first empty slot from the end
         """
         self.deck.cards_to_deck(player.hand)
@@ -226,19 +241,19 @@ class GameState:
         self.console.print("\n\n")
         self.console.print(f"{player.rich_str()}")
         self.console.print(f"Card on the top -> {self.card_on_top.rich_str()}")
-        self.console.print(self.show_num_of_cards_for_all())
+        self.console.print(self.__show_num_of_cards_for_all())
         if self.cards_to_take != 0:
             self.console.print(f"Cards to take -> {self.cards_to_take}\nWrite Draw to take or play valid plus card.")
         elif self.turns_to_stop != 0:
             self.console.print(f"Turns to stop -> {self.turns_to_stop}\nWrite Stop to stop or play valid stop card.")
         self.console.print(f"Your cards:")
-        self.console.print(player.show_hand())
+        self.console.print(player.hand_to_string())
 
     def show_card_played(self, card) -> None:
         """Shows card played"""
         self.console.print(f"Card played -> {card.rich_str()}")
 
-    def empty_hand(self, player) -> None:
+    def check_for_empty_hand(self, player) -> None:
         """Checks if hand is empty. If yes, the player has finished and is removed from players list"""
         if len(player.hand) == 0:
             self.drop_player(player, did_not_surrender=True)
@@ -280,10 +295,10 @@ class GameState:
 
     def reset_all_bots(self):
         for player in self.players:
-            if isinstance(player, Bot):
-                del player
+            if hasattr(player, 'bot_reset'):
+                player.bot_reset()
 
     def show_infinite_mistakes(self):
         if self.is_simulation:
             raise ValueError("SIMULATION ERROR. Game is too long")
-        raise ValueError("SIMULATION ERROR. Game is too long")
+        raise ValueError("GAME ERROR. Game is too long")

@@ -7,8 +7,7 @@ class Game:
     Manages the game logic and interactions with GameState.
     """
 
-    def __init__(self, players: list, has_human_player=False):
-        self.__has_human_player = has_human_player
+    def __init__(self, players: list):
         self.__game_state = GameState(players)
         self._initialize_game()
 
@@ -37,16 +36,19 @@ class Game:
             self.__game_state.put_card(card)
             return True
         return False
+
     def _manage_draw(self, player, first_card_taken = None):
+        # Adjust amount of cards to take if player took a card already
         if first_card_taken is None:
             first_card_taken = self.__game_state.take_card(player)
             self.__game_state.cards_to_take = self.__game_state.cards_to_take - 1 if self.__game_state.cards_to_take != 0 else 0
-
+        
+        # Checks if player can play the card
         if self.__game_state.cards_to_take != 0 and self._is_valid_plus_card(first_card_taken):
             if not isinstance(self.__game_state.get_player(), Bot):
                 self.__game_state.console.print(
-                 f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
-            player_move = player.move(first_card_taken, game=self)
+                 f"You have drew {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
+            player_move = player.move(game=self)
             if isinstance(player_move, DrawCard):
                 for i in range(self.__game_state.cards_to_take):
                     self.__game_state.take_card(player)
@@ -60,7 +62,7 @@ class Game:
             if not isinstance(self.__game_state.get_player(), Bot):
                 self.__game_state.console.print(
                  f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.__game_state.cards_to_take} remaining cards")
-            player_move = player.move(first_card_taken, game=self)
+            player_move = player.move(game=self, first_card_taken=first_card_taken)
             if player_move == first_card_taken or (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value):
                 player.play_card(player_move)
                 self.__game_state.put_card(player_move.play(self.__game_state))
@@ -75,6 +77,7 @@ class Game:
             for i in range(self.__game_state.cards_to_take):
                 self.__game_state.take_card(player)
             self.__game_state.cards_to_take = 0
+
     def _is_valid_plus_card(self, card):
         if card.__class__ == self.__game_state.card_on_top.__class__ or isinstance(card, Plus4Card):
             return True
@@ -102,25 +105,31 @@ class Game:
         player_features = player.extract_features(self.__game_state)
         card_played = player.move(game=self)
         if card_played.match(self.__game_state.card_on_top):
+            # Check for valid stop response if opponent played stop card
             if self.__game_state.turns_to_stop != 0:
                 if not self._manage_stop(player, card_played):
                     self._manage_player_move(player)
+            # Check for valid reaction if opponent played attacking card
             elif self.__game_state.cards_to_take != 0 and self._is_valid_plus_card(card_played):
+                self.__game_state.append_move_to_history(card_played)
                 player.play_card(card_played)
                 self.__game_state.put_card(card_played.play(self.__game_state))
             elif self.__game_state.cards_to_take != 0 and not self._is_valid_plus_card(card_played) and not isinstance(card_played, DrawCard):
                self._manage_player_move(player)
+            # Manage card draw if player decided to take
             elif isinstance(card_played, DrawCard):
                 if len(self.__game_state.deck.deck) <= 1:
                    self.__game_state.move_pile_to_deck()
+                self.__game_state.append_move_to_history(card_played)
                 self._manage_draw(player)
             else:
+                self.__game_state.append_move_to_history(card_played)
                 player.play_card(card_played)
                 self.__game_state.put_card(card_played.play(self.__game_state))
         else:
             return self._manage_player_move(player)
 
-        if player.get_count_cards_in_hand() == 0:
+        if player.get_num_of_cards_in_hand() == 0:
              self.__game_state.set_game_over(True)
         player_features = self._upgrade_features(player_features, card_played)
         self.__game_state.features_list.append(player_features)
@@ -132,32 +141,38 @@ class Game:
         features["index_of_a_player"] = self.__game_state.index_of_a_player
         if not data_for_bot:
            features["game_id"] = self.__game_state.game_id
-           features["card_played"] = move
+           features["card_played"] = move.__str__()
         return features
 
     def play(self) -> list:
         """Main game method. Controls game flow"""
-        while len(self.__game_state.players) > 1:
-            self.__game_state.check_number_of_cards_in_game()
-            self.__game_state.round += 1
-            player = self.__game_state.get_player()
-            if self.__game_state.round > 1_000 and isinstance(player, BaseAIBot.BaseAIBot):
-                 self.__game_state.show_infinite_mistakes()
-                 break
-            # Checks if player is stopped
-            if player.stopped:
-                player.update_stop_status()
-            else:
-                self._manage_player_move(player)
-            if player.has_won():
-               self.__game_state.drop_player(player, did_not_surrender=True)
+        try:
+            while len(self.__game_state.players) > 1:
+                # if not self.__game_state.get_is_simulation():
+                #     print(self.__game_state.get_move_history())
+                self.__game_state.check_number_of_cards_in_game()
+                self.__game_state.round += 1
+                player = self.__game_state.get_player()
+                if self.__game_state.round > 1_000 and isinstance(player, BaseAIBot.BaseAIBot):
+                     self.__game_state.show_infinite_mistakes()
+                     break
+                # Checks if player is stopped
+                if player.stopped:
+                    player.update_stop_status()
+                else:
+                    self._manage_player_move(player)
+                if player.has_won():
+                   self.__game_state.drop_player(player, did_not_surrender=True)
 
-            if "Color" in str(self.__game_state.card_on_top) and len(self.__game_state.pile) > 1:
-                raise ValueError("Color on top")
+                if "Color" in str(self.__game_state.card_on_top) and len(self.__game_state.pile) > 1:
+                    raise ValueError("Color on top")
 
-            self.__game_state.index_of_a_player = self.__game_state.update_player_index()
+                self.__game_state.index_of_a_player = self.__game_state.update_player_index()
 
-        self.__game_state.drop_player(self.__game_state.players[0], did_not_surrender=True)
+            self.__game_state.drop_player(self.__game_state.players[0], did_not_surrender=True)
 
-        self.__game_state.reset_all_bots()
-        return [self.__game_state.get_features_list(), self.__game_state.ranking_table[0]]
+            self.__game_state.reset_all_bots()
+            return [self.__game_state.get_features_list(), self.__game_state.ranking_table[0]]
+        except Exception as e:
+            print(f"DEBUG: Error caught in game loop for players: {[p.name for p in self.__game_state.players]}: {e}")
+            raise

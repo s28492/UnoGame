@@ -9,7 +9,11 @@ class Deck:
     values = [f"{i}" for i in range(10)]
     def __init__(self):
         self.deck = self.create_deck()
+        self.all_cards = self.deck.copy()
         self.shuffle_deck()
+
+    def get_all_cards(self):
+        return self.all_cards
 
     def create_deck(self) -> list:
         """Creates deck of cards and returns it"""
@@ -44,9 +48,6 @@ class Deck:
     def get_deck(self):
         return self.deck
 
-    def get_deck_len(self):
-        return len(self.deck)
-
     def shuffle_deck(self) -> None:
         """shuffles the deck"""
         random.shuffle(self.deck)
@@ -56,11 +57,11 @@ class Deck:
             return None
         return self.deck.pop()
 
-    def cards_to_deck(self, hand):
-        for card in hand:
+    def cards_to_deck(self, cards):
+        for card in cards:
             self.deck.append(card)
 
-    def reset_colored_cards(self, discard_pile):
+    def __reset_colored_cards(self, discard_pile):
         """Resets Colored cards being moved to the deck from pile"""
         for card in discard_pile:
             if isinstance(card, ColorCard):
@@ -68,10 +69,9 @@ class Deck:
         return discard_pile
 
     def reshuffle_discard_pile(self, discard_pile):
-        discard_pile = self.reset_colored_cards(discard_pile)
+        discard_pile = self.__reset_colored_cards(discard_pile)
         self.deck += discard_pile
         self.shuffle_deck()
-
 
     def deck_length(self):
         return len(self.deck)
@@ -79,20 +79,20 @@ class Deck:
     def remove_card_from_deck(self, card):
         if isinstance(card, Plus4Card):
             plus_4_card = Plus4Card()
-            return self.remove_card(plus_4_card)
+            return self.__remove_card(plus_4_card)
         elif isinstance(card, ColorCard):
             color_card = ColorCard("All", "Colors")
-            return self.remove_card(color_card)
+            return self.__remove_card(color_card)
         else:
-            return self.remove_card(card)
+            return self.__remove_card(card)
 
-    def remove_card(self, card):
+    def __remove_card(self, card):
         if card in self.deck:
             self.deck.remove(card)
             return True
         return False
 
-    def show_cards_in_deck(self):
+    def return_string_of_cards_in_deck(self):
         if len(self.deck) == 0:
             return "No cards"
         card_string = "Cards in deck:\n| "

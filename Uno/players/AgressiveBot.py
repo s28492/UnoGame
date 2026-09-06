@@ -16,35 +16,10 @@ class AgressiveBot(Bot):
         return [card.color for card in list]
 
 
-    def choose_color(self) -> str:
-        """Bot chooses color of "Color" card based on what color he has the most in "hand\""""
-        possible_colors = ["Red", "Green", "Blue", "Yellow"]
-        all_colors = self.colors_of_list(self.pile)
-        hand_colors = self.colors_of_list(self.hand)
-        max_num = 0
-        color_to_return = ""
-        for color in possible_colors:
-            num_of_color = all_colors.count(color)/len(all_colors) + hand_colors.count(color)/len(hand_colors)
-            max_num = num_of_color if max_num < num_of_color else max_num
-            if color in hand_colors and num_of_color == max_num:
-                color_to_return = color
-        return color_to_return
-
-        # return random.choice(possible_colors)
-
-    def valid_cards(self) -> list:
-        """Creates a list of cards that can be played. If there isn't any, bot takes a card"""
-        valid_cards_to_put = []
-        for card in self.hand:
-            if card.match(self.card_on_top):
-                valid_cards_to_put.append(card)
-        if len(valid_cards_to_put) > 0:
-            return valid_cards_to_put
-        else:
-            return []
-
     def change_color(self, card: ColorCard):
-        card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
+        # card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
+        card.change_color(self.choose_color())
+
 
     def move(self, first_card_taken=None, game=None):
         """Handles a different situations of game state and reacts accordingly"""
@@ -81,8 +56,8 @@ class AgressiveBot(Bot):
 
         # If there are no unusual states it picks random card from those possible to play
         else:
-            if len(self.valid_cards()) > 0:
-                choosen_card = random.choice(self.valid_cards())
+            if len(self.valid_cards(first_card_taken)) > 0:
+                choosen_card = random.choice(self.valid_cards(first_card_taken))
                 if isinstance(choosen_card, ColorCard):
                     self.change_color(choosen_card)
                 return choosen_card

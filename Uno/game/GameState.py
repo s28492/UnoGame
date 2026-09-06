@@ -285,7 +285,7 @@ class GameState:
                 if not success:
                     self.console.print("ERROR: Card was not removed from deck")
                     self.console.print(card.rich_str())
-                    raise ValueError("ERROR: Card was not removed from deck")
+                    raise ValueError("ERROR: Card was not removed from deck") #TODO: Replace raise with asserts for performance gain
         self.console.print("Missing cards: ")
         rich_string = ""
         for card in deck.get_deck():

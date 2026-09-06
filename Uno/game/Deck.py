@@ -35,14 +35,15 @@ class Deck:
             deck.append(Plus2Card(card[0], card[1]))
             deck.append(Plus2Card(card[0], card[1]))
 
-        for card in itertools.product(["+4"], self.colors):  # 1 for each color
-            deck.append(Plus4Card(card[0], card[1]))
+        for i in range(4):  # 4 overall
+            deck.append(Plus4Card("+4", "Colors"))
 
-        for i in range(4):                                   # 1 for each color
+        for i in range(4):                                   # 4 overall
             deck.append(ColorCard("All", "Colors"))
         return deck
 
     def set_deck(self, deck):
+        assert isinstance(deck, list), f"Invalid type {type(deck)}: {deck}"
         self.deck = deck
 
     def get_deck(self):
@@ -57,10 +58,14 @@ class Deck:
             return None
         return self.deck.pop()
 
-    def cards_to_deck(self, cards):
-        for card in cards:
-            self.deck.append(card)
-
+    def cards_to_deck(self, cards: list[Card]):
+        assert isinstance(cards, list), f"Invalid type {type(cards)}: {cards}"
+        assert len(cards) + self.deck_length() <= 108, (f"Invalid amount of cards added to deck. Maximum: 108 \n" + 
+                                                        f"Current deck length: {self.deck_length()}\n" + 
+                                                        f"Cards to be added: {len(cards)}\n" + 
+                                                        f"Total cards: {self.deck_length() + len(cards)}")
+        self.deck.extend(cards)
+    
     def __reset_colored_cards(self, discard_pile):
         """Resets Colored cards being moved to the deck from pile"""
         for card in discard_pile:
@@ -68,7 +73,8 @@ class Deck:
                 card.color = "Colors"
         return discard_pile
 
-    def reshuffle_discard_pile(self, discard_pile):
+    def reshuffle_discard_pile(self, discard_pile: list[Card]):
+        assert isinstance(discard_pile, list)
         discard_pile = self.__reset_colored_cards(discard_pile)
         self.deck += discard_pile
         self.shuffle_deck()

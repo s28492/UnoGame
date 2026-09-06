@@ -134,10 +134,8 @@ class Plus2Card(Card):
 
 
 class ColorCard(Card):
-    def __init__(self, value="", color=""):
+    def __init__(self, value="All", color="Colors"):
         super().__init__(value, color)
-        self.value = "All"
-        self.color = "Colors"
 
     def __str__(self):
         return f"{self.value} {self.color}"
@@ -167,10 +165,8 @@ class ColorCard(Card):
 
 
 class Plus4Card(ColorCard):
-    def __init__(self, value="", color=""):
+    def __init__(self, value="+4", color="Colors"):
         super().__init__(value, color)
-        self.value = "+4"
-        self.color = "Colors"
 
     def __str__(self):
         return f"{self.value} {self.color}"

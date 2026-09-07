@@ -38,10 +38,9 @@ class Card:
         return f"{self.value} {self.color}"
 
     def __eq__(self, other):
-        if (self.value == other.value) and (self.color == other.color):
-            return True
-        else:
+        if not isinstance(other, Card):
             return False
+        return True if (self.value == other.value) and (self.color == other.color) else False
 
 
 class SurrenderCard:
@@ -50,7 +49,7 @@ class SurrenderCard:
         self.color = "Surrender"
 
     def __eq__(self, other):
-        return True if isinstance(other, SurrenderCard) else False
+        return isinstance(other, SurrenderCard)
 
     def __str__(self):
         return f"{self.value}"
@@ -76,7 +75,7 @@ class DrawCard:
         self.color = "Draw"
 
     def __eq__(self, other):
-        return True if isinstance(other, DrawCard) else False
+        return isinstance(other, DrawCard)
 
     def __str__(self):
         return f"{self.value}"

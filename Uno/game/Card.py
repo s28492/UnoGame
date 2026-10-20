@@ -2,7 +2,6 @@
 @author Cyprian Szewczak s28492
 """
 from rich.console import Console
-
 console = Console()
 
 
@@ -13,7 +12,7 @@ class Card:
         self.value = value
         self.color = color
 
-    def play(self, game):
+    def play(self, game_state):
         """Removes itself from player hand"""
         return self
 
@@ -60,13 +59,13 @@ class SurrenderCard:
         return True
 
     @staticmethod
-    def play(game) -> Card:
+    def play(game_state) -> Card:
         """Drops player from game. Returns card on top of a pile"""
-        player = game.get_player()
+        player = game_state.get_player()
         console.print(f"Player: {player} has surrendered")
 
-        game.drop_player(player, did_not_surrender=False)
-        return game.card_on_top
+        game_state.drop_player(player, did_not_surrender=False)
+        return game_state.card_on_top
 
 
 class DrawCard:
@@ -90,18 +89,18 @@ class DrawCard:
         return True
 
     @staticmethod
-    def play(game) -> Card:
+    def play(game_state) -> Card:
         """:returns card on top of the pile"""
-        return game.card_on_top
+        return game_state.card_on_top
 
 
 class ReverseCard(Card):
     def __init__(self, value: str, color: str):
         super().__init__(value, color)
 
-    def play(self, game):
+    def play(self, game_state):
         """Reverses the game direction, removes itself from player hand and returns itself"""
-        game.change_game_direction()
+        game_state.change_game_direction()
         return self
 
 
@@ -115,9 +114,9 @@ class StopCard(Card):
         else:
             return f"{self.value} {self.color}"
 
-    def play(self, game):
+    def play(self, game_state):
         """Adds 1 to game.turns_to_stop, removes itself from player hand and returns itself"""
-        game.add_turns_to_stop()
+        game_state.add_turns_to_stop()
         return self
 
 
@@ -126,9 +125,9 @@ class Plus2Card(Card):
         super().__init__(value, color)
         self.value = "+2"
 
-    def play(self, game):
+    def play(self, game_state):
         """Adds 2 to game.cards_to_take, removes itself from player hand and returns itself"""
-        game.add_cards_to_take(2)
+        game_state.add_cards_to_take(2)
         return self
 
 
@@ -146,7 +145,7 @@ class ColorCard(Card):
                    "255)]r[/][magenta]s[/] "
         return f"[bold {self.color}]{self.value} {self.color}[/]"
 
-    def play(self, game):
+    def play(self, game_state):
         """Changes color of itself, removes itself from player hand and returns itself"""
         return self
 
@@ -177,7 +176,7 @@ class Plus4Card(ColorCard):
                    "255)]r[/][magenta]s[/] "
         return f"[bold {self.color}]{self.value} {self.color}[/]"
 
-    def play(self, game):
+    def play(self, game_state):
         """Changes color of itself, adds +4 to cards_to_take, removes itself from player hand and returns itself"""
-        game.add_cards_to_take(4)
+        game_state.add_cards_to_take(4)
         return self

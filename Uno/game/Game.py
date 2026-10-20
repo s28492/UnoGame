@@ -38,45 +38,62 @@ class Game:
         return False
 
     def _manage_draw(self, player, first_card_taken = None):
-        # Adjust amount of cards to take if player took a card already
         if first_card_taken is None:
             first_card_taken = self.__game_state.take_card(player)
-            self.__game_state.cards_to_take = self.__game_state.cards_to_take - 1 if self.__game_state.cards_to_take != 0 else 0
+            if self.__game_state.cards_to_take != 0:
+                self.__game_state.cards_to_take -= 1
         
-        # Checks if player can play the card
         if self.__game_state.cards_to_take != 0 and self._is_valid_plus_card(first_card_taken):
-            if not isinstance(self.__game_state.get_player(), Bot):
-                self.__game_state.console.print(
-                 f"You have drew {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
-            player_move = player.move(game=self)
-            if isinstance(player_move, DrawCard):
-                for i in range(self.__game_state.cards_to_take):
-                    self.__game_state.take_card(player)
-                self.__game_state.cards_to_take = 0
-            elif player_move.match(self.__game_state.card_on_top) and player_move == first_card_taken or (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value):
-                player.play_card(player_move)
-                self.__game_state.put_card(player_move.play(self.__game_state))
-            else:
-                self._manage_draw(player, first_card_taken=first_card_taken)
-        elif self.__game_state.cards_to_take == 0 and first_card_taken is not None and first_card_taken.match(self.__game_state.card_on_top):
-            if not isinstance(self.__game_state.get_player(), Bot):
-                self.__game_state.console.print(
-                 f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.__game_state.cards_to_take} remaining cards")
-            player_move = player.move(game=self, first_card_taken=first_card_taken)
-            if player_move == first_card_taken or (isinstance(first_card_taken, ColorCard) and first_card_taken.value == player_move.value):
-                player.play_card(player_move)
-                self.__game_state.put_card(player_move.play(self.__game_state))
-            elif isinstance(player_move, DrawCard):
-                return
-            else:
-                if not isinstance(self.__game_state.get_player(), Bot):
-                    self.__game_state.console.print(
-                     "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
-                self._manage_draw(player, first_card_taken=first_card_taken)
+            self._manage_counter_attack(player, first_card_taken)
+        elif self.__game_state.cards_to_take == 0 and first_card_taken and first_card_taken.match(self.__game_state.card_on_top):
+            self._manage_standard_draw(player, first_card_taken)
+        else:            
+            self._take_remaining_cards(player)
+
+    def _manage_counter_attack(self, player, first_card_taken = None):
+        """Handles the logic of counter attack after a draw"""
+        if not isinstance(self.__game_state.get_player(), Bot):
+            self.__game_state.console.print(
+                f"You have drew {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to take rest of the cards.")
+        
+        player_move = player.move(first_card_taken=first_card_taken, game=self)
+        if isinstance(player_move, DrawCard):
+            self._take_remaining_cards(player)
+        elif self._is_matching_drawn_card(player_move, first_card_taken) and player_move.match(self.__game_state.card_on_top):
+            player.play_card(player_move)
+            self.__game_state.put_card(player_move.play(self.__game_state))
         else:
-            for i in range(self.__game_state.cards_to_take):
-                self.__game_state.take_card(player)
-            self.__game_state.cards_to_take = 0
+            self._manage_draw(player, first_card_taken=first_card_taken)
+
+
+    def _manage_standard_draw(self, player, first_card_taken):
+        """Handles the logic of the draw without counter attack"""
+        if not isinstance(self.__game_state.get_player(), Bot):
+            self.__game_state.console.print(
+                f"You have drawed {first_card_taken.rich_str()}. Do you want to put it? Write \"Draw\" if you want to keep it and take {self.__game_state.cards_to_take} remaining cards")
+        
+        player_move = player.move(first_card_taken=first_card_taken, game=self)
+        
+        if self._is_matching_drawn_card(player_move, first_card_taken):
+            player.play_card(player_move)
+            self.__game_state.put_card(player_move.play(self.__game_state))
+        elif isinstance(player_move, DrawCard):
+            return  # Player decides not to play a card
+        else:
+            if not isinstance(self.__game_state.get_player(), Bot):
+                self.__game_state.console.print(
+                    "You have to choose the card you have drawed or just write \"Draw\" if you want to keep it.")
+            self._manage_draw(player, first_card_taken=first_card_taken)
+
+    def _take_remaining_cards(self, player):
+        """Takes the remaining penalty cards"""
+        for i in range(self.__game_state.cards_to_take):
+            self.__game_state.take_card(player)
+        self.__game_state.cards_to_take = 0
+    
+    def _is_matching_drawn_card(self, card, drawn_card):
+        """Checks if the drawn card matches the card on top of the deck"""
+        return card == drawn_card or (isinstance(drawn_card, ColorCard) and drawn_card.value == card.value)
 
     def _is_valid_plus_card(self, card):
         if card.__class__ == self.__game_state.card_on_top.__class__ or isinstance(card, Plus4Card):
@@ -148,8 +165,6 @@ class Game:
         """Main game method. Controls game flow"""
         try:
             while len(self.__game_state.players) > 1:
-                # if not self.__game_state.get_is_simulation():
-                #     print(self.__game_state.get_move_history())
                 self.__game_state.check_number_of_cards_in_game()
                 self.__game_state.round += 1
                 player = self.__game_state.get_player()

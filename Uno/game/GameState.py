@@ -35,33 +35,18 @@ class GameState:
         if not self.is_simulation:
             self.game_id = str(uuid.uuid4())
             self.deck = Deck()
-            self.deal_cards_to_players()
+            self.__deal_cards_to_players()
         else:
             self.game_id = None
 
-
-
     def get_is_simulation(self) -> bool:
         return self.is_simulation
-
-    def calculate_average_opponents_cards(self):
-        sum_of_cards = 0.
-        for i in range(len(self.players)):
-            if i != self.index_of_a_player:
-                sum_of_cards += self.players[i].number_of_cards_in_hand()
-        return sum_of_cards / len(self.players)
-
-    def set_move_history(self, move_history):
-        self.move_history = move_history
 
     def append_move_to_history(self, move):
         self.move_history.append(move)
 
     def get_move_history(self):
         return self.move_history
-
-    def set_features_list(self, features_list):
-        self.features_list = features_list
 
     def get_features_list(self):
         return self.features_list
@@ -71,12 +56,6 @@ class GameState:
 
     def get_round(self):
         return self.round
-
-    def set_ranking_table(self, ranking_table):
-        self.ranking_table = ranking_table
-
-    def get_ranking_table(self):
-        return self.ranking_table
 
     def set_deck(self, deck):
         self.deck = deck
@@ -98,9 +77,6 @@ class GameState:
 
     def set_index_of_a_player(self, index_of_a_player):
         self.index_of_a_player = index_of_a_player
-
-    def get_index_of_a_player(self):
-        return self.index_of_a_player
 
     def set_direction(self, direction):
         self.direction = direction
@@ -142,7 +118,7 @@ class GameState:
         else:
             return [player for player in players]
 
-    def deal_cards_to_players(self) -> None:
+    def __deal_cards_to_players(self) -> None:
         """deals 7 cards for each player"""
         for player in self.players:
             for i in range(7):
@@ -178,10 +154,6 @@ class GameState:
 
     def get_num_cards_left_in_deck(self):
         return self.deck.deck_length()
-
-    def get_state(self) -> tuple:
-        """Returns bot data"""
-        return self.players, self.pile, self.card_on_top, self.direction, self.turns_to_stop, self.cards_to_take, self.first_taken
 
     def get_player(self) -> Player:
         """Returns current player"""
@@ -252,11 +224,6 @@ class GameState:
     def show_card_played(self, card) -> None:
         """Shows card played"""
         self.console.print(f"Card played -> {card.rich_str()}")
-
-    def check_for_empty_hand(self, player) -> None:
-        """Checks if hand is empty. If yes, the player has finished and is removed from players list"""
-        if len(player.hand) == 0:
-            self.drop_player(player, did_not_surrender=True)
 
     def check_number_of_cards_in_game(self):
         sum = 0

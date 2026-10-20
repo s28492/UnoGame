@@ -844,5 +844,39 @@
                 "win_rate_percent": 55.26
             }
         }
+    },
+    {
+        "game_type": "RandomBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep 12 18:17:37 2026",
+        "timestamp_end": "Sat Sep 12 18:19:49 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 2.2,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 58936,
+                "win_rate_percent": 58.94
+            },
+            "BotRandom": {
+                "wins": 41064,
+                "win_rate_percent": 41.06
+            }
+        }
+    },
+    {
+        "game_type": "AgressiveBot vs BasicLogicBot",
+        "timestamp_start": "Sat Sep 12 18:19:49 2026",
+        "timestamp_end": "Sat Sep 12 18:21:59 2026",
+        "number_of_games": 100000,
+        "duration_minutes": 2.16,
+        "win_rates": {
+            "BasicLogicBot": {
+                "wins": 55205,
+                "win_rate_percent": 55.21
+            },
+            "AgressiveBot": {
+                "wins": 44795,
+                "win_rate_percent": 44.8
+            }
+        }
     }
 ]

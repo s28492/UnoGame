@@ -49,6 +49,39 @@ class Bot(Player, ABC):
             elif isinstance(card, ColorCard):
                 self.all_color_cards.append(card)
 
+
+    def count_colors_in_hand(self):
+        return {color: sum(1 for card in self.hand if card.color == color) for color in self.possible_colors}
+
+
+    def create_card_instance(self, card_value: str, card_color: str = None):
+        if card_value == "+4":
+            card = Plus4Card(card_value, card_color)
+            if card_color == "Colors" or card_color == "Color":
+                card.change_color(self.choose_color())
+            else:
+                card.change_color(card_color)
+
+        elif card_value == "All":
+            card = ColorCard(card_value, card_color)
+            if card_color == "Colors" or card_color == "Color":
+                card.change_color(self.choose_color())
+            else:
+                card.change_color(card_color)
+        elif card_value == "Stop" and card_color is None:
+            card = StopCard(card_value, card_value)
+        elif card_value == "Stop" and card_color is not None:
+            card = StopCard(card_value, card_color)
+        elif card_value == "+2":
+            card = Plus2Card(card_value, card_color)
+        elif card_value == "Reverse":
+            card = ReverseCard(card_value, card_color)
+        elif card_value == "Draw":
+            card = DrawCard()
+        else:
+            card = Card(card_value, card_color)
+        return card
+
     def choose_color(self) -> str:
         """Bot chooses color of "Color" card based on what color he has the most in "hand\""""
         return max(self.count_colors_in_hand(), key=self.count_colors_in_hand().get)

@@ -104,22 +104,16 @@ class Player:
             "class": self.__class__.__name__
         }
 
-    def count_colors_in_hand(self):
-        return {color: sum(1 for card in self.hand if card.color == color) for color in self.possible_colors}
-
     def valid_cards(self, card_taken=None) -> list:
         """Creates a list of cards that can be played. If there isn't any, bot takes a card"""
         valid_cards = []
         if card_taken is not None:
             if isinstance(card_taken, ColorCard):
-                for color in self.possible_colors:
-                    valid_cards.append(self.create_card_instance(card_taken.value, color))
-                return valid_cards
+                return [type(card_taken)(card_taken.value, color) for color in self.possible_colors]
             return [card_taken]
 
         if self.turns_to_stop != 0:
             valid_cards = self.collect_valid_cards_of_given_instance(StopCard)
-            valid_cards.append(StopCard("Stop", "Stop"))
             return valid_cards if len(valid_cards) > 0 else [StopCard("Stop", "Stop")]
 
         if self.cards_to_take != 0 and isinstance(self.card_on_top, Plus4Card):
@@ -154,34 +148,6 @@ class Player:
                 else:
                     valid_cards_to_put.append(card)
         return valid_cards_to_put
-        
-    def create_card_instance(self, card_value: str, card_color: str = None):
-        if card_value == "+4":
-            card = Plus4Card(card_value, card_color)
-            if card_color == "Colors" or card_color == "Color":
-                card.change_color(self.choose_color())
-            else:
-                card.change_color(card_color)
-
-        elif card_value == "All":
-            card = ColorCard(card_value, card_color)
-            if card_color == "Colors" or card_color == "Color":
-                card.change_color(self.choose_color())
-            else:
-                card.change_color(card_color)
-        elif card_value == "Stop" and card_color is None:
-            card = StopCard(card_value, card_value)
-        elif card_value == "Stop" and card_color is not None:
-            card = StopCard(card_value, card_color)
-        elif card_value == "+2":
-            card = Plus2Card(card_value, card_color)
-        elif card_value == "Reverse":
-            card = ReverseCard(card_value, card_color)
-        elif card_value == "Draw":
-            card = DrawCard()
-        else:
-            card = Card(card_value, card_color)
-        return card
 
     def rich_str(self):
         return f":man:[bold purple]{self.name}[/]"

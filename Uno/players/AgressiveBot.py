@@ -9,7 +9,7 @@ class AgressiveBot(Bot):
         super().__init__(name)
 
     def __str__(self):
-        return f":robot:[cyan]BLB {self.name}[/]"
+        return f":robot:[cyan]AggresiveBot {self.name}[/]"
 
     @staticmethod
     def colors_of_list(list):
@@ -20,6 +20,8 @@ class AgressiveBot(Bot):
         # card.change_color(random.choice(["Red", "Green", "Blue", "Yellow"]))
         card.change_color(self.choose_color())
 
+    def valid_attacking_cards(self, cards):
+        return [card for card in cards if isinstance(card, (Plus4Card, Plus2Card, StopCard))]
 
     def move(self, first_card_taken=None, game=None):
         """Handles a different situations of game state and reacts accordingly"""
@@ -56,8 +58,16 @@ class AgressiveBot(Bot):
 
         # If there are no unusual states it picks random card from those possible to play
         else:
-            if len(self.valid_cards(first_card_taken)) > 0:
-                choosen_card = random.choice(self.valid_cards(first_card_taken))
+            valid_cards = self.valid_cards(first_card_taken)
+            attacking_cards = self.valid_attacking_cards(valid_cards)
+            
+            if len(attacking_cards) > 0:
+                choosen_card = random.choice(attacking_cards) 
+                if isinstance(choosen_card, ColorCard):
+                    self.change_color(choosen_card)
+                return choosen_card
+            elif len(valid_cards) > 0:
+                choosen_card = random.choice(valid_cards)
                 if isinstance(choosen_card, ColorCard):
                     self.change_color(choosen_card)
                 return choosen_card

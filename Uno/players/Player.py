@@ -1,7 +1,4 @@
 from Uno.game.Card import Card, SurrenderCard, DrawCard, StopCard, ColorCard, Plus4Card, Plus2Card, ReverseCard
-from rich.console import Console
-
-console = Console()
 
 class Player:
     def __init__(self, name: str = ""):
@@ -15,7 +12,6 @@ class Player:
         self.takes_status = 0
         self.cards_to_take = 0
         self.first_taken = False
-        self.console = console
         self.card_on_top = None
         self.turns_to_stop = 0
 
@@ -30,20 +26,6 @@ class Player:
 
     def add_card_to_hand(self, card: Card):
         self.hand.append(card)
-
-    def current_state_to_string(self):
-        state_string = ""
-        state_string += f"Player: {self.name}\n"
-        state_string += f"Hand: "
-        for card in self.hand:
-            state_string += f"{card} |  "
-        state_string += "\n"
-        state_string += f"Stop status: {self.stop_status}\n"
-        state_string += f"cards to take status: {self.cards_to_take}\n"
-        state_string += f"First taken: {self.first_taken}\n"
-        for feature in self.features:
-            state_string += f"{feature}: {self.features[feature]}\n"
-        return state_string
 
     def count_cards(self):
         card_dict = {
@@ -66,7 +48,7 @@ class Player:
     def extract_features(self, game):
         card_counts = self.count_cards()
         valid_cards_to_play = self.valid_cards(card_taken=None)
-        if len(valid_cards_to_play) == 1 and isinstance(valid_cards_to_play[0], DrawCard):
+        if len(valid_cards_to_play) == 1 and (isinstance(valid_cards_to_play[0], DrawCard) or valid_cards_to_play[0].color=="Stop"):
             valid_cards_to_play = []
         features = {
             'num_playable_cards': len(valid_cards_to_play),
@@ -150,70 +132,13 @@ class Player:
         return valid_cards_to_put
 
     def rich_str(self):
-        return f":man:[bold purple]{self.name}[/]"
+        raise NotImplementedError("Method 'rich_str' has to be implemented in child class")
 
     def get_num_of_cards_in_hand(self):
         return len(self.hand)
 
-    def hand_to_string(self):
-        # Prints cards player has on hand
-        str = f"Your hand: {len(self.hand)} cards\n|"
-        for card in self.hand:
-            str += f" { card.rich_str()} |"
-        return str
-
     def move(self, first_card_taken=None, game=None, card_taken=None):
-        if first_card_taken is None and card_taken is not None:
-            first_card_taken = card_taken
-        card_to_play = input().split(" ")
-
-        if card_to_play[0] == "Surrender":  # Surrenders
-            return SurrenderCard()
-        elif card_to_play[0] == "Draw":  # Draws a card
-            return DrawCard()
-        elif card_to_play[0] == "Stop" and len(card_to_play) == 1:  # Players decides to be stopped
-            return StopCard("Stop", "Stop")
-        elif len(card_to_play) != 2:  # Checking if there are 2 components to a card
-            self.console.print("It seems that you have given wrong values. Let's try again")
-            return self.move()
-        elif card_to_play[1] not in ["Red", "Green", "Blue", "Yellow"]:
-            self.console.print("It seems that you have given wrong values. Let's try again")
-            return self.move()
-        elif first_card_taken is not None and card_to_play[0] != first_card_taken.value and (card_to_play[1] != first_card_taken.color or first_card_taken.color == "Colors"):
-            print("You have to pick card you drawed!!")
-            return self.move()
-        elif card_to_play[0] == "+4":  # Looks for +4 cards in hand
-            find_card = self.find_in_hand(value="+4")
-            if find_card is False:
-                self.console.print("It seems that you have given wrong values. Let's try again")
-                return self.move()
-            else:
-                change_successful = find_card.change_color(card_to_play[1])
-                if change_successful:
-                    return find_card
-                else:
-                    self.console.print("It seems that you have given wrong values. Let's try again")
-                    return self.move()
-        elif card_to_play[0] == "All":
-            find_card = self.find_in_hand(value="All")
-            if find_card is False:
-                self.console.print("It seems that you have given wrong values. Let's try again")
-                return self.move()
-            else:
-                change_successful = find_card.change_color(card_to_play[1])
-                if change_successful:
-                    return find_card
-                else:
-                    self.console.print("It seems that you have given wrong values. Let's try again")
-                    return self.move()
-        else:
-            find_card = Card(card_to_play[0], card_to_play[1])
-            if find_card in self.hand:
-                card = self.hand[self.hand.index(find_card)]
-                return card
-            else:
-                self.console.print("You don't have this card on hand. Pick something else.")
-                return self.move()
+        raise NotImplementedError("Method 'move' has to be implemented in child class")
 
 
     def find_in_hand(self, color=None, value=None):

@@ -100,12 +100,14 @@ class Game:
             return True
         return False
 
-    def _update_bot(self, bot):
-        if isinstance(bot, Bot):
+    def _update_player(self, player):
+        player.card_on_top = self.__game_state.card_on_top
+        player.turns_to_stop = self.__game_state.turns_to_stop
+        player.cards_to_take = self.__game_state.cards_to_take
+        if isinstance(player, Bot) and not isinstance(player, BaseAIBot.BaseAIBot):
             data_for_bot = (self.__game_state.get_players(), self.__game_state.pile, self.__game_state.card_on_top
                             , self.__game_state.direction, self.__game_state.turns_to_stop, self.__game_state.cards_to_take)
-            bot.set_bot_data(data_for_bot)
-            # bot.set_game_state(self.__game_state)
+            player.set_bot_data(data_for_bot)
 
     def update_ai(self, bot):
         if isinstance(bot, BaseAIBot.BaseAIBot):
@@ -115,7 +117,7 @@ class Game:
             bot.create_row(result)
 
     def _manage_player_move(self, player):
-        self._update_bot(player)
+        self._update_player(player)
         self.update_ai(player)
         if not isinstance(player, Bot):
            self.__game_state.show_state(player)

@@ -4,7 +4,11 @@
 '''
 import time
 
-from Uno.players.Player import Player
+import sys
+from Uno.DecisionTrees.C4_5Tree import C4_5Tree
+sys.modules['__main__'].C4_5Tree = C4_5Tree
+
+from Uno.players.HumanPlayer import HumanPlayer
 from Uno.players.Bot import Bot
 from Uno.players.RandomBot import BotRandom
 from Uno.AIPlayers.C4_5Bot import C4_5Bot
@@ -22,8 +26,7 @@ console = Console()
 
 
 def create_game_with_players(players, has_human_player:bool = False) -> Game:
-    """returns game with initialized starting state"""
-    return Game(players, has_human_player)
+    return Game(players)
 
 
 def main() -> None:
@@ -46,30 +49,30 @@ def main() -> None:
     )
 
 
-    choice = console.input("[bold green]Pick an option (1-4): [/bold green]")
+    choice = console.input("[bold green]Pick an option (1-5): [/bold green]")
 
     human_player_name = console.input("[bold green]Now pick your name [/bold green]")
 
     if choice == "1":
         player_names = console.input("Input players names separated by coma: ").split(',')
-        players = [Player(name.strip()) for name in player_names]
+        players = [HumanPlayer(name.strip()) for name in player_names]
         game = create_game_with_players(players, True)
     elif choice == "2":
         num_bots = int(console.input("How many bots should play? "))
-        bots = [Bot(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
+        bots = [BotRandom(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
         game = create_game_with_players(bots)
     elif choice == "3":
         player_names = console.input("Input players names separated by coma: ").split(',')
         num_bots = int(console.input("How many bots should play? "))
-        players = [Player(name.strip()) for name in player_names]
-        bots = [Bot(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
+        players = [HumanPlayer(name.strip()) for name in player_names]
+        bots = [BotRandom(bot_names.pop()) for _ in range(num_bots if num_bots < 11 else 10)]
         game = create_game_with_players(players+bots, True)
     elif choice == "4":
-        bots = [ Player(human_player_name), C4_5Bot(bot_names.pop())]
+        bots = [ HumanPlayer(human_player_name), C4_5Bot(bot_names.pop())]
         random.shuffle(bots)
         game = create_game_with_players(bots)
     elif choice == "5":
-        bots = [ Player(human_player_name), MCTSBot(bot_names.pop(), 50_000, 1.9)]
+        bots = [ HumanPlayer(human_player_name), MCTSBot(bot_names.pop(), 50_000, 1.9)]
         random.shuffle(bots)
         game = create_game_with_players(bots)
     else:
@@ -87,19 +90,16 @@ def main() -> None:
         bots_config = {}
 
         current_players = []
-        if hasattr(game, 'players'):
+        if hasattr(game, 'get_game_state'):
+            current_players = game.get_game_state().players
+        elif hasattr(game, 'players'):
             current_players = game.players
-        elif hasattr(game, 'get_players'):
-             current_players = game.get_players()
-        else:
-             pass
 
-        
-        for player in (game.players if hasattr(game, 'players') else []):
-             if hasattr(player, 'get_config'):
-                 bots_config[player.get_name()] = player.get_config()
-             else:
-                 bots_config[player.get_name()] = str(player)
+        for player in current_players:
+            if hasattr(player, 'get_config'):
+                bots_config[player.get_name()] = player.get_config()
+            else:
+                bots_config[player.get_name()] = str(player)
 
         reporter.save_game_report(
             game_id=f"interactive_{int(time.time())}",

@@ -176,3 +176,8 @@ cython_debug/
 # Agent specific files
 AGENTS.md
 .agents/
+
+# Uno/Analysis local debug scripts (not tracked)
+Uno/Analysis/*.py
+Uno/Analysis/*.md
+!Uno/Analysis/__init__.py
